@@ -33,6 +33,9 @@
 #include "TVector3.h"
 #include "TLegend.h"
 #include "TStyle.h"
+#include "TRandom.h"
+#include "TRandom2.h"
+#include "TRandom3.h"
 
 
 //AraSim Includes
@@ -50,15 +53,18 @@
 #include "FFTtools.h"
 #include "AraStationInfo.h"
 #include "TPaletteAxis.h"
-#include "CalibUtil.h"
 #include "AraQualCuts.h"
+
+
+#include "Math/Minimizer.h"
+#include "CalibUtil.h"
 
 TStyle* RootStyle();
 
 using namespace std;
 
-int main(int argc, char **argv)
 
+int main(int argc, char **argv)
 { //start main
 
   /*
@@ -70,27 +76,26 @@ int main(int argc, char **argv)
   */
   stringstream ss;
 
-  if(argc<3){
+  if(argc<4){
     cout<< "Usage\n" << argv[0] << " <station> <year> <run_number_1> <run_number_2> ..."<<endl;
     return 0;
   }
   int station = atoi(argv[1]);
   int year = atoi(argv[2]);
+  // int runNum = atof(argv[3]);
 
+ 
+  int counter=0;
+  vector <double> freqs;
 
-  TH1F *h1[16];
-  
-  char hname[20];
-  
-  for(int j = 0; j<15; j++){
-    sprintf(hname,"h1_channel%d",j);
-    h1[j] = new TH1F(hname,hname,200,0,100000);
-  }
-  for(int arg=3; arg<argc; arg++){
+  // /*
 
+ 
+  //  for(int arg=3; arg<argc; arg++){//loop over files
+  int arg=3;
     int runNum = atoi(argv[arg]);
     //   printf("I'm at run %d\n", runNum);
-    if(isBadRun(station,year,runNum)) continue;
+    if(isBadRun(station,year,runNum)) return -1;//continue to loop over files
     char run_file_name[400];
     if(year!=2013){
       sprintf(run_file_name,"/fs/scratch/PAS0654/ara/10pct/RawData/A%d/%d/sym_links/event00%d.root",station,year,runNum);
@@ -102,16 +107,11 @@ int main(int argc, char **argv)
     
     if(!RunFile) {
       std::cerr << "Root file doesn't exist!\n";
-      continue;
+      return -1;
     }
-    
-    if (RunFile->IsZombie()) {
-      continue;
-    }
-      
     
     TTree* eventTree = (TTree*) RunFile->Get("eventTree");
-    
+  
     RawAtriStationEvent *rawEvPtr=0;
     eventTree->SetBranchAddress("event",&rawEvPtr);
     int numEntries = eventTree->GetEntries();
@@ -119,111 +119,118 @@ int main(int argc, char **argv)
     int stationId=0;
 
     stationId = rawEvPtr->stationId; //assign the statio id number
-  
-    //  eventTree->SetBranchAddress("run",&run_num); //set the branch address
 
-    // TH1* h1 = new TH1I("h1", "h1 title", 500, 0.0, 15000);
-
-   
+    eventTree->SetBranchAddress("run",&run_num); //set the branch address
+    
     AraEventCalibrator *calib = AraEventCalibrator::Instance(); //make a calibrator
+    
+    //See if the tree is empty
+    char title_file[200];
+    sprintf(title_file,"./files_distributions/Rayleigh_spectral_dist_run%d.root", runNum);
+    TFile *f = new TFile(title_file,"RECREATE");
 
+    TTree *myTree[16];
+    double magnitude[16][513];
+    
+    for(int channel=0;channel<16;channel++){//channel loop
+      char treeName[50];
+      sprintf(treeName,"Spectral_Dist%d",channel);
+      bool treeExists =  f->GetListOfKeys()->Contains(treeName);
+      // /*
+      if(!treeExists){
+	//	cout << "Doesn't exist"<< endl;
+	myTree[channel] = new TTree(treeName, treeName);
+	char hname[20];
+	for(int j = 0; j<513; j++){
+	  sprintf(hname,"magnitudes_%d",j);
+	  myTree[channel]->Branch(hname, &magnitude[channel][j]);
+	}
+	}
+      //     */
+      else{
+	//	cout << "Does exist"<< endl;
+	myTree[channel] = (TTree*) f->Get(treeName);
+	myTree[channel]->SetDirectory(f);
+	char hname[20];
+	for(int j = 0; j<513; j++){
+	  sprintf(hname,"magnitudes_%d",j);
+	  myTree[channel]->SetBranchAddress(hname, &magnitude[channel][j]);
+	}
+      }
+    }//end channel loop
+
+    // /*
     for(int event=0; event<numEntries; event++){//loop over events
       eventTree->GetEvent(event);
       int evt_num = rawEvPtr->eventNumber;//event number
-
       UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
-
+      
       bool is_soft_trig = rawEvPtr->isSoftwareTrigger();
       bool isGoodEvent = IsGoodForCalib(station, year, runNum);
       AraQualCuts *qual = AraQualCuts::Instance();
       bool isGood = qual->isGoodEvent(realAtriEvPtr_fullcalib);//From Brian's QCuts library
 
       if(is_soft_trig && isGoodEvent && isGood && rawEvPtr->isCalpulserEvent()==false){//If RF triggered event
-	//cout<<"Good for calibration!"<<endl;
-	int eventId=rawEvPtr->eventId;
-	int numReadoutBlocks=rawEvPtr->numReadoutBlocks;
-	uint32_t triggerInfo[MAX_TRIG_BLOCKS];
-	uint8_t triggerBlock[MAX_TRIG_BLOCKS];
-	for(int trig=0;trig<MAX_TRIG_BLOCKS;trig++) {
-	  // triggerInfo[trig]=rawEvPtr->triggerInfo[trig];
-	  triggerBlock[trig]=rawEvPtr->triggerBlock[trig];
-	  //cout << "Trigger info: " << triggerInfo[trig] << endl;
-	  //cout << "Trigger block: " << triggerBlock[trig] << endl;
-	}
-	double vsquared[16];
-	for(int channel = 0; channel<15; channel++){
-	  TGraph *waveform = realAtriEvPtr_fullcalib->getGraphFromRFChan(channel);//channel 2
+	counter++;
+
+	// cout<<"Soft trigger event!"<<endl;
+	double interpolation_step = 0.5;
+
+	for(int channel=0;channel<16;channel++){//channel loop2
+	  //Get Waveforms and spectra, plot and save them too.
+	  TGraph *waveform = realAtriEvPtr_fullcalib->getGraphFromRFChan(channel);//channel 2.
 	  bool isAGlitch = isGlitch(waveform);
 	  if(isAGlitch){
-	    /*
-	    char name[40];
-	    sprintf(name, "./wforms/wf_ch%d_ev%d.png", channel, event);
-	    TCanvas *cc = new TCanvas("","",850*2,850);
-	    cc->Divide(2,1);
-	    cc->cd(1);
-	    waveform->Draw();
-	    cc->cd(2);
-	    FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(waveform)->Draw();
-	    cc->SaveAs(name);
-	    delete cc;
 	    //printf("A glitch in channel %d \n" , channel);
-	    */
 	    continue;
 	  }
-	  //	  TGraph *waveform_cropped = FFTtools::cropWave(waveform, -170, 0);//looking during trigger window
-	  /*  TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
+	  TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,interpolation_step);
 	  delete waveform;
+       
 	  TGraph *Waveform_Padded = FFTtools::padWaveToLength(Waveform_Interpolated, Waveform_Interpolated->GetN()+6000);
 	  delete Waveform_Interpolated;
-	  TGraph *Waveform_Cropped=FFTtools::cropWave(Waveform_Padded,-150.,350.);
-	  delete Waveform_Padded;
-	  TGraph *integrated_wf = makeSummedVsquaredWForm(Waveform_Cropped);//retrurns v^2
+	
+	  TGraph *Waveform_Cropped=FFTtools::cropWave(Waveform_Padded,-256.,256.);
+	  delete Waveform_Padded;	    
+	  TGraph *spectrum = makeFFTPlot(Waveform_Cropped);
 	  delete Waveform_Cropped;
-	  vsquared[channel] = sqrt(FFTtools::getPeakSqVal(integrated_wf));//no need to square again
-	  delete integrated_wf;
-	  // TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform_cropped,0.5);
-	  */
-	  vsquared[channel] = FFTtools::getPeakSqVal(waveform);//no need to square again
-	  delete waveform;
+	  for(int j = 0; j<spectrum->GetN();j++){//loop ober bins
+	    double y_value = spectrum->GetY()[j];
+	    magnitude[channel][j]=y_value;
+	  }//end loop over bins
+	  delete spectrum;
+	  //	  myTree[channel]->Write();
+	  	myTree[channel]->Fill();
 
-	  //	  delete waveform_cropped;
-	}//channel loop
-	double thirdvsquared = get3rdPeakSqValSamePol(vsquared);
-	for(int ii = 0; ii<15; ii++){//loop over maxvsquared values
-	  if(vsquared[ii]==thirdvsquared){//If 3rd highest
-	    h1[ii]->Fill(vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
-	  }//If 3rd highest
-	}//loop over maxvsquared values
-      }//close if RF triggered event
+	}//channel loop2
+
+      }//if soft trigger event
+    
       delete realAtriEvPtr_fullcalib;
+      
     }//end loop over events
-    delete calib;
-    /*
-    TCanvas *c2 = new TCanvas("","",1850,1850);
-    Double_t norm = 100000.;
-    c2->Divide(4,4);
-    char hname_2[20];
-    for(int i=0; i<16; i++){//canvas loop
-      c2->cd(i+1);
-      Double_t scale = norm/(h1[i]->Integral("width"));
-      h1[i]->Scale(scale);
-      h1[i]->Draw("");
-      c2->Update();
-      //  delete h1[i];
-    }//canvas loop
-  
-
-    c2->SaveAs("vsquared.png");
+    // */
+    /*  for(int channel=0; channel<16; channel++){
+      myTree[channel]->Write();
+    }
     */
-    //   delete calib;
-  char filename[100];
-  sprintf(filename, "./files_3rdhighest/hist_from_data_3rdhighest_run%d.root", runNum);
-  TFile *f = new TFile(filename, "RECREATE");
-  
-  for(int channel = 0; channel<15; channel++){
-    h1[channel]->Write("");
-  }
-  f->Write("");
-  f->Close();
-  }//end looping over runs
+    delete calib;
+    f->Write("",TObject::kOverwrite);
+    f->Close();
+    //   RunFile->Close();
+    //    delete f;
+    //   delete RunFile;
+
+    //  }//end loop over files
+   /* 
+
+   */
+ 
 }//end main
+
+
+
+
+
+
+
