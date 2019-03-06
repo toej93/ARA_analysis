@@ -33,7 +33,8 @@
 #include "TRotation.h"
 #include "TSpline.h"
 #include "TPaveStats.h"
-//$(FFTWSYS) -llibRootFftwWrapper
+#include "WaveformFns.h"
+//$(FFTWSYS) -llibRootFftwxWrapper
 //#include <fftw3.h>
 
 using namespace std;
@@ -48,30 +49,15 @@ using namespace std;
 #include "PlottingFns.h"
 #include "Constants.h"
 #include "CalibUtil.h"
-//#include "tools_Cuts.h"
 
 
 class EarthModel; //class
 
-/*
-Double_t get3rdPeakSqVal(double *vsquared) //get 3rd highest v^2
-{
-  vector <double> peakVal;
-  for(int i = 0; i<16; i++){
-    peakVal.push_back(vsquared[i]);
-  }
-  std::nth_element(peakVal.begin(), peakVal.begin()+2, peakVal.end(), std::greater<int>());
-  return peakVal[2];
-}
-
-*/
 
 RawAtriStationEvent *rawAtriEvPtr;
 UsefulAtriStationEvent *realAtriEvPtr;
 
-//int getPeakBin(TGraph *gr);
-
-//double getPeak(TGraph *gr);
+;
 
 
 //int main() {
@@ -81,11 +67,14 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
   TChain chain("eventTree"); //this for the events for the exterior loop     
   for(int file=2; file<argc; file++){
     // int runNum = eventTree.run;
-    TString fileKey(argv[file]); //a file key                                
+    TString fileKey(argv[file]); //a file key
+    //   if (file.IsZombie()) continue;
     chain.Add(fileKey); //add files to the chain                             
   }
-  int channel = atof(argv[1]);
-
+  double threshold = atof(argv[1]);
+  char name[50];
+  // sprintf(name, "hist_from_data_3rd_%0.1f.root", threshold);
+  sprintf(name, "hist_from_data_3rd_rms_%0.1f.root", threshold);
   
   chain.SetBranchAddress("UsefulAtriStationEvent", &realAtriEvPtr);
   chain.GetEvent(0);
@@ -94,47 +83,100 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
   int numEntries = chain.GetEntries();
   cout << numEntries <<endl;
   TH1F *h1[16];
+  TH1F *h_rms[16];
   
   char hname[20];
+  char hname2[20];
 
-  for(int j = 0; j<16; j++){
+
+  for(int j = 0; j<15; j++){
     sprintf(hname,"sim_channel %d",j);
-    h1[j] = new TH1F(hname,hname,200,0,60000);
+    sprintf(hname2,"rms_sim_channel %d",j);
+
+    h1[j] = new TH1F(hname,hname,200,0,120000);
+    h_rms[j] = new TH1F(hname2,hname2,200,1,1);
+
   }
   for(Long64_t event=0;event<numEntries;event++) {
     chain.GetEvent(event);
 
     double vsquared[16];
-    for(int channel = 0; channel<16; channel++){
+    for(int channel = 0; channel<15; channel++){
       TGraph *waveform = realAtriEvPtr->getGraphFromRFChan(channel);//channel 2.
-      vsquared[channel] = FFTtools::getPeakSqVal(waveform);
+      /*
+      //	if(channel == 0){
+	 char name[40];
+	 sprintf(name, "./wforms/wf_%0.1f_ch%d_ev%d.png", threshold, channel, event);
+	 TCanvas *cc = new TCanvas("","",850*2,850);
+	 cc->Divide(2,1);
+	 cc->cd(1);
+	 waveform->Draw();
+	 cc->cd(2);
+	 FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(waveform)->Draw();
+	 //	 cc->SaveAs(name);
+	 delete cc;
+	 //	 }
+	 */
+      TGraph *waveform_cropped = FFTtools::cropWave(waveform, -170, 0);
+      double rms = getRMS(waveform, waveform->GetN());
+      h_rms[channel]->Fill(sqrt(2)*rms);
+      /* //TGraph *waveform_cropped = FFTtools::cropWave(waveform, -85, 85);//looking during trigger window
+      TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
       delete waveform;
+      TGraph *Waveform_Padded = FFTtools::padWaveToLength(Waveform_Interpolated, Waveform_Interpolated->GetN()+6000);
+      delete Waveform_Interpolated;
+      TGraph *Waveform_Cropped=FFTtools::cropWave(Waveform_Padded,-150.,350.);
+      delete Waveform_Padded;
+      TGraph *integrated_wf = makeSummedVsquaredWForm(Waveform_Cropped);//retrurns v^2
+      delete Waveform_Cropped;
+      vsquared[channel] = sqrt(FFTtools::getPeakSqVal(integrated_wf));//no need to square again
+      delete integrated_wf;
+      */
+      vsquared[channel] = FFTtools::getPeakSqVal(waveform_cropped);//no need to square again
+      delete waveform;
+      delete waveform_cropped;
+      
     }//channel loop
-    //    double thirdvsquared = get3rdPeakSqVal(vsquared);
-    for(int ii = 0; ii<16; ii++){//loop over maxvsquared values
-      //      if(vsquared[ii]==thirdvsquared){
-      h1[ii]->Fill(sqrt(2)*vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
-      // }
+    vector<double> peak;
+    peak.resize(2);
+    peak.clear();
+    get3rdPeakSqValSamePol(vsquared, peak);
+    //cout << peak[0] << endl;
+    //  printf("peak v: %f, peak h:%f \n", peak[0], peak[1]);
+    for(int ii = 0; ii<7; ii++){//loop over maxvsquared values
+      if(vsquared[ii]==peak[0]){
+	h1[ii]->Fill(2*vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
+      }
+    }//loop over maxvsquared values
+
+    for(int ii = 8; ii<15; ii++){//loop over maxvsquared values
+      if(vsquared[ii]==peak[1]){
+	h1[ii]->Fill(2*vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
+      }
     }//loop over maxvsquared values
     
   }
+
+  //  /*
   TH1F *h2[16];
   char h2name[20];
-  for(int j = 0; j<16; j++){
+  for(int j = 0; j<15; j++){
     sprintf(h2name,"h2_channel %d",j);
-    h2[j] = new TH1F(h2name,"test",200,0,60000);
+    h2[j] = new TH1F(h2name,"test",200,0,120000);
   }
-  TFile *f1 = new TFile("hist_from_data_5.8.root", "UPDATE");
-  for(int channel = 0; channel<16; channel++){
+  TFile *f1 = new TFile(name, "UPDATE");
+  for(int channel = 0; channel<15; channel++){
     h1[channel]->Write();
+    h_rms[channel]->Write();
   }
-  f1->Write();
+  f1->Write("",TObject::kOverwrite);
   f1->Close();
-  
+  //  */
+  /*
   //  h1->Scale(scale);
   // h1->Scale(norm, "width");
   TCanvas *c2 = new TCanvas("","",850,850);
-  TFile *f = new TFile("hist_from_data_5.8.root");//This is for the 3rd highest peak. The highest peak one is "_highest"
+  TFile *f = new TFile("hist_from_data_3rd_4.5.root");//This is for the 3rd highest peak. The highest peak one is "_highest"
   Double_t norm = 1000.;
   c2->Divide(4,4);
   char hname_2[16];
@@ -159,10 +201,8 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
   }//canvas loop
   
 
-  c2->SaveAs("vsquared_sim_5.8.png");
-  // c2->SaveAs("vsquared_sim.pdf");
-
-  
+  c2->SaveAs("vsquared_sim_3rd_4.5.png");
+  */
 }
 
 

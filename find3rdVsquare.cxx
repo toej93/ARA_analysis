@@ -52,6 +52,8 @@
 #include "TPaletteAxis.h"
 #include "CalibUtil.h"
 #include "AraQualCuts.h"
+#include "PlottingFns.h"
+
 
 TStyle* RootStyle();
 
@@ -76,15 +78,22 @@ int main(int argc, char **argv)
   }
   int station = atoi(argv[1]);
   int year = atoi(argv[2]);
-
-
+  
   TH1F *h1[16];
+  TH1F *h_rms[16];
+
   
   char hname[20];
-  
+  char hname2[20];
+
+
   for(int j = 0; j<15; j++){
     sprintf(hname,"h1_channel%d",j);
-    h1[j] = new TH1F(hname,hname,200,0,100000);
+    sprintf(hname2,"rms_h1_channel%d",j);
+
+    h1[j] = new TH1F(hname,hname,200,0,120000);
+    h_rms[j] = new TH1F(hname2,hname2,200,1,1);
+
   }
   for(int arg=3; arg<argc; arg++){
 
@@ -153,9 +162,7 @@ int main(int argc, char **argv)
 	double vsquared[16];
 	for(int channel = 0; channel<15; channel++){
 	  TGraph *waveform = realAtriEvPtr_fullcalib->getGraphFromRFChan(channel);//channel 2
-	  bool isAGlitch = isGlitch(waveform);
-	  if(isAGlitch){
-	    /*
+	  ///*
 	    char name[40];
 	    sprintf(name, "./wforms/wf_ch%d_ev%d.png", channel, event);
 	    TCanvas *cc = new TCanvas("","",850*2,850);
@@ -167,10 +174,14 @@ int main(int argc, char **argv)
 	    cc->SaveAs(name);
 	    delete cc;
 	    //printf("A glitch in channel %d \n" , channel);
-	    */
+	    //	    */
+	  bool isAGlitch = isGlitch(waveform);
+	  if(isAGlitch){
+	    
 	    continue;
 	  }
-	  //	  TGraph *waveform_cropped = FFTtools::cropWave(waveform, -170, 0);//looking during trigger window
+	  double time_window = waveform->GetX()[waveform->GetN()/2];
+	  TGraph *waveform_cropped = FFTtools::cropWave(waveform, time_window-170, time_window);//looking during trigger window
 	  /*  TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
 	  delete waveform;
 	  TGraph *Waveform_Padded = FFTtools::padWaveToLength(Waveform_Interpolated, Waveform_Interpolated->GetN()+6000);
@@ -183,17 +194,33 @@ int main(int argc, char **argv)
 	  delete integrated_wf;
 	  // TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform_cropped,0.5);
 	  */
-	  vsquared[channel] = FFTtools::getPeakSqVal(waveform);//no need to square again
+
+	  double rms = getRMS(waveform, waveform->GetN());
+	  h_rms[channel]->Fill(rms);
+	  vsquared[channel] = FFTtools::getPeakSqVal(waveform_cropped);//no need to square again
 	  delete waveform;
+	  delete waveform_cropped;
 
 	  //	  delete waveform_cropped;
 	}//channel loop
-	double thirdvsquared = get3rdPeakSqValSamePol(vsquared);
-	for(int ii = 0; ii<15; ii++){//loop over maxvsquared values
-	  if(vsquared[ii]==thirdvsquared){//If 3rd highest
-	    h1[ii]->Fill(vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
-	  }//If 3rd highest
+	
+	vector<double> peak;
+	peak.resize(2);
+	peak.clear();
+	get3rdPeakSqValSamePol(vsquared, peak);
+	//	printf("peak v: %d, peak h:%d \n", peak[0], peak[1]);
+	for(int ii = 0; ii<7; ii++){//loop over maxvsquared values
+	  if(vsquared[ii]==peak[0]){
+	    h1[ii]->Fill(sqrt(2)*vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
+	  }
 	}//loop over maxvsquared values
+	
+	for(int ii = 8; ii<15; ii++){//loop over maxvsquared values
+	  if(vsquared[ii]==peak[1]){
+	    h1[ii]->Fill(sqrt(2)*vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
+	  }
+	}//loop over maxvsquared values
+	
       }//close if RF triggered event
       delete realAtriEvPtr_fullcalib;
     }//end loop over events
@@ -217,11 +244,13 @@ int main(int argc, char **argv)
     */
     //   delete calib;
   char filename[100];
-  sprintf(filename, "./files_3rdhighest/hist_from_data_3rdhighest_run%d.root", runNum);
+  sprintf(filename, "./files_3rdhighest/hist_from_data_3rdhighest_rms_run%d.root", runNum);
   TFile *f = new TFile(filename, "RECREATE");
   
   for(int channel = 0; channel<15; channel++){
     h1[channel]->Write("");
+    h_rms[channel]->Write();
+
   }
   f->Write("");
   f->Close();
