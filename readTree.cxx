@@ -1,3 +1,5 @@
+//Finds the 3rd highest peak square for each polarization and stores it in a root file.
+//This works for simulation data only.
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -57,7 +59,6 @@ class EarthModel; //class
 RawAtriStationEvent *rawAtriEvPtr;
 UsefulAtriStationEvent *realAtriEvPtr;
 
-;
 
 
 //int main() {
@@ -102,8 +103,8 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
 
     double vsquared[16];
     for(int channel = 0; channel<15; channel++){
-      TGraph *waveform = realAtriEvPtr->getGraphFromRFChan(channel);//channel 2.
-      /*
+      TGraph *waveform = realAtriEvPtr->getGraphFromRFChan(channel);//channel.
+      //  /*
       //	if(channel == 0){
 	 char name[40];
 	 sprintf(name, "./wforms/wf_%0.1f_ch%d_ev%d.png", threshold, channel, event);
@@ -116,8 +117,8 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
 	 //	 cc->SaveAs(name);
 	 delete cc;
 	 //	 }
-	 */
-      TGraph *waveform_cropped = FFTtools::cropWave(waveform, -170, 0);
+	 //   */
+	 TGraph *waveform_cropped = FFTtools::cropWave(waveform, -170, 0);//Crop waveform and look back in the trigger window
       double rms = getRMS(waveform, waveform->GetN());
       h_rms[channel]->Fill(sqrt(2)*rms);
       /* //TGraph *waveform_cropped = FFTtools::cropWave(waveform, -85, 85);//looking during trigger window
@@ -140,7 +141,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
     vector<double> peak;
     peak.resize(2);
     peak.clear();
-    get3rdPeakSqValSamePol(vsquared, peak);
+    get3rdPeakSqValSamePol(vsquared, peak);// This function is in CalibUtil.h
     //cout << peak[0] << endl;
     //  printf("peak v: %f, peak h:%f \n", peak[0], peak[1]);
     for(int ii = 0; ii<7; ii++){//loop over maxvsquared values
@@ -151,7 +152,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
 
     for(int ii = 8; ii<15; ii++){//loop over maxvsquared values
       if(vsquared[ii]==peak[1]){
-	h1[ii]->Fill(2*vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
+	h1[ii]->Fill(2*vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located. Mysterious factor of 2.
       }
     }//loop over maxvsquared values
     
@@ -171,38 +172,6 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
   }
   f1->Write("",TObject::kOverwrite);
   f1->Close();
-  //  */
-  /*
-  //  h1->Scale(scale);
-  // h1->Scale(norm, "width");
-  TCanvas *c2 = new TCanvas("","",850,850);
-  TFile *f = new TFile("hist_from_data_3rd_4.5.root");//This is for the 3rd highest peak. The highest peak one is "_highest"
-  Double_t norm = 1000.;
-  c2->Divide(4,4);
-  char hname_2[16];
-  for(int i=0; i<16; i++){//canvas loop
-    c2->cd(i+1);
-    sprintf(hname_2,"h1_channel%d",i);
-    h2[i] = (TH1F*)f->Get(hname_2);
-    Double_t scale2 = norm/(h2[i]->Integral("width"));
-    h2[i]->Scale(scale2);
-    h2[i]->SetLineColor(8);
-    h2[i]->Draw("");
-    Double_t scale = norm/(h1[i]->Integral("width"));
-    h1[i]->Scale(scale);
-    h1[i]->Draw("SAMES");
-    gStyle->SetStatW(.19);
-    c2->Update();
-    TPaveStats *st = (TPaveStats*)h2[i]->FindObject("stats");
-    st->SetX1NDC(0.2);
-    st->SetX2NDC(0.02);
-    //  delete h1[i];
-    // delete h2[i];
-  }//canvas loop
-  
-
-  c2->SaveAs("vsquared_sim_3rd_4.5.png");
-  */
 }
 
 

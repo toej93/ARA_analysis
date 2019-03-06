@@ -5,10 +5,15 @@
 #include <vector>
 #include <complex>
 #include <algorithm>
+#include <cmath>
+
 
 #include "TGraph.h"
-#include "tools_Cuts.h"
+#include "TRandom.h"
+#include "TRandom2.h"
+#include "TRandom3.h"
 
+#include "tools_Cuts.h"
 using namespace std;
 
 bool IsGoodForCalib(int station, int year, int runNum){
@@ -190,7 +195,7 @@ double getPeak(TGraph *gr)
 }
 
 
-Double_t get3rdPeakSqValSamePol(double *vsquared) //get 3rd highest v^2 for the same polarization
+void get3rdPeakSqValSamePol(double *vsquared, vector<double> &peak) //get 3rd highest v^2 for the same polarization
 {
   vector <double> peakValVpol;
   vector <double> peakValHpol;
@@ -203,10 +208,17 @@ Double_t get3rdPeakSqValSamePol(double *vsquared) //get 3rd highest v^2 for the 
   }
   std::nth_element(peakValVpol.begin(), peakValVpol.begin()+2, peakValVpol.end(), std::greater<int>());
   std::nth_element(peakValHpol.begin(), peakValHpol.begin()+2, peakValHpol.end(), std::greater<int>());
+  /*
   if(peakValHpol[2]>peakValVpol[2]){
     return peakValHpol[2];
   }
   else return peakValVpol[2];
+  */
+  
+  peak.push_back(peakValVpol[2]);
+  peak.push_back(peakValHpol[2]);
+  //cout << peak[0] <<endl;
+  // return peak;
 }
 
 TGraph *makeSummedVsquaredWForm(TGraph *grWave) {
@@ -224,7 +236,7 @@ TGraph *makeSummedVsquaredWForm(TGraph *grWave) {
     if(i>length-20)
       {
 	integral.push_back(0);
-	  }
+      }
     else{
       integral.push_back(sum);
     }
@@ -238,3 +250,290 @@ TGraph *makeSummedVsquaredWForm(TGraph *grWave) {
   return grInvInv;
  
 }
+
+
+TGraph *makeVsquaredWForm(TGraph *grWave) {
+ 
+  double *volts = grWave->GetY();
+  double *time = grWave->GetX();
+  int length=grWave->GetN();
+  vector <double> squaredV;
+  for(int i=0; i<=length; i++){
+    squaredV.push_back(volts[i]*volts[i]);
+  }//loop over number of bins
+ 
+  TGraph *grInvInv = new TGraph(length,time,&squaredV[0]);
+  //     for(int i=0;i<length;i++) {
+  //      cout << oldX[i] << "\t" << invInvSpectrum[i] << endl;
+  //     }
+  return grInvInv;
+ 
+}
+
+bool isGlitch(TGraph *wform){
+  
+  TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(wform,0.5);
+  //delete wform;
+  TGraph *Waveform_Padded = FFTtools::padWaveToLength(Waveform_Interpolated, Waveform_Interpolated->GetN()+6000);
+  delete Waveform_Interpolated;
+  TGraph *Waveform_Cropped=FFTtools::cropWave(Waveform_Padded,-300.,300.);
+  delete Waveform_Padded;
+  TGraph* spectra = FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(Waveform_Cropped);
+  delete Waveform_Cropped;
+    
+  double pow_bins;
+  double integral;
+  double frac_pow;
+      
+  int num_bins = spectra->GetN();
+  //	cout << "number of bins is " << num_bins << endl;
+  double integral_tmp = 0;
+  for(int samp=0; samp<num_bins; samp++){
+    integral_tmp+=spectra->GetY()[samp];
+  }
+  integral=integral_tmp;
+
+  //	cout << "The integral is " << integral_tmp << endl;
+  double power;
+  for(int j = 0; j < 46; j++){//Bin corresponds to 75 MHz
+    double freq_bin = spectra->GetX()[j];
+    double magnitude = spectra->GetY()[j];
+    power+=magnitude;
+    //	  cout << "Power is " << power << endl;
+  }
+
+  delete spectra;
+  pow_bins=power;
+  power = 0;
+  frac_pow = pow_bins/integral;
+  //	  cout << "Fraction of power in the first 6 bins is " << frac_pow[i] << endl;
+  if(frac_pow>=0.3){
+    return true;
+    // cout << "Found a GLITCH!!!!" << endl;
+  }
+  else return false;
+  
+}
+
+//Inverse FFT
+TGraph *makeInvFFTPlot(TGraph *inputMag)
+{
+  Double_t *freqs=inputMag->GetX();
+  Double_t *newVmmhz=inputMag->GetY();
+  Int_t numFreqs=inputMag->GetN();
+  Double_t *vmhz = new Double_t [numFreqs];
+  Int_t numPoints=2*(numFreqs-1);
+  FFTWComplex *freqDom = new FFTWComplex [numFreqs];
+  Double_t df=freqs[1]-freqs[0];
+  for(int i=0;i<numFreqs;i++) {
+    vmhz[i]=newVmmhz[i];
+    //    freqDom[i].re=vmhz[i];
+    //    freqDom[i].im=0;
+    double phase = 2*M_PI*gRandom->Rndm(0);
+    freqDom[i].im=vmhz[i]*sin(phase);
+    freqDom[i].re=vmhz[i]*cos(phase);
+  }
+  Double_t *tempV=FFTtools::doInvFFT(numPoints,freqDom);
+  Double_t *newT = new Double_t [numPoints];
+  Double_t *newV = new Double_t [numPoints];
+  Double_t dt=1./(numPoints*df);
+  for(int i=0;i<numPoints;i++) {
+    if(i<numPoints/2) {
+      Int_t tempInd=(numPoints/2)-(i+1);
+      //      std::cout << "First: " << i << "\t" << tempInd << "\n";
+      newT[tempInd]=-i*dt*1e3;//convert to ns
+      newV[tempInd]=tempV[i]*df*numPoints/sqrt(2);
+      //The sqrt(2) is for the positive and negative frequencies
+    }
+    else {
+      Int_t tempInd=numPoints+(numPoints/2)-(i+1);
+      //      std::cout << "Second: " << i << "\t" << tempInd << "\n";
+      newT[tempInd]=(numPoints-i)*dt*1e3;//convert to ns
+      newV[tempInd]=tempV[i]*df*numPoints/sqrt(2);
+      //The sqrt(2) is for the positive and negative frequencies
+    }
+  }
+  TGraph *grWave = new TGraph(numPoints,newT,newV);
+  delete [] vmhz;
+  delete [] newT;
+  delete [] newV;
+  delete [] freqDom;
+  return grWave;
+
+}
+
+
+//FFT function
+
+TGraph *makeFFTPlot(TGraph *grWave)
+{
+  double *oldY = grWave->GetY();
+  double *oldX = grWave->GetX();
+  double deltaT=oldX[1]-oldX[0];
+  int length=grWave->GetN();
+  FFTWComplex *theFFT=FFTtools::doFFT(length,oldY);
+     
+  int newLength=(length/2)+1;
+     
+  double *newY = new double [newLength];
+  double *newX = new double [newLength];
+     
+  //    double fMax = 1/(2*deltaT);  // In Hz
+  double deltaF=1/(deltaT*length); //Hz
+  deltaF*=1e3; //MHz
+  //    std::cout << fMax << "\t" << deltaF << "\t" << deltaT << "\t" << length << std::endl;
+       
+  double tempF=0;
+  for(int i=0;i<newLength;i++) {
+    float power=FFTtools::getAbs(theFFT[i]);//converting from mV to V;
+    if(i>0 && i<newLength-1) power*=2; //account for symmetry
+    power*=sqrt(deltaT)/(length); //For time-integral squared amplitude
+    power/=sqrt(deltaF);//Just to normalise bin-widths
+    //Ends up the same as dt^2, need to integrate the power (multiply by df)
+    //to get a meaningful number out.   
+           
+    //if (power>0 ) power=10*TMath::Log10(power);
+    //else power=-1000; //no reason
+    newX[i]=tempF;
+    newY[i]=power; //Units should be mV/MhZ for the y-axis.
+    tempF+=deltaF;
+  }
+   
+  TGraph *grPower = new TGraph(newLength,newX,newY);
+  delete [] theFFT;
+  delete [] newY;
+  delete [] newX;
+  return grPower;  
+}
+
+
+
+void getDiodeModel() {
+  
+  const double PI = M_PI;
+  //  this is our homegrown diode response function which is a downgoing gaussian followed by an upward step function
+  TF1 *fdown1=new TF1("fl_down1","[3]+[0]*exp(-1.*(x-[1])*(x-[1])/(2*[2]*[2]))",-300.E-9,300.E-9);
+  fdown1->SetParameter(0,-0.8);
+  //  fdown1->SetParameter(1,15.E-9);
+  fdown1->SetParameter(1,15.E-9);
+  fdown1->SetParameter(2,2.3E-9);
+  //fdown1->SetParameter(2,0.5E-9);
+  fdown1->SetParameter(3,0.);
+    
+  TF1 *fdown2=new TF1("fl_down2","[3]+[0]*exp(-1.*(x-[1])*(x-[1])/(2*[2]*[2]))",-300.E-9,300.E-9);
+  fdown2->SetParameter(0,-0.2);
+  //  fdown2->SetParameter(1,15.E-9);
+  fdown2->SetParameter(1,15.E-9);
+  fdown2->SetParameter(2,4.0E-9);
+  //fdown2->SetParameter(2,0.5E-9);
+  fdown2->SetParameter(3,0.);
+    
+  double TIMESTEP = 0.5;
+  double NFOUR = 640;
+  vector <double> diode_real;
+  double maxt_diode = 70.E-9;
+  int maxt_diode_bin = (int)( maxt_diode / TIMESTEP );
+  int idelaybeforepeak = 33;
+  int iwindow = 10;
+  int ibinshift = NFOUR/4 - (int)( maxt_diode / TIMESTEP );
+        
+  TF1 *f_up=new TF1("f_up","[0]*([3]*(x-[1]))^2*exp(-(x-[1])/[2])",-200.E-9,100.E-9);
+    
+  f_up->SetParameter(2,7.0E-9);
+  f_up->SetParameter(0,1.);
+  f_up->SetParameter(1,18.E-9);
+  f_up->SetParameter(3,1.E9);
+    
+    
+  double sum=0.;
+	
+  f_up->SetParameter(0,-1.*sqrt(2.*PI)*(fdown1->GetParameter(0)*fdown1->GetParameter(2)+fdown2->GetParameter(0)*fdown2->GetParameter(2))/(2.*pow(f_up->GetParameter(2),3.)*1.E18));
+	
+  for (int i=0;i<NFOUR/2;i++) {
+        
+    diode_real.push_back(0.);   // first puchback 0. value  (this is actually not standard way though works fine)
+	    
+    //if (time[i]>0. && time[i]<maxt_diode) {
+    if (i<(int)(maxt_diode/TIMESTEP)) { // think this is same with above commented if
+            
+      diode_real[i]=fdown1->Eval((double)i*TIMESTEP)+fdown2->Eval((double)i*TIMESTEP);
+      if (i>(int)(f_up->GetParameter(1)/TIMESTEP))
+	diode_real[i]+=f_up->Eval((double)i*TIMESTEP);
+            
+      sum+=diode_real[i];
+    }       
+  }    
+    
+  // diode_real is the time domain response of the diode
+        
+}
+/*
+
+
+  void diodeConvolve(vector <double> &data,const int DATA_BIN_SIZE,vector <double> &fdiode, vector <double> &diodeconv) {
+    
+    
+  const int length=DATA_BIN_SIZE;
+  //    double data_copy[length];
+  //double fdiode_real[length];
+
+  // we are going to make double sized array for complete convolution
+  double power_noise_copy[length*2];
+
+  // fill half of the array as power (actually energy) and another half (actually extanded part) with zero padding (Numerical Recipes 643 page)
+  for (int i=0;i<length;i++) {
+  power_noise_copy[i]=(data[i]*data[i])/Zr*TIMESTEP;
+  }
+  for (int i=length;i<length*2;i++) {
+  power_noise_copy[i]=0.;
+  }
+        
+  // do forward fft to get freq domain (energy of pure signal)
+  Tools::realft(power_noise_copy,1,length*2);
+    
+  double ans_copy[length*2];
+    
+    
+    
+  // change the sign (from numerical recipes 648, 649 page)
+  for (int j=1;j<length;j++) {
+  ans_copy[2*j]=(power_noise_copy[2*j]*fdiode[2*j]-power_noise_copy[2*j+1]*fdiode[2*j+1])/((double)length);
+  //ans_copy[2*j]=(power_noise_copy[2*j]*fdiode[2*j]+power_noise_copy[2*j+1]*fdiode[2*j+1])/((double)length/2);
+  ans_copy[2*j+1]=(power_noise_copy[2*j+1]*fdiode[2*j]+power_noise_copy[2*j]*fdiode[2*j+1])/((double)length);
+  //ans_copy[2*j+1]=(power_noise_copy[2*j+1]*fdiode[2*j]-power_noise_copy[2*j]*fdiode[2*j+1])/((double)length/2);
+  }
+  ans_copy[0]=power_noise_copy[0]*fdiode[0]/((double)length);
+  ans_copy[1]=power_noise_copy[1]*fdiode[1]/((double)length);
+
+  // 1/length is actually 2/(length * 2)
+  //
+    
+  Tools::realft(ans_copy,-1,length*2);
+    
+  diodeconv.clear();  // remove previous values in diodeconv
+    
+  // only save first half of convolution result as last half is result from zero padding (and some spoiled bins)
+  //for (int i=0;i<length;i++) {
+  for (int i=0;i<length+maxt_diode_bin;i++) {
+  //power_noise[i]=power_noise_copy[i];
+  //diodeconv[i]=ans_copy[i];
+  diodeconv.push_back( ans_copy[i] );
+  }
+            
+  int iminsamp,imaxsamp; // find min and max samples such that
+  // the diode response is fully overlapping with the noise waveform
+  iminsamp=(int)(maxt_diode/TIMESTEP);
+  // the noise waveform is NFOUR/2 long
+  // then for a time maxt_diode/TIMESTEP at the end of that, the
+  // diode response function is only partially overlappying with the
+  // waveform in the convolution
+  imaxsamp=NFOUR/2;
+    
+  //  cout << "iminsamp, imaxsamp are " << iminsamp << " " << imaxsamp << "\n";
+  if (imaxsamp<iminsamp) {
+  cout << "Noise waveform is not long enough for this diode response.\n";
+  exit(1);
+  }
+   
+  }
+*/

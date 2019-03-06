@@ -1,4 +1,5 @@
-//Make noise waveforms from data
+//Finds the 3rd highest peak square for each polarization and stores it in a root file.
+//This works for data only.
 #include <iostream>
 #include <cstdlib>
 #include <sstream>
@@ -143,7 +144,7 @@ int main(int argc, char **argv)
       UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
 
       bool is_soft_trig = rawEvPtr->isSoftwareTrigger();
-      bool isGoodEvent = IsGoodForCalib(station, year, runNum);
+      bool isGoodEvent = IsGoodForCalib(station, year, runNum);// This function is in CalibUtil.h
       AraQualCuts *qual = AraQualCuts::Instance();
       bool isGood = qual->isGoodEvent(realAtriEvPtr_fullcalib);//From Brian's QCuts library
 
@@ -162,7 +163,7 @@ int main(int argc, char **argv)
 	double vsquared[16];
 	for(int channel = 0; channel<15; channel++){
 	  TGraph *waveform = realAtriEvPtr_fullcalib->getGraphFromRFChan(channel);//channel 2
-	  ///*
+	  /*
 	    char name[40];
 	    sprintf(name, "./wforms/wf_ch%d_ev%d.png", channel, event);
 	    TCanvas *cc = new TCanvas("","",850*2,850);
@@ -174,14 +175,14 @@ int main(int argc, char **argv)
 	    cc->SaveAs(name);
 	    delete cc;
 	    //printf("A glitch in channel %d \n" , channel);
-	    //	    */
-	  bool isAGlitch = isGlitch(waveform);
+	    */
+	  bool isAGlitch = isGlitch(waveform); // This function is in CalibUtil.h
 	  if(isAGlitch){
 	    
 	    continue;
 	  }
 	  double time_window = waveform->GetX()[waveform->GetN()/2];
-	  TGraph *waveform_cropped = FFTtools::cropWave(waveform, time_window-170, time_window);//looking during trigger window
+	  TGraph *waveform_cropped = FFTtools::cropWave(waveform, time_window-170, time_window);//looking during trigger window. Say trigger occured at center of wf.
 	  /*  TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
 	  delete waveform;
 	  TGraph *Waveform_Padded = FFTtools::padWaveToLength(Waveform_Interpolated, Waveform_Interpolated->GetN()+6000);
@@ -207,7 +208,7 @@ int main(int argc, char **argv)
 	vector<double> peak;
 	peak.resize(2);
 	peak.clear();
-	get3rdPeakSqValSamePol(vsquared, peak);
+	get3rdPeakSqValSamePol(vsquared, peak);// This function is in CalibUtil.h
 	//	printf("peak v: %d, peak h:%d \n", peak[0], peak[1]);
 	for(int ii = 0; ii<7; ii++){//loop over maxvsquared values
 	  if(vsquared[ii]==peak[0]){
