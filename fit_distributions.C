@@ -1,7 +1,7 @@
 void fit_distributions(int channel){
   // int channel = atof(argv[1]);
   char title_file[200];
-  sprintf(title_file,"./files_distributions/merged_rayleigh.root");
+  sprintf(title_file,"./files_distributions/2014/merged_rayleigh.root");
   TFile *f = new TFile(title_file,"READ");
 
   //TTree *myTree[16];
@@ -13,7 +13,7 @@ void fit_distributions(int channel){
     sprintf(treeName,"Spectral_Dist%d",channel);
     
     for(int freqBin;freqBin<513; freqBin++){
-      if(channel==0 && freqBin==1) continue;
+      //if(channel==0 && freqBin<10) continue;
       char branchName[20];
       sprintf(branchName,"magnitudes_%d",freqBin);
       TTreeReader myReader(treeName, f);
@@ -21,7 +21,7 @@ void fit_distributions(int channel){
       //myReader.GetTree();
       TTreeReaderValue<Double_t> magnitudes(myReader, branchName);
       char h1name[100];
-      sprintf(h1name,"h1 for channel%d, freq=%.2f",channel, freqBin*dF);
+      sprintf(h1name,"h1 for channel%d, freq=%.2f, data",channel, freqBin*dF);
       h1[freqBin] = new TH1F(h1name,h1name,500,1,1);
       while (myReader.Next()) {
 	h1[freqBin]->Fill(*magnitudes);
@@ -46,7 +46,6 @@ void fit_distributions(int channel){
     FILE *fout = fopen(title_txt, "w");
     //  for(int channel=0;channel<16;channel++){//channel loop
     for(int index = 0; index<513; index++){
-      if(channel==0 && index==1) continue;
       Double_t scale1 = 1/h1[index]->Integral("width");
       h1[index]->Scale(scale1);
       //h1[index]->Sumw2();
@@ -79,22 +78,23 @@ void fit_distributions(int channel){
       gStyle->SetOptFit(1111);
       f1->SetParameters(h1[index]->GetMaximum(),h1[index]->GetRMS());
       gStyle->SetOptFit(1111);
-      h1[index]->Fit("f1","ELQMW");
+      h1[index]->Fit("f1","ELQM");
       p0 = f1->GetParameter(0);
       p1 = f1->GetParameter(1);
       chi2 = f1->GetChisquare()/f1->GetNDF(); //Reduced
       delete f1;
        fprintf(fout,"%2.4f,%d,%2.4f,%2.4f  \n",index*dF,channel,p1,chi2);
        ///*
-       if(index<=15){
+       if(index==102){
 	 char name[40];
 	 sprintf(name, "./distributions/distributionch%d_%d.png", channel, index);
 	 TCanvas *c2 = new TCanvas("","",850,850);
+	 h1[index]->GetXaxis()->SetRangeUser(0., 3);
 	 h1[index]->Draw(); 
 	 c2->SaveAs(name);
 	 delete c2;
        }
-      //    */
+       //     */
       
       
       //  }

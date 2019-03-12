@@ -126,7 +126,7 @@ int main(int argc, char **argv)
     
     //See if the tree is empty
     char title_file[200];
-    sprintf(title_file,"./files_distributions/Rayleigh_spectral_dist_run%d.root", runNum);
+    sprintf(title_file,"./files_distributions/2014/Rayleigh_spectral_dist_run%d.root", runNum);
     TFile *f = new TFile(title_file,"RECREATE");
 
     TTree *myTree[16];
@@ -163,17 +163,17 @@ int main(int argc, char **argv)
     for(int event=0; event<numEntries; event++){//loop over events
       eventTree->GetEvent(event);
       int evt_num = rawEvPtr->eventNumber;//event number
+      bool is_soft_trig = rawEvPtr->isSoftwareTrigger();
+      if(!is_soft_trig) continue;
       UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
       
-      bool is_soft_trig = rawEvPtr->isSoftwareTrigger();
       bool isGoodEvent = IsGoodForCalib(station, year, runNum);
       AraQualCuts *qual = AraQualCuts::Instance();
       bool isGood = qual->isGoodEvent(realAtriEvPtr_fullcalib);//From Brian's QCuts library
 
-      if(is_soft_trig && isGoodEvent && isGood && rawEvPtr->isCalpulserEvent()==false){//If RF triggered event
+      if(isGoodEvent && isGood && rawEvPtr->isCalpulserEvent()==false){//If RF triggered event
 	counter++;
 
-	// cout<<"Soft trigger event!"<<endl;
 	double interpolation_step = 0.5;
 
 	for(int channel=0;channel<16;channel++){//channel loop2
@@ -184,17 +184,35 @@ int main(int argc, char **argv)
 	    //printf("A glitch in channel %d \n" , channel);
 	    continue;
 	  }
+
 	  TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,interpolation_step);
 	  delete waveform;
        
-	  TGraph *Waveform_Padded = FFTtools::padWaveToLength(Waveform_Interpolated, Waveform_Interpolated->GetN()+6000);
+	  TGraph *Waveform_Padded = FFTtools::padWaveToLength(Waveform_Interpolated, 1024);
 	  delete Waveform_Interpolated;
 	
-	  TGraph *Waveform_Cropped=FFTtools::cropWave(Waveform_Padded,-256.,256.);
+	  //  TGraph *Waveform_Cropped=FFTtools::cropWave(Waveform_Padded,-255.5.,256.);
+	  //  TGraph *spectrum = makeFreqV_MilliVoltsNanoSeconds(Waveform_Padded);
+	  TGraph *spectrum = makeFFTPlot(Waveform_Padded);
+
 	  delete Waveform_Padded;	    
-	  TGraph *spectrum = makeFFTPlot(Waveform_Cropped);
-	  delete Waveform_Cropped;
+	  //delete Waveform_Cropped;
+	  /*
+	  char name[40];
+	  sprintf(name, "./wforms/wf_ch%d_ev%d_AraSim.png", channel, event);
+	  TCanvas *cc = new TCanvas("","",850*2,850);
+	  cc->Divide(2,1);
+	  cc->cd(1);
+	  makeFFTPlot(Waveform_Padded)->Draw();
+	  cc->cd(2);
+	  spectrum->Draw();
+	  cc->SaveAs(name);
+	  delete cc;
+	  */
+	  //  delete spectrum;
+	  //	  delete waveform;
 	  for(int j = 0; j<spectrum->GetN();j++){//loop ober bins
+	    //cout <<spectrum->GetN()<<endl;
 	    double y_value = spectrum->GetY()[j];
 	    magnitude[channel][j]=y_value;
 	  }//end loop over bins
