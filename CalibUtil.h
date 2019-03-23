@@ -376,8 +376,8 @@ TGraph *makeInvFFTPlot(TGraph *inputMag)
 
 //FFT function
 /*
-TGraph *makeFFTPlot(TGraph *grWave)
-{
+  TGraph *makeFFTPlot(TGraph *grWave)
+  {
   double *oldY = grWave->GetY();
   double *oldX = grWave->GetX();
   double deltaT=oldX[1]-oldX[0];
@@ -396,18 +396,18 @@ TGraph *makeFFTPlot(TGraph *grWave)
        
   double tempF=0;
   for(int i=0;i<newLength;i++) {
-    float power=FFTtools::getAbs(theFFT[i]);//converting from mV to V;
-    if(i>0 && i<newLength-1) power*=2; //account for symmetry
-    power*=sqrt(deltaT)/(length); //For time-integral squared amplitude
-    power/=sqrt(deltaF);//Just to normalise bin-widths
-    //Ends up the same as dt^2, need to integrate the power (multiply by df)
-    //to get a meaningful number out.   
+  float power=FFTtools::getAbs(theFFT[i]);//converting from mV to V;
+  if(i>0 && i<newLength-1) power*=2; //account for symmetry
+  power*=sqrt(deltaT)/(length); //For time-integral squared amplitude
+  power/=sqrt(deltaF);//Just to normalise bin-widths
+  //Ends up the same as dt^2, need to integrate the power (multiply by df)
+  //to get a meaningful number out.   
            
-    //if (power>0 ) power=10*TMath::Log10(power);
-    //else power=-1000; //no reason
-    newX[i]=tempF;
-    newY[i]=power; //Units should be mV/Hz for the y-axis.
-    tempF+=deltaF;
+  //if (power>0 ) power=10*TMath::Log10(power);
+  //else power=-1000; //no reason
+  newX[i]=tempF;
+  newY[i]=power; //Units should be mV/Hz for the y-axis.
+  tempF+=deltaF;
   }
    
   TGraph *grPower = new TGraph(newLength,newX,newY);
@@ -415,7 +415,7 @@ TGraph *makeFFTPlot(TGraph *grWave)
   delete [] newY;
   delete [] newX;
   return grPower;  
-}
+  }
 */
 
 TGraph *makeFFTPlot(TGraph *grWave)
@@ -464,8 +464,8 @@ TGraph *makeFreqV_MilliVoltsNanoSeconds ( TGraph *grWave ) {
   /*                                                                                                                                                                                          
   // don't modify original valus as it will modify original waveform                                                                                                                          
   for (int i=0; i<length; i++) {                                                                                                                                                              
-      oldY[i] = oldY[i] * 1.e-3; //from mV to V                                                                                                                                               
-      oldX[i] = oldX[i] * 1.e-9; // from ns to s                                                                                                                                              
+  oldY[i] = oldY[i] * 1.e-3; //from mV to V                                                                                                                                               
+  oldX[i] = oldX[i] * 1.e-9; // from ns to s                                                                                                                                              
   }                                                                                                                                                                                           
   */
   double deltaT = (oldX[1]-oldX[0]) * 1.e-9; // deltaT in s                                                                                                                                   
@@ -595,50 +595,51 @@ void realft(double *data, const int isign, int nsize){
   }
 }
 
-void getDiodeModel(TGraph *wform, vector <double> diode_real) {
-  
-  const double PI = M_PI;
+TGraph *getDiodeModel(TGraph *wform) {
+
+  vector <double> diode_real;
+  double PI = M_PI;
   //  this is our homegrown diode response function which is a downgoing gaussian followed by an upward step function
-  TF1 *fdown1=new TF1("fl_down1","[3]+[0]*exp(-1.*(x-[1])*(x-[1])/(2*[2]*[2]))",-300.E-9,300.E-9);
+  TF1 *fdown1=new TF1("fl_down1","[3]+[0]*exp(-1.*(x-[1])*(x-[1])/(2*[2]*[2]))",-300,300);
   fdown1->SetParameter(0,-0.8);
   //  fdown1->SetParameter(1,15.E-9);
-  fdown1->SetParameter(1,15.E-9);
-  fdown1->SetParameter(2,2.3E-9);
+  fdown1->SetParameter(1,15.);
+  fdown1->SetParameter(2,2.);
   //fdown1->SetParameter(2,0.5E-9);
   fdown1->SetParameter(3,0.);
     
-  TF1 *fdown2=new TF1("fl_down2","[3]+[0]*exp(-1.*(x-[1])*(x-[1])/(2*[2]*[2]))",-300.E-9,300.E-9);
+  TF1 *fdown2=new TF1("fl_down2","[3]+[0]*exp(-1.*(x-[1])*(x-[1])/(2*[2]*[2]))",-300.,300.);
   fdown2->SetParameter(0,-0.2);
   //  fdown2->SetParameter(1,15.E-9);
-  fdown2->SetParameter(1,15.E-9);
-  fdown2->SetParameter(2,4.0E-9);
+  fdown2->SetParameter(1,15.);
+  fdown2->SetParameter(2,4.);
   //fdown2->SetParameter(2,0.5E-9);
   fdown2->SetParameter(3,0.);
     
   double TIMESTEP = wform->GetX()[1]- wform->GetX()[0];
   int NFOUR =  (int) 2*wform->GetN();
   ;
-  double maxt_diode = 70.E-9;
+  double maxt_diode = 70.;
   int maxt_diode_bin = (int)( maxt_diode / TIMESTEP );
-  int idelaybeforepeak = 13.E-9/TIMESTEP;
-  int iwindow = 4.E-9/TIMESTEP;
+  int idelaybeforepeak = 13./TIMESTEP;
+  int iwindow = 4./TIMESTEP;
   int ibinshift = NFOUR/4 - (int)( maxt_diode / TIMESTEP );
         
-  TF1 *f_up=new TF1("f_up","[0]*([3]*(x-[1]))^2*exp(-(x-[1])/[2])",-200.E-9,100.E-9);
+  TF1 *f_up=new TF1("f_up","[0]*([3]*(x-[1]))^2*exp(-(x-[1])/[2])",-200.,100.);
     
-  f_up->SetParameter(2,7.0E-9);
+  f_up->SetParameter(2,7.0);
   f_up->SetParameter(0,1.);
-  f_up->SetParameter(1,18.E-9);
-  f_up->SetParameter(3,1.E9);
+  f_up->SetParameter(1,18.);
+  f_up->SetParameter(3,1.);
     
     
   double sum=0.;
 	
-  f_up->SetParameter(0,-1.*sqrt(2.*PI)*(fdown1->GetParameter(0)*fdown1->GetParameter(2)+fdown2->GetParameter(0)*fdown2->GetParameter(2))/(2.*pow(f_up->GetParameter(2),3.)*1.E18));
-	
+  f_up->SetParameter(0,-1.*sqrt(2.*PI)*(fdown1->GetParameter(0)*fdown1->GetParameter(2)+fdown2->GetParameter(0)*fdown2->GetParameter(2))/(2.*pow(f_up->GetParameter(2),3.)));
+  vector <double> double_time;
   for (int i=0;i<NFOUR/2;i++) {
-        
-    diode_real.push_back(0.);   // first puchback 0. value  (this is actually not standard way though works fine)
+    double_time.push_back(wform->GetX()[i]); 
+    diode_real.push_back(0.);   // first pushback 0. value  (this is actually not standard way though works fine)
 	    
     //if (time[i]>0. && time[i]<maxt_diode) {
     if (i<(int)(maxt_diode/TIMESTEP)) { // think this is same with above commented if
@@ -646,14 +647,17 @@ void getDiodeModel(TGraph *wform, vector <double> diode_real) {
       diode_real[i]=fdown1->Eval((double)i*TIMESTEP)+fdown2->Eval((double)i*TIMESTEP);
       if (i>(int)(f_up->GetParameter(1)/TIMESTEP))
 	diode_real[i]+=f_up->Eval((double)i*TIMESTEP);
-            
       sum+=diode_real[i];
+      //cout<<diode_real[i]<<endl;
+
     }       
   }    
-    
   // diode_real is the time domain response of the diode
-
-
+  TGraph *test_diode = new TGraph(diode_real.size(),&double_time[0],&diode_real[0]);
+  TCanvas *c2 = new TCanvas("","",650,650);
+  test_diode->Draw();
+  c2->SaveAs("test_diode.png");
+  delete c2;
   // now get f domain response with realft
     
   double diode_real_fft[NFOUR*2];  // double sized array for myconvlv
@@ -694,20 +698,21 @@ void getDiodeModel(TGraph *wform, vector <double> diode_real) {
     }
   }
     
-    
+
   //cout<<"start realft diode_real_fft"<<endl;
     
   // forward FFT
+  cout<<"Diode ISS HERE!!"<<endl;
+
   //Tools::realft(diode_real_fft,1,settings1->DATA_BIN_SIZE+512);
-  realft(diode_real_fft,1,NFOUR*2);
+  realft(diode_real_fft,1,NFOUR);
     
   // forward FFT for half size array
-  realft(diode_real_fft_half,1,NFOUR);
+  // realft(diode_real_fft_half,1,NFOUR);
     
   // forward FFT for double size array
-  realft(diode_real_fft_double,1,NFOUR*2);
-    
-    
+  //realft(diode_real_fft_double,1,NFOUR*2);
+      
   //cout<<"done realft diode_real_fft"<<endl;
   vector <double> fdiode_real_databin;    // NFOUR array of f domain tunnel diode response (FFT of diode_real). also same with icemc -> anita -> fdiode_real  but only full bandwidth array 4
   vector <double> fdiode_real;    // NFOUR/2 array of f domain tunnel diode response (FFT of diode_real). also same with icemc -> anita -> fdiode_real  but only full bandwidth array 4
@@ -722,7 +727,7 @@ void getDiodeModel(TGraph *wform, vector <double> diode_real) {
   for (int i=0; i<NFOUR*2; i++) {
     fdiode_real_databin.push_back( diode_real_fft[i] );
   }
-    
+  /*   
     
   // save f domain diode response in fdiode_real_half
   //for (int i=0; i<NFOUR/2; i++) {
@@ -735,13 +740,16 @@ void getDiodeModel(TGraph *wform, vector <double> diode_real) {
   for (int i=0; i<NFOUR*2; i++) {
     fdiode_real_double.push_back( diode_real_fft_double[i] );
   }
-    
+  */
   const double Zr = 50.;
   
-  int length = NFOUR*2;
+  int length = NFOUR;
   vector <double> data;
+  vector <double> times;
+ 
   for (int jj=0; jj<length/2; jj++){
-    data.push_back(wform->GetX()[jj]);
+    data.push_back(wform->GetY()[jj]);
+    times.push_back(wform->GetX()[jj]);
   }
   double power_noise_copy[length*2];
 
@@ -797,79 +805,63 @@ void getDiodeModel(TGraph *wform, vector <double> diode_real) {
     cout << "Noise waveform is not long enough for this diode response.\n";
     exit(1);
   }
-    
+
+  TGraph *diodeconvwf = new TGraph(NFOUR/2,&times[0],&diodeconv[0]);
+  return diodeconvwf;
 }
 
 
-  /*
+/*
 
 
-    void diodeConvolve(vector <double> &data,const int DATA_BIN_SIZE,vector <double> &fdiode, vector <double> &diodeconv) {
+  void diodeConvolve(vector <double> &data,const int DATA_BIN_SIZE,vector <double> &fdiode, vector <double> &diodeconv) {
     
-    const double Zr = 50.;
-    const int length=DATA_BIN_SIZE;
-    //    double data_copy[length];
-    //double fdiode_real[length];
+  const double Zr = 50.;
+  const int length=DATA_BIN_SIZE;
+    
+  // we are going to make double sized array for complete convolution
+  double power_noise_copy[length*2];
 
-    // we are going to make double sized array for complete convolution
-    double power_noise_copy[length*2];
-
-    // fill half of the array as power (actually energy) and another half (actually extanded part) with zero padding (Numerical Recipes 643 page)
-    for (int i=0;i<length;i++) {
-    power_noise_copy[i]=(data[i]*data[i])/Zr*TIMESTEP;
-    }
-    for (int i=length;i<length*2;i++) {
-    power_noise_copy[i]=0.;
-    }
+  // fill half of the array as power (actually energy) and another half (actually extanded part) with zero padding (Numerical Recipes 643 page)
+  for (int i=0;i<length;i++) {
+  power_noise_copy[i]=(data[i]*data[i])/Zr*TIMESTEP;
+  }
+  for (int i=length;i<length*2;i++) {
+  power_noise_copy[i]=0.;
+  }
         
-    // do forward fft to get freq domain (energy of pure signal)
-    Tools::realft(power_noise_copy,1,length*2);
-9    
-    double ans_copy[length*2];
+  // do forward fft to get freq domain (energy of pure signal)
+  Tools::realft(power_noise_copy,1,length*2);
+  9    
+  double ans_copy[length*2];
     
     
     
-    // change the sign (from numerical recipes 648, 649 page)
-    for (int j=1;j<length;j++) {
-    ans_copy[2*j]=(power_noise_copy[2*j]*fdiode[2*j]-power_noise_copy[2*j+1]*fdiode[2*j+1])/((double)length);
-    //ans_copy[2*j]=(power_noise_copy[2*j]*fdiode[2*j]+power_noise_copy[2*j+1]*fdiode[2*j+1])/((double)length/2);
-    ans_copy[2*j+1]=(power_noise_copy[2*j+1]*fdiode[2*j]+power_noise_copy[2*j]*fdiode[2*j+1])/((double)length);
-    //ans_copy[2*j+1]=(power_noise_copy[2*j+1]*fdiode[2*j]-power_noise_copy[2*j]*fdiode[2*j+1])/((double)length/2);
-    }
-    ans_copy[0]=power_noise_copy[0]*fdiode[0]/((double)length);
-    ans_copy[1]=power_noise_copy[1]*fdiode[1]/((double)length);
+  // change the sign (from numerical recipes 648, 649 page)
+  for (int j=1;j<length;j++) {
+  ans_copy[2*j]=(power_noise_copy[2*j]*fdiode[2*j]-power_noise_copy[2*j+1]*fdiode[2*j+1])/((double)length);
+  //ans_copy[2*j]=(power_noise_copy[2*j]*fdiode[2*j]+power_noise_copy[2*j+1]*fdiode[2*j+1])/((double)length/2);
+  ans_copy[2*j+1]=(power_noise_copy[2*j+1]*fdiode[2*j]+power_noise_copy[2*j]*fdiode[2*j+1])/((double)length);
+  //ans_copy[2*j+1]=(power_noise_copy[2*j+1]*fdiode[2*j]-power_noise_copy[2*j]*fdiode[2*j+1])/((double)length/2);
+  }
+  ans_copy[0]=power_noise_copy[0]*fdiode[0]/((double)length);
+  ans_copy[1]=power_noise_copy[1]*fdiode[1]/((double)length);
 
-    // 1/length is actually 2/(length * 2)
-    //
     
-    Tools::realft(ans_copy,-1,length*2);
+  Tools::realft(ans_copy,-1,length*2);
     
-    diodeconv.clear();  // remove previous values in diodeconv
+  diodeconv.clear();  // remove previous values in diodeconv
     
-    // only save first half of convolution result as last half is result from zero padding (and some spoiled bins)
-    //for (int i=0;i<length;i++) {
-    for (int i=0;i<length+maxt_diode_bin;i++) {
-    //power_noise[i]=power_noise_copy[i];
-    //diodeconv[i]=ans_copy[i];
-    diodeconv.push_back( ans_copy[i] );
-    }
+  // only save first half of convolution result as last half is result from zero padding (and some spoiled bins)
+  //for (int i=0;i<length;i++) {
+  for (int i=0;i<length+maxt_diode_bin;i++) {
+  //power_noise[i]=power_noise_copy[i];
+  //diodeconv[i]=ans_copy[i];
+  diodeconv.push_back( ans_copy[i] );
+  }
             
-    int iminsamp,imaxsamp; // find min and max samples such that
-    // the diode response is fully overlapping with the noise waveform
-    iminsamp=(int)(maxt_diode/TIMESTEP);
-    // the noise waveform is NFOUR/2 long
-    // then for a time maxt_diode/TIMESTEP at the end of that, the
-    // diode response function is only partially overlappying with the
-    // waveform in the convolution
-    imaxsamp=NFOUR/2;
-    
-    //  cout << "iminsamp, imaxsamp are " << iminsamp << " " << imaxsamp << "\n";
-    if (imaxsamp<iminsamp) {
-    cout << "Noise waveform is not long enough for this diode response.\n";
-    exit(1);
-    }
-   
-    }
-  */
+  
+  }
+*/
 
 
