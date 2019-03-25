@@ -177,16 +177,17 @@ int getPeakBin(TGraph *gr)
   return peakBin;
 }
 
-double getPeak(TGraph *gr)
+double getNegativePeak(TGraph *gr)
 {
   double x,y;
   gr->GetPoint(0,x,y);
-  double peakVal=y*y;
+  double peakVal=abs(y);
   int peakBin=0;
   for(int i=0;i<gr->GetN();i++) {
     gr->GetPoint(i,x,y);
-    if( peakVal<(y*y) ) {
-      peakVal=(y*y);
+    if( y>0 ) continue;
+    if( abs(peakVal)<abs(y) ) {
+      peakVal=y;
       peakBin=i;
     }      
   }
@@ -227,6 +228,32 @@ void get3rdPeakSqValSamePol(double *vsquared, vector<double> &peak) //get 3rd hi
   
   peak.push_back(peakValVpol[2]);
   peak.push_back(peakValHpol[2]);
+  //cout << peak[0] <<endl;
+  // return peak;
+}
+
+void get3rdsmallest(double *vsquared, vector<double> &peak) //get 3rd highest v^2 for the same polarization
+{
+  vector <double> peakValVpol;
+  vector <double> peakValHpol;
+  for(int i = 0; i<8; i++){
+    peakValVpol.push_back(1/vsquared[i]);
+  }
+  
+  for(int i = 8; i<15; i++){
+    peakValHpol.push_back(1/vsquared[i]);
+  }
+  std::nth_element(peakValVpol.begin(), peakValVpol.begin()+2, peakValVpol.end(), std::greater<double>());
+  std::nth_element(peakValHpol.begin(), peakValHpol.begin()+2, peakValHpol.end(), std::greater<double>());
+  /*
+    if(peakValHpol[2]>peakValVpol[2]){
+    return peakValHpol[2];
+    }
+    else return peakValVpol[2];
+  */
+  
+  peak.push_back(1/peakValVpol[2]);
+  peak.push_back(1/peakValHpol[2]);
   //cout << peak[0] <<endl;
   // return peak;
 }
@@ -652,7 +679,9 @@ void getDiodeModel(int NFOUR, double TIMESTEP, vector<double>&fdiode_real, vecto
   for (int i=0; i<NFOUR; i++) {
     fdiode_real.push_back( diode_real_fft[i] );
   }
-
+  delete fdown1;
+  delete fdown2;
+  delete f_up;
 }
 
 TGraph* doConvolve(TGraph *grIn){

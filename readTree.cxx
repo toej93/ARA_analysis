@@ -94,7 +94,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
     sprintf(hname,"sim_channel %d",j);
     sprintf(hname2,"rms_sim_channel %d",j);
 
-    h1[j] = new TH1F(hname,hname,200,0,120000);
+    h1[j] = new TH1F(hname,hname,200,1,1);
     h_rms[j] = new TH1F(hname2,hname2,200,1,1);
 
   }
@@ -104,7 +104,8 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
     double vsquared[16];
     for(int channel = 0; channel<15; channel++){
       TGraph *waveform = realAtriEvPtr->getGraphFromRFChan(channel);//channel.
-      //  /*
+ 
+      /*
       //	if(channel == 0){
 	 char name[40];
 	 sprintf(name, "./wforms/wf_%0.1f_ch%d_ev%d.png", threshold, channel, event);
@@ -118,9 +119,15 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
 	 delete cc;
 	 //	 }
 	 //   */
-	 TGraph *waveform_cropped = FFTtools::cropWave(waveform, -170, 0);//Crop waveform and look back in the trigger window
-      double rms = getRMS(waveform, waveform->GetN());
-      h_rms[channel]->Fill(sqrt(2)*rms);
+      TGraph *waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
+      delete waveform;
+      TGraph *waveform_Padded = FFTtools::padWaveToLength(waveform_Interpolated, 1024);
+      delete waveform_Interpolated;
+      //TGraph *waveform_cropped = FFTtools::cropWave(waveform_Interpolated, -160, 10);//Crop waveform and look back in the trigger window
+
+      double rms = getRMS(waveform_Padded, getBinsforRMS(waveform_Padded));
+      h_rms[channel]->Fill(rms);
+     
       /* //TGraph *waveform_cropped = FFTtools::cropWave(waveform, -85, 85);//looking during trigger window
       TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
       delete waveform;
@@ -133,26 +140,49 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
       vsquared[channel] = sqrt(FFTtools::getPeakSqVal(integrated_wf));//no need to square again
       delete integrated_wf;
       */
-      vsquared[channel] = FFTtools::getPeakSqVal(waveform_cropped);//no need to square again
-      delete waveform;
-      delete waveform_cropped;
+     
+      TGraph *diode_wf = doConvolve(waveform_Padded);
+      TGraph *waveform_cropped = FFTtools::cropWave(diode_wf, -160, 10);//Crop waveform and look back in the trigger window
+      /*
+      char name[40];
+      sprintf(name, "./wforms/wf_%0.1f_ch%d_ev%d.png", threshold, channel, event);
+      TCanvas *cc = new TCanvas("","",2*650,850);
+      cc->Divide(2,1);
+      cc->cd(1);
+      waveform_cropped->Draw();
+      cc->cd(2);
+      diode_wf->Draw();
+      cc->SaveAs(name);
+      delete cc;
+      */
+
+      delete waveform_Padded;
+      //  TGraph *integrated_wf = makeSummedVsquaredWForm(waveform_cropped, 5);//retrurns v^2
+      //vsquared[channel] = sqrt(FFTtools::getPeakSqVal(waveform_cropped)*1.E16);//no need to square again
+      //vsquared[channel] = sqrt(FFTtools::getPeakSqVal(integrated_wf));
+      vsquared[channel] = getNegativePeak(waveform_cropped);
       
+      delete waveform_cropped;
+      delete diode_wf;
+      // delete integrated_wf;
+      //delete waveform_cropped;
     }//channel loop
     vector<double> peak;
     peak.resize(2);
     peak.clear();
-    get3rdPeakSqValSamePol(vsquared, peak);// This function is in CalibUtil.h
+    get3rdsmallest(vsquared, peak);// This function is in CalibUtil.h
     //cout << peak[0] << endl;
     //  printf("peak v: %f, peak h:%f \n", peak[0], peak[1]);
-    for(int ii = 0; ii<7; ii++){//loop over maxvsquared values
-      if(vsquared[ii]==peak[0]){
-	h1[ii]->Fill(2*vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
+    for(int ii = 0; ii<8; ii++){//loop over maxvsquared values
+      //cout << vsquared[ii]-peak[0] <<endl;
+      if(abs(vsquared[ii]-peak[0]) < 1e-8){
+	h1[ii]->Fill(vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
       }
     }//loop over maxvsquared values
 
     for(int ii = 8; ii<15; ii++){//loop over maxvsquared values
-      if(vsquared[ii]==peak[1]){
-	h1[ii]->Fill(2*vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located. Mysterious factor of 2.
+      if(abs(vsquared[ii]-peak[1]) < 1e-8){
+	h1[ii]->Fill(vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located. Mysterious factor of 2.
       }
     }//loop over maxvsquared values
     
@@ -163,9 +193,9 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
   char h2name[20];
   for(int j = 0; j<15; j++){
     sprintf(h2name,"h2_channel %d",j);
-    h2[j] = new TH1F(h2name,"test",200,0,120000);
+    h2[j] = new TH1F(h2name,"test",200,1,1);
   }
-  TFile *f1 = new TFile(name, "UPDATE");
+  TFile *f1 = new TFile(name, "RECREATE");
   for(int channel = 0; channel<15; channel++){
     h1[channel]->Write();
     h_rms[channel]->Write();
