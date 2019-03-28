@@ -181,7 +181,7 @@ double getNegativePeak(TGraph *gr)
 {
   double x,y;
   gr->GetPoint(0,x,y);
-  double peakVal=abs(y);
+  double peakVal=0;
   int peakBin=0;
   for(int i=0;i<gr->GetN();i++) {
     gr->GetPoint(i,x,y);
@@ -195,13 +195,26 @@ double getNegativePeak(TGraph *gr)
   return peakVal;
 }
 
+double getMostNegative(double *array, int &peakCh)
+{
+  double peakVal=0;    
+  for(int i=0;i<15;i++) {
+    if( abs(peakVal)<abs(array[i]) ) {
+      peakVal=array[i];
+      peakCh=i;
+    }      
+  }
+  //return peakBin;
+  return peakVal;
+}
+
 int getBinsforRMS(TGraph *gr)
 {
   double y;
   int nonZeroBins;
   for(int i=0;i<gr->GetN();i++) {
     //cout << gr->GetY()[i] << endl;
-    if(abs(gr->GetY()[i])>0) nonZeroBins+=1;
+    if(abs(gr->GetY()[i])>1.E-20) nonZeroBins+=1;
   }
   return nonZeroBins;
 }
