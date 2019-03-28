@@ -94,31 +94,43 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
     sprintf(hname,"sim_channel %d",j);
     sprintf(hname2,"rms_sim_channel %d",j);
 
-    h1[j] = new TH1F(hname,hname,200,1,1);
-    h_rms[j] = new TH1F(hname2,hname2,200,1,1);
+    h1[j] = new TH1F(hname,hname,200,0,-10);
+    h_rms[j] = new TH1F(hname2,hname2,200,0,-10);
 
   }
+  double rms_diode_avg[16];
+  double rms_diode_sum[16];
+
+  for(Long64_t event=0;event<100;event++) {
+    chain.GetEvent(event);
+    for(int channel = 0; channel<15; channel++){
+      TGraph *waveform = realAtriEvPtr->getGraphFromRFChan(channel);//channel.
+      
+      TGraph *waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
+      delete waveform;
+      TGraph *waveform_Padded = FFTtools::padWaveToLength(waveform_Interpolated, 1024);
+      delete waveform_Interpolated;
+      TGraph *diode_wf = doConvolve(waveform_Padded);
+      rms_diode_sum[channel] += getRMS(diode_wf, getBinsforRMS(diode_wf));      
+      delete waveform_Padded;      
+      delete diode_wf;
+    }
+
+  }
+  
+  for(int i=0; i<15;i++){
+	rms_diode_avg[i]=rms_diode_sum[i]/100;
+	//	cout << rms_diode_avg[i] << endl;
+  }
+  
+      
   for(Long64_t event=0;event<numEntries;event++) {
     chain.GetEvent(event);
-    double rms[16];
     double vsquared[16];
+    double rms[16];
     for(int channel = 0; channel<15; channel++){
       TGraph *waveform = realAtriEvPtr->getGraphFromRFChan(channel);//channel.
  
-      /*
-      //	if(channel == 0){
-      char name[40];
-      sprintf(name, "./wforms/wf_%0.1f_ch%d_ev%d.png", threshold, channel, event);
-      TCanvas *cc = new TCanvas("","",850*2,850);
-      cc->Divide(2,1);
-      cc->cd(1);
-      waveform->Draw();
-      cc->cd(2);
-      FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(waveform)->Draw();
-      //	 cc->SaveAs(name);
-      delete cc;
-      //	 }
-      //   */
       TGraph *waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
       delete waveform;
       TGraph *waveform_Padded = FFTtools::padWaveToLength(waveform_Interpolated, 1024);
@@ -140,75 +152,91 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
 	 vsquared[channel] = sqrt(FFTtools::getPeakSqVal(integrated_wf));//no need to square again
 	 delete integrated_wf;
       */
+      
      
       TGraph *diode_wf = doConvolve(waveform_Padded);
       double mean[16];
       double mean_new[16];
       double sum=0;
       double sum2=0;
-      
-      for(int kk=0;kk<diode_wf->GetN();kk++) sum+=diode_wf->GetY()[kk];
-      mean[channel]=sum/getBinsforRMS(diode_wf);
+      double rms_diode[16];
+      //  for(int kk=0;kk<diode_wf->GetN();kk++) sum+=diode_wf->GetY()[kk];
+      // mean[channel]=sum/getBinsforRMS(diode_wf);
       // cout << sum<< endl;
-      for(int samp=0; samp<diode_wf->GetN(); samp++) diode_wf->GetY()[samp]-=mean[channel];
-      for(int kk=0;kk<diode_wf->GetN();kk++) sum2+=diode_wf->GetY()[kk];
-      mean_new[channel]=sum2/getBinsforRMS(diode_wf);
+      // for(int samp=0; samp<diode_wf->GetN(); samp++) diode_wf->GetY()[samp]-=mean[channel];
+      //  for(int kk=0;kk<diode_wf->GetN();kk++) sum2+=diode_wf->GetY()[kk];
+      // mean_new[channel]=sum2/getBinsforRMS(diode_wf);
       //cout << mean_new[channel]<<endl;
-      rms[channel] = getRMS(diode_wf, getBinsforRMS(diode_wf));
-      for(int samp=0; samp<diode_wf->GetN(); samp++) diode_wf->GetY()[samp]/=rms[channel];
-      TGraph *waveform_cropped = FFTtools::cropWave(diode_wf, -160, 10);//Crop waveform and look back in the trigger window
-      
+      //  for(int kk=0; kk<diode_wf->GetN(); kk++) cout << diode_wf->GetY()[kk] << endl;
+      // printf("Nbins: %d, Nbins_norm: %d\n", diode_wf->GetN(),getBinsforRMS(diode_wf));
+      //rms_diode[channel] = getRMS(diode_wf, getBinsforRMS(diode_wf));
+      for(int samp=0; samp<diode_wf->GetN(); samp++) diode_wf->GetY()[samp]/=rms_diode_avg[channel];
+      TGraph *waveform_cropped = FFTtools::cropWave(diode_wf, -10, 10);//Crop waveform and look back in the trigger window
       
       
       /*
+      // cout << channel << endl;
+      if(channel == 5){
 	char name[40];
 	sprintf(name, "./wforms/wf_%0.1f_ch%d_ev%d.png", threshold, channel, event);
-	TCanvas *cc = new TCanvas("","",2*650,850);
-	cc->Divide(2,1);
-	cc->cd(1);
-	waveform_cropped->Draw();
-	cc->cd(2);
+	TCanvas *cc = new TCanvas("","",850,850);
+	//	cc->Divide(2,1);
+	//	cc->cd(1);
 	diode_wf->Draw();
+	//	cc->cd(2);
+	//FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(waveform)->Draw();
 	cc->SaveAs(name);
 	delete cc;
+      }
       */
+     
 
       delete waveform_Padded;
       //  TGraph *integrated_wf = makeSummedVsquaredWForm(waveform_cropped, 5);//retrurns v^2
       vsquared[channel] = getNegativePeak(waveform_cropped);//no need to square again
+      // cout <<  vsquared[channel] << endl;
       //vsquared[channel] = sqrt(FFTtools::getPeakSqVal(integrated_wf));      
       delete waveform_cropped;
       delete diode_wf;
       // delete integrated_wf;
       //delete waveform_cropped;
     }//channel loop
-    vector<double> peak;
-    peak.resize(2);
-    peak.clear();
-    get3rdsmallest(vsquared, peak);// This function is in CalibUtil.h
-    //cout << peak[0] << endl;
-    //  printf("peak v: %f, peak h:%f \n", peak[0], peak[1]);
-    for(int ii = 0; ii<8; ii++){//loop over maxvsquared values
+    int whichCh=0;
+    double thePeak = getMostNegative(vsquared, whichCh);
+    //printf("Peak: %f, Ch: %d\n", thePeak, whichCh);
+    if(thePeak<=threshold*-1 && thePeak>-20 ) h1[whichCh]->Fill(thePeak);
+    /*
+      vector<double> peak;
+      peak.resize(2);
+      peak.clear();
+      get3rdsmallest(vsquared, peak);// This function is in CalibUtil.h
+      printf("Vpol3rdhighest: %f,Hpol3rdhighest: %f \n", peak[0], peak[1]);
+      //cout << peak[0] << endl;
+      //  printf("peak v: %f, peak h:%f \n", peak[0], peak[1]);
+      for(int ii = 0; ii<15; ii++){//loop over maxvsquared values
+      cout << vsquared[ii]<< endl;
+
       //cout << vsquared[ii]-peak[0] <<endl;
       if(abs(vsquared[ii]-peak[0]) < 1e-8){
-	h1[ii]->Fill(vsquared[ii]/rms[ii]);//Fill hist of respective channel in which 3rdv2 was located
+      h1[ii]->Fill(vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
       }
-    }//loop over maxvsquared values
-
-    for(int ii = 8; ii<15; ii++){//loop over maxvsquared values
+      }//loop over maxvsquared values
+   
+      for(int ii = 8; ii<15; ii++){//loop over maxvsquared values
       if(abs(vsquared[ii]-peak[1]) < 1e-8){
-	h1[ii]->Fill(vsquared[ii]/rms[ii]);//Fill hist of respective channel in which 3rdv2 was located. Mysterious factor of 2.
+      h1[ii]->Fill(vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located. Mysterious factor of 2
       }
-    }//loop over maxvsquared values
-    
+      }//loop over maxvsquared values
+    */
   }
+ 
 
   //  /*
   TH1F *h2[16];
   char h2name[20];
   for(int j = 0; j<15; j++){
     sprintf(h2name,"h2_channel %d",j);
-    h2[j] = new TH1F(h2name,"test",200,1,1);
+    h2[j] = new TH1F(h2name,"test",200,0,-10);
   }
   TFile *f1 = new TFile(name, "RECREATE");
   for(int channel = 0; channel<15; channel++){
