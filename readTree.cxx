@@ -155,11 +155,11 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
       
      
       TGraph *diode_wf = doConvolve(waveform_Padded);
-      double mean[16];
-      double mean_new[16];
-      double sum=0;
-      double sum2=0;
-      double rms_diode[16];
+      // double mean[16];
+      //double mean_new[16];
+      //double sum=0;
+      //double sum2=0;
+      //double rms_diode[16];
       //  for(int kk=0;kk<diode_wf->GetN();kk++) sum+=diode_wf->GetY()[kk];
       // mean[channel]=sum/getBinsforRMS(diode_wf);
       // cout << sum<< endl;

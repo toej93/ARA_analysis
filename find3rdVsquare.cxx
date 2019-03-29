@@ -54,6 +54,7 @@
 #include "CalibUtil.h"
 #include "AraQualCuts.h"
 #include "PlottingFns.h"
+#include "WaveformFns.h"
 
 
 TStyle* RootStyle();
@@ -92,22 +93,26 @@ int main(int argc, char **argv)
     sprintf(hname,"h1_channel%d",j);
     sprintf(hname2,"rms_h1_channel%d",j);
 
-    h1[j] = new TH1F(hname,hname,200,0,120000);
-    h_rms[j] = new TH1F(hname2,hname2,200,1,1);
+    h1[j] = new TH1F(hname,hname,200,-10,0);
+    h_rms[j] = new TH1F(hname2,hname2,200,0.,60.);
 
   }
   for(int arg=3; arg<argc; arg++){
 
     int runNum = atoi(argv[arg]);
     //   printf("I'm at run %d\n", runNum);
-    if(isBadRun(station,year,runNum)) continue;
+    if(isBadRun(station,year,runNum)){
+      cout <<"Bad run"<<endl;
+      continue;
+    }
     char run_file_name[400];
-    if(year!=2013){
-      sprintf(run_file_name,"/fs/scratch/PAS0654/ara/10pct/RawData/A%d/%d/sym_links/event00%d.root",station,year,runNum);
-    }
-    else{
-      sprintf(run_file_name,"/fs/scratch/PAS0654/ara/10pct/RawData/A%d/%d/sym_links/event%d.root",station,year,runNum);
-    }
+    //  if(year!=2013){
+    sprintf(run_file_name,"/fs/scratch/PAS0654/ara/10pct/RawData/A%d/%d/sym_links/event%d.root",station,year,runNum);
+    //}
+    /* else{
+       sprintf(run_file_name,"/fs/scratch/PAS0654/ara/10pct/RawData/A%d/%d/sym_links/event%d.root",station,year,runNum);
+       }
+    */
     TFile *RunFile = TFile::Open(run_file_name);
     
     if(!RunFile) {
@@ -137,18 +142,62 @@ int main(int argc, char **argv)
    
     AraEventCalibrator *calib = AraEventCalibrator::Instance(); //make a calibrator
 
-    for(int event=0; event<numEntries; event++){//loop over events
+
+    double rms_diode_sum[16];
+    int counter = 0;
+    for(Long64_t event=0;event<numEntries;event++) {
       eventTree->GetEvent(event);
       int evt_num = rawEvPtr->eventNumber;//event number
-
+      bool is_RF_trig = rawEvPtr->isRFTrigger();
+      if(!is_RF_trig) continue;
       UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
-
-      bool is_soft_trig = rawEvPtr->isSoftwareTrigger();
+    
       bool isGoodEvent = IsGoodForCalib(station, year, runNum);// This function is in CalibUtil.h
       AraQualCuts *qual = AraQualCuts::Instance();
       bool isGood = qual->isGoodEvent(realAtriEvPtr_fullcalib);//From Brian's QCuts library
+      if(isGoodEvent && isGood && rawEvPtr->isCalpulserEvent()==false){
+	//cout << event << endl;
+	for(int channel = 0; channel<15; channel++){
+	  TGraph *waveform = realAtriEvPtr_fullcalib->getGraphFromRFChan(channel);//channel.
+	
+	  TGraph *waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
+	  delete waveform;
+	  TGraph *waveform_Padded = FFTtools::padWaveToLength(waveform_Interpolated, 2048);
+	  delete waveform_Interpolated;
+	  TGraph *diode_wf = doConvolve(waveform_Padded);
+	  rms_diode_sum[channel] += getRMS(diode_wf, getBinsforRMS(diode_wf));      
+	  delete waveform_Padded;      
+	  delete diode_wf;
+	}
+	counter++;    
+      }
+      if(counter>100) break;
+      delete realAtriEvPtr_fullcalib;
+    }//loop pver events
+    double rms_diode_avg[16];
+    for(int i=0; i<15;i++){
+      rms_diode_avg[i]=rms_diode_sum[i]/100;
+      //	cout << rms_diode_avg[i] << endl;
+    }
+    
+    
 
-      if(is_soft_trig && isGoodEvent && isGood && rawEvPtr->isCalpulserEvent()==false){//If RF triggered event
+
+
+
+    
+    for(int event=0; event<numEntries; event++){//loop over events
+      eventTree->GetEvent(event);
+      int evt_num = rawEvPtr->eventNumber;//event number
+      bool is_RF_trig = rawEvPtr->isRFTrigger();
+      if(!is_RF_trig) continue;
+      UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
+
+      bool isGoodEvent = IsGoodForCalib(station, year, runNum);// This function is in CalibUtil.h
+      AraQualCuts *qual = AraQualCuts::Instance();
+      bool isGood = qual->isGoodEvent(realAtriEvPtr_fullcalib);//From Brian's QCuts library
+      
+      if(isGoodEvent && isGood && rawEvPtr->isCalpulserEvent()==false){//If RF triggered event
 	//cout<<"Good for calibration!"<<endl;
 	int eventId=rawEvPtr->eventId;
 	int numReadoutBlocks=rawEvPtr->numReadoutBlocks;
@@ -163,97 +212,80 @@ int main(int argc, char **argv)
 	double vsquared[16];
 	for(int channel = 0; channel<15; channel++){
 	  TGraph *waveform = realAtriEvPtr_fullcalib->getGraphFromRFChan(channel);//channel 2
-	  /*
-	    char name[40];
-	    sprintf(name, "./wforms/wf_ch%d_ev%d.png", channel, event);
-	    TCanvas *cc = new TCanvas("","",850*2,850);
-	    cc->Divide(2,1);
-	    cc->cd(1);
-	    waveform->Draw();
-	    cc->cd(2);
-	    FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(waveform)->Draw();
-	    cc->SaveAs(name);
-	    delete cc;
-	    //printf("A glitch in channel %d \n" , channel);
-	    */
 	  bool isAGlitch = isGlitch(waveform); // This function is in CalibUtil.h
 	  if(isAGlitch){
 	    
 	    continue;
 	  }
-	  double time_window = waveform->GetX()[waveform->GetN()/2];
-	  TGraph *waveform_cropped = FFTtools::cropWave(waveform, time_window-170, time_window);//looking during trigger window. Say trigger occured at center of wf.
-	  /*  TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
+	  TGraph *waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
 	  delete waveform;
-	  TGraph *Waveform_Padded = FFTtools::padWaveToLength(Waveform_Interpolated, Waveform_Interpolated->GetN()+6000);
-	  delete Waveform_Interpolated;
-	  TGraph *Waveform_Cropped=FFTtools::cropWave(Waveform_Padded,-150.,350.);
-	  delete Waveform_Padded;
-	  TGraph *integrated_wf = makeSummedVsquaredWForm(Waveform_Cropped);//retrurns v^2
-	  delete Waveform_Cropped;
-	  vsquared[channel] = sqrt(FFTtools::getPeakSqVal(integrated_wf));//no need to square again
-	  delete integrated_wf;
-	  // TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform_cropped,0.5);
-	  */
-
-	  double rms = getRMS(waveform, waveform->GetN());
+	  TGraph *waveform_Padded = FFTtools::padWaveToLength(waveform_Interpolated, 2048);
+	  delete waveform_Interpolated;
+	  double rms = getRMS(waveform_Padded, getBinsforRMS(waveform_Padded));
+	  //TGraph *spectrum = makeFreqV_MilliVoltsNanoSeconds(waveform_Padded);
+	 
 	  h_rms[channel]->Fill(rms);
-	  vsquared[channel] = FFTtools::getPeakSqVal(waveform_cropped);//no need to square again
-	  delete waveform;
-	  delete waveform_cropped;
-
-	  //	  delete waveform_cropped;
-	}//channel loop
 	
+	  TGraph *diode_wf = doConvolve(waveform_Padded);
+	  delete waveform_Padded;
+
+	  for(int samp=0; samp<diode_wf->GetN(); samp++) diode_wf->GetY()[samp]/=rms_diode_avg[channel];
+	  double time_window = waveform_Padded->GetX()[waveform_Padded->GetN()/2];
+
+	  TGraph *waveform_cropped = FFTtools::cropWave(diode_wf, time_window-160, time_window+10);//looking during trigger window. Say trigger occured at center of wf.
+	  delete diode_wf;
+	  vsquared[channel] = getNegativePeak(waveform_cropped);
+	  delete waveform_cropped;
+	}//channel loop
 	vector<double> peak;
 	peak.resize(2);
 	peak.clear();
-	get3rdPeakSqValSamePol(vsquared, peak);// This function is in CalibUtil.h
+	get3rdsmallest(vsquared, peak);// This function is in CalibUtil.h
+	double thirdsmallest;
+	if(abs(peak[0])<abs(peak[1])) thirdsmallest=peak[1];
+	else thirdsmallest=peak[0];
+	// This function is in CalibUtil.h
 	//	printf("peak v: %d, peak h:%d \n", peak[0], peak[1]);
-	for(int ii = 0; ii<7; ii++){//loop over maxvsquared values
-	  if(vsquared[ii]==peak[0]){
-	    h1[ii]->Fill(sqrt(2)*vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
+	for(int ii = 0; ii<15; ii++){//loop over maxvsquared values
+	  if(abs(vsquared[ii]-thirdsmallest) < 1e-4){
+	    //printf("Highest 3rd is : %f\n",thirdsmallest);
+	    // cout <<vsquared[ii]<<endl;
+	    h1[ii]->Fill(vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
 	  }
 	}//loop over maxvsquared values
-	
-	for(int ii = 8; ii<15; ii++){//loop over maxvsquared values
-	  if(vsquared[ii]==peak[1]){
-	    h1[ii]->Fill(sqrt(2)*vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
-	  }
-	}//loop over maxvsquared values
-	
       }//close if RF triggered event
       delete realAtriEvPtr_fullcalib;
     }//end loop over events
     delete calib;
     /*
-    TCanvas *c2 = new TCanvas("","",1850,1850);
-    Double_t norm = 100000.;
-    c2->Divide(4,4);
-    char hname_2[20];
-    for(int i=0; i<16; i++){//canvas loop
+      TCanvas *c2 = new TCanvas("","",1850,1850);
+      Double_t norm = 100000.;
+      c2->Divide(4,4);
+      char hname_2[20];
+      for(int i=0; i<16; i++){//canvas loop
       c2->cd(i+1);
       Double_t scale = norm/(h1[i]->Integral("width"));
       h1[i]->Scale(scale);
       h1[i]->Draw("");
       c2->Update();
       //  delete h1[i];
-    }//canvas loop
+      }//canvas loop
   
 
-    c2->SaveAs("vsquared.png");
+      c2->SaveAs("vsquared.png");
     */
-    //   delete calib;
-  char filename[100];
-  sprintf(filename, "./files_3rdhighest/hist_from_data_3rdhighest_rms_run%d.root", runNum);
-  TFile *f = new TFile(filename, "RECREATE");
+    // delete realAtriEvPtr_fullcalib;
+    char filename[100];
+    sprintf(filename, "./files_3rdhighest/hist_from_data_3rdhighest_rms_run%d.root", runNum);
+    TFile *f = new TFile(filename, "RECREATE");
   
-  for(int channel = 0; channel<15; channel++){
-    h1[channel]->Write("");
-    h_rms[channel]->Write();
+    for(int channel = 0; channel<15; channel++){
+      h1[channel]->Write("");
+      h_rms[channel]->Write();
 
-  }
-  f->Write("");
-  f->Close();
+    }
+    f->Write("");
+    f->Close();
   }//end looping over runs
 }//end main
+
