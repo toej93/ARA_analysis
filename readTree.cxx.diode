@@ -51,8 +51,6 @@ using namespace std;
 #include "PlottingFns.h"
 #include "Constants.h"
 #include "CalibUtil.h"
-#include "AraQualCuts.h"
-
 
 
 class EarthModel; //class
@@ -77,7 +75,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
   double threshold = atof(argv[1]);
   char name[50];
   // sprintf(name, "hist_from_data_3rd_%0.1f.root", threshold);
-  sprintf(name, "hist_from_data_3rd_V2_rms_%0.1f_20nswindow_cuts.root", threshold);
+  sprintf(name, "hist_from_data_3rd_vsquared_rms_%0.1f.root", threshold);
   
   chain.SetBranchAddress("UsefulAtriStationEvent", &realAtriEvPtr);
   chain.GetEvent(0);
@@ -100,7 +98,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
     h_rms[j] = new TH1F(hname2,hname2,200,0,100);
 
   }
-  /*
+  
   double rms_diode_avg[16];
   double rms_diode_sum[16];
 
@@ -125,31 +123,15 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
 	rms_diode_avg[i]=rms_diode_sum[i]/100;
 	//	cout << rms_diode_avg[i] << endl;
   }
-  */
   
-    
+      
   for(Long64_t event=0;event<numEntries;event++) {
     chain.GetEvent(event);
     double vsquared[16];
     double rms[16];
-
-    AraQualCuts *qualCut = AraQualCuts::Instance();
-    bool isGoodEvent=false;
-
-    bool hasTimingError = qualCut->hasTimingError(realAtriEvPtr);
-    bool hasTooFewBlocks = qualCut->hasTooFewBlocks(realAtriEvPtr);
-    bool hasOffsetBlocks = qualCut->hasOffsetBlocks(realAtriEvPtr);
-    cout << "here!!!!!!!!!!!!!" << endl;
-			    
-
-    if(!hasTimingError && !hasTooFewBlocks && !hasOffsetBlocks)
-      isGoodEvent=true;
-    if(!isGoodEvent) continue;
-    cout << "good event" << endl;
     for(int channel = 0; channel<15; channel++){
       TGraph *waveform = realAtriEvPtr->getGraphFromRFChan(channel);//channel.
-      bool isGoodEvent = IsGoodForCalib_sim(threshold);//first 3 args don't matter
-      if(!isGoodEvent) cout << "BAAAAAAAD!!!!" << endl;
+ 
       TGraph *waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
       delete waveform;
       TGraph *waveform_Padded = FFTtools::padWaveToLength(waveform_Interpolated, 2048);
@@ -177,19 +159,34 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
 
       // for(int samp=0; samp<diode_wf->GetN(); samp++) diode_wf->GetY()[samp]/=rms_diode_avg[channel];
       // TGraph *waveform_cropped_diode = FFTtools::cropWave(diode_wf, -10, 10);//Crop waveform and look back in the trigger window
-      //TGraph *waveform_sum_sq = makeSummedVsquaredWForm(waveform_Interpolated, 5);
+      
+      
+      /*
+      // cout << channel << endl;
+      if(channel == 5){
+	char name[40];
+	sprintf(name, "./wforms/wf_%0.1f_ch%d_ev%d.png", threshold, channel, event);
+	TCanvas *cc = new TCanvas("","",850,850);
+	//	cc->Divide(2,1);
+	//	cc->cd(1);
+	diode_wf->Draw();
+	//	cc->cd(2);
+	//FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(waveform)->Draw();
+	cc->SaveAs(name);
+	delete cc;
+      }
+      */
+     
       TGraph *waveform_cropped = FFTtools::cropWave(waveform_Padded, -20, 20);//Crop waveform and look back in the trigger window
+      delete waveform_Padded;
       //  TGraph *integrated_wf = makeSummedVsquaredWForm(waveform_cropped, 5);//retrurns v^2
       vsquared[channel] = FFTtools::getPeakSqVal(waveform_cropped);//no need to square again
-      delete waveform_Padded;
-
       // cout <<  vsquared[channel] << endl;
       //vsquared[channel] = sqrt(FFTtools::getPeakSqVal(integrated_wf));      
-      delete waveform_cropped;
+      //delete waveform_cropped;
       // delete diode_wf;
       // delete integrated_wf;
       //delete waveform_cropped;
-      // delete waveform_sum_sq;
     }//channel loop
     int whichCh=0;
     double thePeak = getMostNegative(vsquared, whichCh);
