@@ -93,7 +93,7 @@ int main(int argc, char **argv)
     sprintf(hname,"h1_channel%d",j);
     sprintf(hname2,"rms_h1_channel%d",j);
 
-    h1[j] = new TH1F(hname,hname,200,-10,0);
+    h1[j] = new TH1F(hname,hname,2000,0,300000);
     h_rms[j] = new TH1F(hname2,hname2,200,0.,60.);
 
   }
@@ -138,11 +138,29 @@ int main(int argc, char **argv)
     //  eventTree->SetBranchAddress("run",&run_num); //set the branch address
 
     // TH1* h1 = new TH1I("h1", "h1 title", 500, 0.0, 15000);
-
-   
+    /*
+    char runconfig_file_name[400];
+    sprintf(runconfig_file_name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/config_files/A%d/%d/configFile.run00%d.dat",station,year,runNum);
+    string line, label;
+    int PreTrigBlock;
+    ifstream file;
+    file.open(runconfig_file_name);
+    if ( file.is_open() ) {
+      while (file.good() ) {
+	getline (file,line);
+	label = line.substr(0, line.find_first_of("="));
+	if (label == "numRF0PreTriggerBlocks#1") {
+	  PreTrigBlock  = atof( line.substr(line.find_first_of("=") + 1).c_str() );
+	}
+      }
+    }
+    file.close();
+    printf("PreTrigBlock is %d\n", PreTrigBlock);
+    */
     AraEventCalibrator *calib = AraEventCalibrator::Instance(); //make a calibrator
+    AraGeomTool * geomTool = new AraGeomTool();
 
-
+    /*
     double rms_diode_sum[16];
     int counter = 0;
     for(Long64_t event=0;event<numEntries;event++) {
@@ -159,7 +177,7 @@ int main(int argc, char **argv)
 	//cout << event << endl;
 	for(int channel = 0; channel<15; channel++){
 	  TGraph *waveform = realAtriEvPtr_fullcalib->getGraphFromRFChan(channel);//channel.
-	
+	  //  if(channel==0) cout<<waveform->GetN()<< endl;
 	  TGraph *waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
 	  delete waveform;
 	  TGraph *waveform_Padded = FFTtools::padWaveToLength(waveform_Interpolated, 2048);
@@ -177,15 +195,13 @@ int main(int argc, char **argv)
     double rms_diode_avg[16];
     for(int i=0; i<15;i++){
       rms_diode_avg[i]=rms_diode_sum[i]/100;
-      //	cout << rms_diode_avg[i] << endl;
+      //cout << rms_diode_avg[i] << endl;
     }
+    */
     
-    
 
-
-
-
-    
+    double cable_delay[16]={230,230,330,230,300,300,400,300,220,220,320,220,290,290,390,290};
+  
     for(int event=0; event<numEntries; event++){//loop over events
       eventTree->GetEvent(event);
       int evt_num = rawEvPtr->eventNumber;//event number
@@ -193,30 +209,22 @@ int main(int argc, char **argv)
       if(!is_RF_trig) continue;
       UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
 
-      bool isGoodEvent = IsGoodForCalib(station, year, runNum);// This function is in CalibUtil.h
+      bool isGoodEvent = IsGoodForCalib(station, year, runNum, 0);// This function is in CalibUtil.h
       AraQualCuts *qual = AraQualCuts::Instance();
       bool isGood = qual->isGoodEvent(realAtriEvPtr_fullcalib);//From Brian's QCuts library
       
-      if(isGoodEvent && isGood && rawEvPtr->isCalpulserEvent()==false){//If RF triggered event
-	//cout<<"Good for calibration!"<<endl;
-	int eventId=rawEvPtr->eventId;
-	int numReadoutBlocks=rawEvPtr->numReadoutBlocks;
-	uint32_t triggerInfo[MAX_TRIG_BLOCKS];
-	uint8_t triggerBlock[MAX_TRIG_BLOCKS];
-	for(int trig=0;trig<MAX_TRIG_BLOCKS;trig++) {
-	  // triggerInfo[trig]=rawEvPtr->triggerInfo[trig];
-	  triggerBlock[trig]=rawEvPtr->triggerBlock[trig];
-	  //cout << "Trigger info: " << triggerInfo[trig] << endl;
-	  //cout << "Trigger block: " << triggerBlock[trig] << endl;
-	}
+      if(isGoodEvent && isGood && rawEvPtr->isCalpulserEvent()==false){//If RF triggered event but non calpul
+
 	double vsquared[16];
+	double vsquared_time[16];
 	for(int channel = 0; channel<15; channel++){
 	  TGraph *waveform = realAtriEvPtr_fullcalib->getGraphFromRFChan(channel);//channel 2
 	  bool isAGlitch = isGlitch(waveform); // This function is in CalibUtil.h
-	  if(isAGlitch){
-	    
+	  if(isAGlitch){    
 	    continue;
 	  }
+	  Double_t delay=geomTool->getStationInfo(station)->getCableDelay(channel);
+	  for(int samp=0; samp<waveform->GetN(); samp++) waveform->GetX()[samp]+=delay;	
 	  TGraph *waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
 	  delete waveform;
 	  TGraph *waveform_Padded = FFTtools::padWaveToLength(waveform_Interpolated, 2048);
@@ -225,58 +233,84 @@ int main(int argc, char **argv)
 	  //TGraph *spectrum = makeFreqV_MilliVoltsNanoSeconds(waveform_Padded);
 	 
 	  h_rms[channel]->Fill(rms);
-	
-	  TGraph *diode_wf = doConvolve(waveform_Padded);
+	  // TGraph *waveform_sum_sq = makeSummedVsquaredWForm(waveform_Interpolated, 5);
+	  TGraph *waveform_cropped = FFTtools::cropWave(waveform_Padded, cable_delay[channel]-170, cable_delay[channel]+20);//looking during trigger window. Say trigger occured at center of wf.
+	  
+	  vsquared[channel] = FFTtools::getPeakSqVal(waveform_cropped);
+	  int peakBin=getPeakBin(waveform_cropped);
+	  vsquared_time[channel]=waveform_cropped->GetX()[peakBin];
+	  
+
+	  // vsquared_vec[channel][1]=0;
+	  //TGraph *diode_wf = doConvolve(waveform_Padded);
 	  delete waveform_Padded;
-
-	  for(int samp=0; samp<diode_wf->GetN(); samp++) diode_wf->GetY()[samp]/=rms_diode_avg[channel];
-	  double time_window = waveform_Padded->GetX()[waveform_Padded->GetN()/2];
-
-	  TGraph *waveform_cropped = FFTtools::cropWave(diode_wf, time_window-160, time_window+10);//looking during trigger window. Say trigger occured at center of wf.
-	  delete diode_wf;
-	  vsquared[channel] = getNegativePeak(waveform_cropped);
+	  //  printf("vector %d is: (%f,%f) \n", channel,vsquared_vec[channel][0],vsquared_vec[channel][1]);
+	  //for(int samp=0; samp<diode_wf->GetN(); samp++) diode_wf->GetY()[samp]/=rms_diode_avg[channel];
+	  //double time_window = waveform_Padded->GetX()[waveform_Padded->GetN()/2];
+	  
+	  //TGraph *waveform_cropped_diode = FFTtools::cropWave(diode_wf, cable_delay[channel]-190, cable_delay[channel]+20);//looking during trigger window. Say trigger occured at center of wf.
+	  /*
+	  if(channel == 5){
+	  char name[40];
+	  sprintf(name, "./wforms/wf_%0.1f_ch%d_ev%d.png", 4, channel, event);
+	  TCanvas *cc = new TCanvas("","",850,850);
+	  //	cc->Divide(2,1);
+	  //	cc->cd(1);
+	  diode_wf->Draw();
+	  //	cc->cd(2);
+	  //FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(waveform)->Draw();
+	  cc->SaveAs(name);
+	  delete cc;
+	  }
+	  */
+	  //  vsquared[channel] = getNegativePeak(waveform_cropped);
+	  // delete diode_wf;
+	  //delete waveform_sum_sq;
 	  delete waveform_cropped;
 	}//channel loop
+
 	vector<double> peak;
-	peak.resize(2);
-	peak.clear();
-	get3rdsmallest(vsquared, peak);// This function is in CalibUtil.h
-	double thirdsmallest;
-	if(abs(peak[0])<abs(peak[1])) thirdsmallest=peak[1];
-	else thirdsmallest=peak[0];
+	//peak.resize(2);
+	//peak.clear();
+	get3rdPeakSqValSamePol(vsquared, peak);// This function is in CalibUtil.h
+	//double thirdsmallest;
+	double thirdsmallest=get3rdPeakSqValSamePol_timeordered(vsquared_time, vsquared);// This function is in CalibUtil.h
+	//	if(abs(peak[0])<abs(peak[1])) thirdsmallest=peak[1];
+	//	else thirdsmallest=peak[0];
+	  /*
+	bool Triggered;
+	double thirdHighest_pol;
+	for(double thres=-6.5; thres<=-4.5; thres+=0.1){
+	  thirdHighest_pol=0;
+	  Triggered = isTriggered(thres, vsquared, thirdHighest_pol);
+	  if(Triggered){
+	    //    printf("Threshold is %f, 3rdpeak is %f \n", thres, thirdHighest_pol);
+	    break;
+	  }
+	}
+	  */
+
 	// This function is in CalibUtil.h
 	//	printf("peak v: %d, peak h:%d \n", peak[0], peak[1]);
-	for(int ii = 0; ii<15; ii++){//loop over maxvsquared values
-	  if(abs(vsquared[ii]-thirdsmallest) < 1e-4){
-	    //printf("Highest 3rd is : %f\n",thirdsmallest);
-	    // cout <<vsquared[ii]<<endl;
-	    h1[ii]->Fill(vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
-	  }
-	}//loop over maxvsquared values
+	//if(Triggered){
+	  for(int ii = 0; ii<15; ii++){//loop over maxvsquared values
+	    if(abs(vsquared[ii]-thirdsmallest) < 1e-4){
+	      //    cout<< thirdsmallest<< endl;
+	      //   cout << ii << endl;
+	      //printf("Highest 3rd is : %f\n",thirdHighest_pol);
+	      // cout <<vsquared[ii]<<endl;
+	      h1[ii]->Fill(vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
+	    }
+	  }//loop over maxvsquared values
+	  //	}//If triggered
       }//close if RF triggered event
       delete realAtriEvPtr_fullcalib;
     }//end loop over events
     delete calib;
-    /*
-      TCanvas *c2 = new TCanvas("","",1850,1850);
-      Double_t norm = 100000.;
-      c2->Divide(4,4);
-      char hname_2[20];
-      for(int i=0; i<16; i++){//canvas loop
-      c2->cd(i+1);
-      Double_t scale = norm/(h1[i]->Integral("width"));
-      h1[i]->Scale(scale);
-      h1[i]->Draw("");
-      c2->Update();
-      //  delete h1[i];
-      }//canvas loop
-  
-
-      c2->SaveAs("vsquared.png");
-    */
+ 
     // delete realAtriEvPtr_fullcalib;
     char filename[100];
-    sprintf(filename, "./files_3rdhighest/hist_from_data_3rdhighest_rms_run%d.root", runNum);
+    sprintf(filename, "./files_3rdhighest/hist_from_data_3rdhighest_vsquared_run%d_fullwindow.root_timeord", runNum);
     TFile *f = new TFile(filename, "RECREATE");
   
     for(int channel = 0; channel<15; channel++){
