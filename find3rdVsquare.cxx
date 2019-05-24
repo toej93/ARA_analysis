@@ -160,7 +160,7 @@ int main(int argc, char **argv)
     AraEventCalibrator *calib = AraEventCalibrator::Instance(); //make a calibrator
     AraGeomTool * geomTool = new AraGeomTool();
 
-    /*
+    //  /*
     double rms_diode_sum[16];
     int counter = 0;
     for(Long64_t event=0;event<numEntries;event++) {
@@ -170,7 +170,7 @@ int main(int argc, char **argv)
       if(!is_RF_trig) continue;
       UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
     
-      bool isGoodEvent = IsGoodForCalib(station, year, runNum);// This function is in CalibUtil.h
+      bool isGoodEvent = IsGoodForCalib(station, year, runNum, 0);// This function is in CalibUtil.h
       AraQualCuts *qual = AraQualCuts::Instance();
       bool isGood = qual->isGoodEvent(realAtriEvPtr_fullcalib);//From Brian's QCuts library
       if(isGoodEvent && isGood && rawEvPtr->isCalpulserEvent()==false){
@@ -182,10 +182,10 @@ int main(int argc, char **argv)
 	  delete waveform;
 	  TGraph *waveform_Padded = FFTtools::padWaveToLength(waveform_Interpolated, 2048);
 	  delete waveform_Interpolated;
-	  TGraph *diode_wf = doConvolve(waveform_Padded);
-	  rms_diode_sum[channel] += getRMS(diode_wf, getBinsforRMS(diode_wf));      
+	  // TGraph *diode_wf = doConvolve(waveform_Padded);
+	  rms_diode_sum[channel] += getRMS(waveform_Padded, getBinsforRMS(waveform_Padded));      
 	  delete waveform_Padded;      
-	  delete diode_wf;
+	  // delete diode_wf;
 	}
 	counter++;    
       }
@@ -195,15 +195,18 @@ int main(int argc, char **argv)
     double rms_diode_avg[16];
     for(int i=0; i<15;i++){
       rms_diode_avg[i]=rms_diode_sum[i]/100;
-      //cout << rms_diode_avg[i] << endl;
+      // cout << rms_diode_avg[i] << endl;
     }
-    */
-    
-
+    //   */
+    eventTree->GetEvent(0);
+    int unixtime_0=rawEvPtr->unixTime;//Unix time of fisrst event.
     double cable_delay[16]={230,230,330,230,300,300,400,300,220,220,320,220,290,290,390,290};
   
     for(int event=0; event<numEntries; event++){//loop over events
       eventTree->GetEvent(event);
+      int unixtime;
+      unixtime = rawEvPtr->unixTime;
+      if((unixtime-unixtime_0)<=1200)continue;//Want to throw away first 20 min, so triggers are stable.
       int evt_num = rawEvPtr->eventNumber;//event number
       bool is_RF_trig = rawEvPtr->isRFTrigger();
       if(!is_RF_trig) continue;
@@ -214,7 +217,7 @@ int main(int argc, char **argv)
       bool isGood = qual->isGoodEvent(realAtriEvPtr_fullcalib);//From Brian's QCuts library
       
       if(isGoodEvent && isGood && rawEvPtr->isCalpulserEvent()==false){//If RF triggered event but non calpul
-
+	
 	double vsquared[16];
 	double vsquared_time[16];
 	for(int channel = 0; channel<15; channel++){
@@ -269,12 +272,14 @@ int main(int argc, char **argv)
 	  delete waveform_cropped;
 	}//channel loop
 
-	vector<double> peak;
+	//vector<double> peak;
 	//peak.resize(2);
 	//peak.clear();
-	get3rdPeakSqValSamePol(vsquared, peak);// This function is in CalibUtil.h
+	//get3rdPeakSqValSamePol(vsquared, peak);// This function is in CalibUtil.h
 	//double thirdsmallest;
 	double thirdsmallest=get3rdPeakSqValSamePol_timeordered(vsquared_time, vsquared);// This function is in CalibUtil.h
+	//	cout << thirdsmallest << endl;
+	if (thirdsmallest<0) continue;
 	//	if(abs(peak[0])<abs(peak[1])) thirdsmallest=peak[1];
 	//	else thirdsmallest=peak[0];
 	  /*
@@ -299,7 +304,7 @@ int main(int argc, char **argv)
 	      //   cout << ii << endl;
 	      //printf("Highest 3rd is : %f\n",thirdHighest_pol);
 	      // cout <<vsquared[ii]<<endl;
-	      h1[ii]->Fill(vsquared[ii]);//Fill hist of respective channel in which 3rdv2 was located
+	      h1[ii]->Fill(vsquared[ii]/pow(rms_diode_sum[ii],2));//Fill hist of respective channel in which 3rdv2 was located
 	    }
 	  }//loop over maxvsquared values
 	  //	}//If triggered
@@ -310,7 +315,7 @@ int main(int argc, char **argv)
  
     // delete realAtriEvPtr_fullcalib;
     char filename[100];
-    sprintf(filename, "./files_3rdhighest/hist_from_data_3rdhighest_vsquared_run%d_fullwindow.root_timeord", runNum);
+    sprintf(filename, "./files_3rdhighest/hist_from_data_3rdhighest_vsquared_run%d_fullwindow_timeord_ratio0.8.root", runNum);
     TFile *f = new TFile(filename, "RECREATE");
   
     for(int channel = 0; channel<15; channel++){
