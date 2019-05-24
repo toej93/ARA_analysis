@@ -77,7 +77,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
   double threshold = atof(argv[1]);
   char name[50];
   // sprintf(name, "hist_from_data_3rd_%0.1f.root", threshold);
-  sprintf(name, "hist_from_data_3rd_V2_rms_%0.1f_20nswindow_cuts.root", threshold);
+  sprintf(name, "hist_from_data_3rd_V2_rms_%0.1f_fullwindow_normalizded_by_rms.root", threshold);
   
   chain.SetBranchAddress("UsefulAtriStationEvent", &realAtriEvPtr);
   chain.GetEvent(0);
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
     h_rms[j] = new TH1F(hname2,hname2,200,0,100);
 
   }
-  /*
+  ///*
   double rms_diode_avg[16];
   double rms_diode_sum[16];
 
@@ -113,10 +113,10 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
       delete waveform;
       TGraph *waveform_Padded = FFTtools::padWaveToLength(waveform_Interpolated, 1024);
       delete waveform_Interpolated;
-      TGraph *diode_wf = doConvolve(waveform_Padded);
-      rms_diode_sum[channel] += getRMS(diode_wf, getBinsforRMS(diode_wf));      
+      // TGraph *diode_wf = doConvolve(waveform_Padded);
+      rms_diode_sum[channel] += getRMS(waveform_Padded, getBinsforRMS(waveform_Padded));      
       delete waveform_Padded;      
-      delete diode_wf;
+      //  delete diode_wf;
     }
 
   }
@@ -125,7 +125,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
 	rms_diode_avg[i]=rms_diode_sum[i]/100;
 	//	cout << rms_diode_avg[i] << endl;
   }
-  */
+  //  */
   
     
   for(Long64_t event=0;event<numEntries;event++) {
@@ -139,17 +139,17 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
     bool hasTimingError = qualCut->hasTimingError(realAtriEvPtr);
     bool hasTooFewBlocks = qualCut->hasTooFewBlocks(realAtriEvPtr);
     bool hasOffsetBlocks = qualCut->hasOffsetBlocks(realAtriEvPtr);
-    cout << "here!!!!!!!!!!!!!" << endl;
+    //cout << "here!!!!!!!!!!!!!" << endl;
 			    
 
     if(!hasTimingError && !hasTooFewBlocks && !hasOffsetBlocks)
       isGoodEvent=true;
     if(!isGoodEvent) continue;
-    cout << "good event" << endl;
+    //cout << "good event" << endl;
     for(int channel = 0; channel<15; channel++){
       TGraph *waveform = realAtriEvPtr->getGraphFromRFChan(channel);//channel.
-      bool isGoodEvent = IsGoodForCalib_sim(threshold);//first 3 args don't matter
-      if(!isGoodEvent) cout << "BAAAAAAAD!!!!" << endl;
+      //bool isGoodEvent_ = IsGoodForCalib_sim(threshold);//first 3 args don't matter
+      //  if(!isGoodEvent_) cout << "BAAAAAAAD!!!!" << endl;
       TGraph *waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
       delete waveform;
       TGraph *waveform_Padded = FFTtools::padWaveToLength(waveform_Interpolated, 2048);
@@ -194,7 +194,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
     int whichCh=0;
     double thePeak = getMostNegative(vsquared, whichCh);
     //printf("Peak: %f, Ch: %d\n", thePeak, whichCh);
-    h1[whichCh]->Fill(thePeak);
+    h1[whichCh]->Fill(thePeak/pow(rms_diode_sum[whichCh],2));
     vector<double> peak;
     //peak.resize(2);
     //peak.clear();
