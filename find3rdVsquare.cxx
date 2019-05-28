@@ -93,7 +93,7 @@ int main(int argc, char **argv)
     sprintf(hname,"h1_channel%d",j);
     sprintf(hname2,"rms_h1_channel%d",j);
 
-    h1[j] = new TH1F(hname,hname,2000,0,300000);
+    h1[j] = new TH1F(hname,hname,2000,0,100);
     h_rms[j] = new TH1F(hname2,hname2,200,0.,60.);
 
   }
@@ -304,7 +304,8 @@ int main(int argc, char **argv)
 	      //   cout << ii << endl;
 	      //printf("Highest 3rd is : %f\n",thirdHighest_pol);
 	      // cout <<vsquared[ii]<<endl;
-	      h1[ii]->Fill(vsquared[ii]/pow(rms_diode_sum[ii],2));//Fill hist of respective channel in which 3rdv2 was located
+	      cout << vsquared[ii]/pow(rms_diode_avg[ii],2) << endl;
+	      h1[ii]->Fill(vsquared[ii]/pow(rms_diode_avg[ii],2));//Fill hist of respective channel in which 3rdv2 was located
 	    }
 	  }//loop over maxvsquared values
 	  //	}//If triggered
