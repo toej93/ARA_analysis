@@ -77,7 +77,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
   double threshold = atof(argv[1]);
   char name[50];
   // sprintf(name, "hist_from_data_3rd_%0.1f.root", threshold);
-  sprintf(name, "hist_from_data_3rd_V2_rms_%0.1f_fullwindow_normalizded_by_rms.root", threshold);
+  sprintf(name, "hist_from_sim_3rd_V2_%0.1f_normalized.root", threshold);
   
   chain.SetBranchAddress("UsefulAtriStationEvent", &realAtriEvPtr);
   chain.GetEvent(0);
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
     sprintf(hname,"sim_channel %d",j);
     sprintf(hname2,"rms_sim_channel %d",j);
 
-    h1[j] = new TH1F(hname,hname,200,0,100000);
+    h1[j] = new TH1F(hname,hname,200,0,100);
     h_rms[j] = new TH1F(hname2,hname2,200,0,100);
 
   }
@@ -194,7 +194,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
     int whichCh=0;
     double thePeak = getMostNegative(vsquared, whichCh);
     //printf("Peak: %f, Ch: %d\n", thePeak, whichCh);
-    h1[whichCh]->Fill(thePeak/pow(rms_diode_sum[whichCh],2));
+    h1[whichCh]->Fill(thePeak/pow(rms_diode_avg[whichCh],2));
     vector<double> peak;
     //peak.resize(2);
     //peak.clear();
@@ -207,7 +207,7 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
   char h2name[20];
   for(int j = 0; j<15; j++){
     sprintf(h2name,"h2_channel %d",j);
-    h2[j] = new TH1F(h2name,"test",200,0,100000);
+    h2[j] = new TH1F(h2name,"test",200,0,100);
   }
   TFile *f1 = new TFile(name, "RECREATE");
   for(int channel = 0; channel<15; channel++){
