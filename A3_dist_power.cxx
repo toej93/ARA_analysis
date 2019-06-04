@@ -77,8 +77,8 @@ int main(int argc, char **argv)
 
   TH1F *h2[20];
   char h2name[50];
-  for(int j = 0; j<20; j++){
-    sprintf(h2name,"Fraction of power below 150 MHz, channel %d",j);
+  for(int j = 0; j<16; j++){
+    sprintf(h2name,"Fraction of power below 75 MHz");
     h2[j] = new TH1F(h2name,h2name,100,0,1);
   }
   
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
       vector<TGraph*> graphs_spectra;
       double interpolation_step = 0.5;
 
-      for (int i = 0; i < 20; i++){
+      for (int i = 0; i < 16; i++){
 	TGraph* gr = realAtriEvPtr_fullcalib->getGraphFromRFChan(i);
 	TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(gr,interpolation_step);
 	delete gr;
@@ -100,12 +100,13 @@ int main(int argc, char **argv)
 	TGraph *Waveform_Cropped=FFTtools::cropWave(Waveform_Padded,-300.,300.);
 	delete Waveform_Padded;
 	TGraph* spectra = FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(Waveform_Cropped);
-	double pow_bins[20];
-	double integral[20];
-	double frac_pow[20];
+	delete Waveform_Cropped;
+	double pow_bins[16];
+	double integral[16];
+	double frac_pow[16];
 	//	if (i == 0 || i == 3 || i == 7 || i == 11 || i == 15){
 	  int num_bins = spectra->GetN();
-	  //	cout << "number of bins is " << num_bins << endl;
+	  //  cout << "number of bins is " << num_bins << endl;
 	  double integral_tmp = 0;
 	  for(int samp=0; samp<num_bins; samp++){
 	    integral_tmp+=spectra->GetY()[samp];
@@ -113,7 +114,7 @@ int main(int argc, char **argv)
 	  integral[i]=integral_tmp;
 	  //	cout << "The integral is " << integral_tmp << endl;
 	  double power = 0;
-	  for(int j = 0; j < 91; j++){
+	  for(int j = 0; j < 45; j++){
 	    double freq_bin = spectra->GetX()[j];
 	    double magnitude = spectra->GetY()[j];
 
@@ -128,43 +129,25 @@ int main(int argc, char **argv)
 	    
 	    //	  }//If glitch
 	    //	}//If in affected channels
-
+	    delete spectra;
       }
       delete realAtriEvPtr_fullcalib;
-
-      //Need to check channels 3, 7, 11.
-
-    
-      for (int i=0; i < graphs.size(); i++){
-	delete graphs[i];
-	delete graphs_spectra[i];
-      }
-      graphs.clear();
-      graphs_spectra.clear();
-      // }
   }//end loop over events
   
-  TCanvas *c3 = new TCanvas("","",850,850);
-  gStyle->SetOptStat(0);
-  for(int i=0; i<15; i+=1){//canvas loop
-    h2[i]->SetLineColor(i-1);
-    if (i == 11){
-      h2[i]->SetLineColor(4);
-    }
-    h2[i]->Draw("SAME");	  
+  TCanvas *c3 = new TCanvas("","",850*4,850*4);
+  c3->Divide(4,4);
+  for(int i=0; i<15; i++){//canvas loop
+    char ch_name[20];
+    sprintf(ch_name,"Fraction of power below 75 MHz");
+    c3->cd(i+1);
+    h2[i]->SetTitle(ch_name);
+    h2[i]->Draw("");
+	 
   }//canvas loop
-  h2[0]->Draw("SAME");
-  TLegend *legend = new TLegend(0.7,0.7,0.98,0.9);
-  legend->AddEntry(h2[0],"Channel 0","l");  
-  legend->AddEntry(h2[3],"Channel 3","l");
-  legend->AddEntry(h2[7],"Channel 7","l");
-  legend->AddEntry(h2[11],"Channel 11","l");
-  legend->AddEntry(h2[15],"Channel 15","l");
-  legend->Draw();
-  c3->Update();
-  char h3name[100];
-  sprintf(h3name,"./pow_dist_run%d.png",run_num);
-  c3->SaveAs(h3name);    
+  char ch_name_[50];
+  sprintf(ch_name_,"power_below_75MHz_16_run%d.png",run_num);
+
+  c3->SaveAs(ch_name_);
   delete c3;
    
     
