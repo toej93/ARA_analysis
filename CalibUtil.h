@@ -435,8 +435,9 @@ double get3rdPeakSqValSamePol_timeordered(double *vsquared_time, double *vsquare
     }
   }
   // cout<<"Fourth: "<< fourth << endl;//See which one happened first and choose that
-  if(time_vmax[third].second<time_vmax[fourth].second) return time_vmax[third].second;
-  else return time_vmax[fourth].second;
+  if(time_vmax[third].first<time_vmax[fourth].first) return time_vmax[third].second;
+  else if (time_vmax[fourth].first<time_vmax[third].first && (time_vmax[fourth].second/time_vmax[third].second)>0.8) return time_vmax[fourth].second;
+  else return -5.0;
 							 
 
   
