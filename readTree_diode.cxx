@@ -160,13 +160,13 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
       h_rms[channel]->Fill(rms[channel]);
     
       TGraph *diode_wf = doConvolve(waveform_Padded);
+      delete waveform_Padded;
 
       for(int samp=0; samp<diode_wf->GetN(); samp++) diode_wf->GetY()[samp]/=rms_diode_avg[channel];
-      TGraph *waveform_cropped_diode = FFTtools::cropWave(diode_wf, -10, 10);//Crop waveform and look back in the trigger window
+      TGraph *waveform_cropped_diode = FFTtools::cropWave(diode_wf, -1, 1);//Crop waveform and look back in the trigger window
       //TGraph *waveform_sum_sq = makeSummedVsquaredWForm(waveform_Interpolated, 5);
      
       vsquared[channel] = getNegativePeak(diode_wf);
-      delete waveform_Padded;
 
       // cout <<  vsquared[channel] << endl;
       //vsquared[channel] = sqrt(FFTtools::getPeakSqVal(integrated_wf));      
@@ -179,6 +179,9 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
     int whichCh=0;
     double thePeak = getMostNegative(vsquared, whichCh);
     //printf("Peak: %f, Ch: %d\n", thePeak, whichCh);
+    if(thePeak>threshold){
+      printf("Event is: %d, peak is %d \n", event, thePeak);
+    }
     h1[whichCh]->Fill(thePeak);
 
    
