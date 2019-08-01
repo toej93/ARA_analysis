@@ -26,13 +26,13 @@ bool IsGoodForCalib_sim(double thres){
 
   char summary_file_name[400];
     sprintf(summary_file_name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/pedestal_files/CWID_station_2_thres_%0.1f.root", thres);
-    
+
   TFile *NewCWFile = TFile::Open(summary_file_name);
   if(!NewCWFile) {
     std::cerr << "Can't open new CW file\n";
     return -1;
   }
-  TTree* NewCWTree = (TTree*) NewCWFile->Get("NewCWTree");   
+  TTree* NewCWTree = (TTree*) NewCWFile->Get("NewCWTree");
   if(!NewCWTree) {
     std::cerr << "Can't find NewCWTree\n";
     return -1;
@@ -63,7 +63,7 @@ bool IsGoodForCalib_sim(double thres){
 
     //this function is from tools_Cuts (https://github.com/clark2668/a23_analysis_tools/blob/master/tools_Cuts.h)
     //so you'll need to download and #include that
-    
+
     /* if(isBadEvent(station, year, runNum, event)){
       //     cout << "Is bad event!!!!" << endl;
       continue;
@@ -75,7 +75,7 @@ bool IsGoodForCalib_sim(double thres){
     bool isCutonCW_fwd[2]; isCutonCW_fwd[0]=false; isCutonCW_fwd[1]=false;
     bool isCutonCW_back[2]; isCutonCW_back[0]=false; isCutonCW_back[1]=false;
     bool isCutonCW_baseline[2]; isCutonCW_baseline[0]=false; isCutonCW_baseline[1]=false;
-			
+
     //first, check the baseline technique
     for(int pol=0; pol<badFreqs_baseline->size(); pol++){
       vector<double> badFreqListLocal_baseline = badFreqs_baseline->at(pol);
@@ -91,8 +91,8 @@ bool IsGoodForCalib_sim(double thres){
       badSigmaList_fwd=badSigmas_fwd->at(pol);
       for(int iCW=0; iCW<badFreqList_fwd.size(); iCW++){
 	if(
-	   badSigmaList_fwd[iCW] > threshCW 
-	   && 
+	   badSigmaList_fwd[iCW] > threshCW
+	   &&
 	   abs(300. - badFreqList_fwd[iCW]) > 2.
 	   &&
 	   abs(500. - badFreqList_fwd[iCW]) > 2.
@@ -112,8 +112,8 @@ bool IsGoodForCalib_sim(double thres){
       badSigmaList_back=badSigmas_back->at(pol);
       for(int iCW=0; iCW<badFreqList_back.size(); iCW++){
 	if(
-	   badSigmaList_back[iCW] > threshCW 
-	   && 
+	   badSigmaList_back[iCW] > threshCW
+	   &&
 	   abs(300. - badFreqList_back[iCW]) > 2.
 	   &&
 	   abs(500. - badFreqList_back[iCW]) > 2.
@@ -137,18 +137,18 @@ bool IsGoodForCalib_sim(double thres){
       //    if(isCutonCW_fwd[pol]==false && isCutonCW_back[pol]==false && isCutonCW_baseline[pol]==false){
       if(/*!isCutonCW_fwd[pol] && !isCutonCW_back[pol] && */!isCutonCW_baseline[pol]){
 	//	cout << "Is good event!!!!" << endl;
-	
+
 	return true;
       }
       else{
 	//cout << "Is bad event!!!!" << endl;
 	return false;
       }
-			
+
     } //cal pulser
-		
+
   } //loop over events
- 
+
 }
 
 bool IsGoodForCalib(int station, int year, int runNum, bool isSimulation){
@@ -166,13 +166,13 @@ bool IsGoodForCalib(int station, int year, int runNum, bool isSimulation){
   else{
     sprintf(summary_file_name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/pedestal_files/CWID_station_2.root");
   }
-  
+
   TFile *NewCWFile = TFile::Open(summary_file_name);
   if(!NewCWFile) {
     std::cerr << "Can't open new CW file\n";
     return -1;
   }
-  TTree* NewCWTree = (TTree*) NewCWFile->Get("NewCWTree");   
+  TTree* NewCWTree = (TTree*) NewCWFile->Get("NewCWTree");
   if(!NewCWTree) {
     std::cerr << "Can't find NewCWTree\n";
     return -1;
@@ -203,7 +203,7 @@ bool IsGoodForCalib(int station, int year, int runNum, bool isSimulation){
 
     //this function is from tools_Cuts (https://github.com/clark2668/a23_analysis_tools/blob/master/tools_Cuts.h)
     //so you'll need to download and #include that
-    
+
     /* if(isBadEvent(station, year, runNum, event)){
       //     cout << "Is bad event!!!!" << endl;
       continue;
@@ -215,7 +215,7 @@ bool IsGoodForCalib(int station, int year, int runNum, bool isSimulation){
     bool isCutonCW_fwd[2]; isCutonCW_fwd[0]=false; isCutonCW_fwd[1]=false;
     bool isCutonCW_back[2]; isCutonCW_back[0]=false; isCutonCW_back[1]=false;
     bool isCutonCW_baseline[2]; isCutonCW_baseline[0]=false; isCutonCW_baseline[1]=false;
-			
+
     //first, check the baseline technique
     for(int pol=0; pol<badFreqs_baseline->size(); pol++){
       vector<double> badFreqListLocal_baseline = badFreqs_baseline->at(pol);
@@ -231,8 +231,8 @@ bool IsGoodForCalib(int station, int year, int runNum, bool isSimulation){
       badSigmaList_fwd=badSigmas_fwd->at(pol);
       for(int iCW=0; iCW<badFreqList_fwd.size(); iCW++){
 	if(
-	   badSigmaList_fwd[iCW] > threshCW 
-	   && 
+	   badSigmaList_fwd[iCW] > threshCW
+	   &&
 	   abs(300. - badFreqList_fwd[iCW]) > 2.
 	   &&
 	   abs(500. - badFreqList_fwd[iCW]) > 2.
@@ -252,8 +252,8 @@ bool IsGoodForCalib(int station, int year, int runNum, bool isSimulation){
       badSigmaList_back=badSigmas_back->at(pol);
       for(int iCW=0; iCW<badFreqList_back.size(); iCW++){
 	if(
-	   badSigmaList_back[iCW] > threshCW 
-	   && 
+	   badSigmaList_back[iCW] > threshCW
+	   &&
 	   abs(300. - badFreqList_back[iCW]) > 2.
 	   &&
 	   abs(500. - badFreqList_back[iCW]) > 2.
@@ -277,18 +277,18 @@ bool IsGoodForCalib(int station, int year, int runNum, bool isSimulation){
       //    if(isCutonCW_fwd[pol]==false && isCutonCW_back[pol]==false && isCutonCW_baseline[pol]==false){
       if(/*!isCutonCW_fwd[pol] && !isCutonCW_back[pol] && */!isCutonCW_baseline[pol]){
 	//	cout << "Is good event!!!!" << endl;
-	
+
 	return true;
       }
       else{
 	//	cout << "Is bad event!!!!" << endl;
 	return false;
       }
-			
+
     } //cal pulser
-		
+
   } //loop over events
- 
+
 }
 
 
@@ -308,7 +308,7 @@ Double_t get3rdPeakSqVal(double *vsquared) //get 3rd highest v^2
 }
 
 
-int getPeakBin(TGraph *gr) 
+int getPeakBin(TGraph *gr)
 {
   double x,y;
   gr->GetPoint(0,x,y);
@@ -319,7 +319,7 @@ int getPeakBin(TGraph *gr)
     if(peakVal<y) {
       peakVal=y;
       peakBin=i;
-    }      
+    }
   }
   return peakBin;
 }
@@ -336,7 +336,7 @@ double getNegativePeak(TGraph *gr)
     if( abs(peakVal)<abs(y) ) {
       peakVal=y;
       peakBin=i;
-    }      
+    }
   }
   //return peakBin;
   return peakVal;
@@ -344,12 +344,12 @@ double getNegativePeak(TGraph *gr)
 
 double getMostNegative(double *array, int &peakCh)//or positive
 {
-  double peakVal=0;    
+  double peakVal=0;
   for(int i=0;i<15;i++) {
     if( abs(peakVal)<abs(array[i]) ) {
       peakVal=array[i];
       peakCh=i;
-    }      
+    }
   }
   //return peakBin;
   return peakVal;
@@ -373,7 +373,7 @@ void get3rdPeakSqValSamePol(double *vsquared, vector<double> &peak) //get 3rd hi
   for(int i = 0; i<8; i++){
     peakValVpol.push_back(vsquared[i]);
   }
-  
+
   for(int i = 8; i<15; i++){
     peakValHpol.push_back(vsquared[i]);
   }
@@ -385,7 +385,7 @@ void get3rdPeakSqValSamePol(double *vsquared, vector<double> &peak) //get 3rd hi
     }
     else return peakValVpol[2];
   */
-  
+
   peak.push_back(peakValVpol[2]);
   peak.push_back(peakValHpol[2]);
   //cout << peak[0] <<endl;
@@ -402,14 +402,14 @@ double get3rdPeakSqValSamePol_timeordered(double *vsquared_time, double *vsquare
     peakValVpol.push_back(vsquared[i]);
     time_vmax[i] = std::make_pair (vsquared_time[i],vsquared[i]);
   }
-  
+
   for(int i = 8; i<15; i++){
     peakValHpol.push_back(vsquared[i]);
     time_vmax[i] = std::make_pair (vsquared_time[i],vsquared[i]);
   }
   std::nth_element(peakValVpol.begin(), peakValVpol.begin()+3, peakValVpol.end(), std::greater<double>());//3 means that it will sort the first 4 elements
   std::nth_element(peakValHpol.begin(), peakValHpol.begin()+3, peakValHpol.end(), std::greater<double>());
-  
+
   bool whichPol;//If 0 is V, 1 is H
 
   if(peakValHpol[2]>peakValVpol[2]){
@@ -417,12 +417,12 @@ double get3rdPeakSqValSamePol_timeordered(double *vsquared_time, double *vsquare
   }
   else whichPol=0;
 
-  //cout << whichPol << endl;  
+  //cout << whichPol << endl;
   int third=0, fourth=0;
   double thethirdPeak;
   if(whichPol==0){
     for(int i = 0; i<8; i++){
-      //cout << abs(time_vmax[i].second-peakValVpol[2]) << endl;  	
+      //cout << abs(time_vmax[i].second-peakValVpol[2]) << endl;
       if(abs(time_vmax[i].second-peakValVpol[2])<1.E-04) third=i;
       if(abs(time_vmax[i].second-peakValVpol[3])<1.E-04) fourth=i;
     }
@@ -438,10 +438,10 @@ double get3rdPeakSqValSamePol_timeordered(double *vsquared_time, double *vsquare
   if(time_vmax[third].first<time_vmax[fourth].first) return time_vmax[third].second;
   else if (time_vmax[fourth].first<time_vmax[third].first && (time_vmax[fourth].second/time_vmax[third].second)>0.8) return time_vmax[fourth].second;
   else return -5.0;
-							 
 
-  
- 
+
+
+
 }
 
 void get3rdsmallest(double *vsquared, vector<double> &peak) //get 3rd highest v^2 for the same polarization
@@ -451,7 +451,7 @@ void get3rdsmallest(double *vsquared, vector<double> &peak) //get 3rd highest v^
   for(int i = 0; i<8; i++){
     peakValVpol.push_back(1/vsquared[i]);
   }
-  
+
   for(int i = 8; i<15; i++){
     peakValHpol.push_back(1/vsquared[i]);
   }
@@ -463,7 +463,7 @@ void get3rdsmallest(double *vsquared, vector<double> &peak) //get 3rd highest v^
     }
     else return peakValVpol[2];
   */
-  
+
   peak.push_back(1/peakValVpol[2]);
   peak.push_back(1/peakValHpol[2]);
   //cout << peak[0] <<endl;
@@ -471,7 +471,7 @@ void get3rdsmallest(double *vsquared, vector<double> &peak) //get 3rd highest v^
 }
 
 TGraph *makeSummedVsquaredWForm(TGraph *grWave, double integration_window) {
- 
+
   double *volts = grWave->GetY();
   double *time = grWave->GetX();
   int length=grWave->GetN();
@@ -482,7 +482,7 @@ TGraph *makeSummedVsquaredWForm(TGraph *grWave, double integration_window) {
     for(int j=i; j<=i+nBins_window; j++){//loop over 10 ns. dt=0.5, then need 20 bins
       sum+=volts[j]*volts[j];
     }//loop over 10 ns
-    
+
     if(i>length-nBins_window)
       {
 	integral.push_back(0);
@@ -490,20 +490,20 @@ TGraph *makeSummedVsquaredWForm(TGraph *grWave, double integration_window) {
     else{
       integral.push_back(sum);
     }
-    
+
   }//loop over number of bins
- 
+
   TGraph *grInvInv = new TGraph(length,time,&integral[0]);
   //     for(int i=0;i<length;i++) {
   //      cout << oldX[i] << "\t" << invInvSpectrum[i] << endl;
   //     }
   return grInvInv;
- 
+
 }
 
 
 TGraph *makeVsquaredWForm(TGraph *grWave) {
- 
+
   double *volts = grWave->GetY();
   double *time = grWave->GetX();
   int length=grWave->GetN();
@@ -511,17 +511,17 @@ TGraph *makeVsquaredWForm(TGraph *grWave) {
   for(int i=0; i<=length; i++){
     squaredV.push_back(volts[i]*volts[i]);
   }//loop over number of bins
- 
+
   TGraph *grInvInv = new TGraph(length,time,&squaredV[0]);
   //     for(int i=0;i<length;i++) {
   //      cout << oldX[i] << "\t" << invInvSpectrum[i] << endl;
   //     }
   return grInvInv;
- 
+
 }
 
 bool isGlitch(TGraph *wform){
-  
+
   TGraph *Waveform_Interpolated = FFTtools::getInterpolatedGraph(wform,0.5);
   //delete wform;
   TGraph *Waveform_Padded = FFTtools::padWaveToLength(Waveform_Interpolated, Waveform_Interpolated->GetN()+6000);
@@ -530,11 +530,11 @@ bool isGlitch(TGraph *wform){
   delete Waveform_Padded;
   TGraph* spectra = FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(Waveform_Cropped);
   delete Waveform_Cropped;
-    
+
   double pow_bins;
   double integral;
   double frac_pow;
-      
+
   int num_bins = spectra->GetN();
   //	cout << "number of bins is " << num_bins << endl;
   double integral_tmp = 0;
@@ -562,7 +562,7 @@ bool isGlitch(TGraph *wform){
     // cout << "Found a GLITCH!!!!" << endl;
   }
   else return false;
-  
+
 }
 
 //Inverse FFT
@@ -622,17 +622,17 @@ TGraph *makeInvFFTPlot(TGraph *inputMag)
   double deltaT=oldX[1]-oldX[0];
   int length=grWave->GetN();
   FFTWComplex *theFFT=FFTtools::doFFT(length,oldY);
-     
+
   int newLength=(length/2)+1;
-     
+
   double *newY = new double [newLength];
   double *newX = new double [newLength];
-     
+
   //    double fMax = 1/(2*deltaT);  // In Hz
   double deltaF=1/(deltaT*length); //Hz
   deltaF*=1e3; //MHz
   //    std::cout << fMax << "\t" << deltaF << "\t" << deltaT << "\t" << length << std::endl;
-       
+
   double tempF=0;
   for(int i=0;i<newLength;i++) {
   float power=FFTtools::getAbs(theFFT[i]);//converting from mV to V;
@@ -640,20 +640,20 @@ TGraph *makeInvFFTPlot(TGraph *inputMag)
   power*=sqrt(deltaT)/(length); //For time-integral squared amplitude
   power/=sqrt(deltaF);//Just to normalise bin-widths
   //Ends up the same as dt^2, need to integrate the power (multiply by df)
-  //to get a meaningful number out.   
-           
+  //to get a meaningful number out.
+
   //if (power>0 ) power=10*TMath::Log10(power);
   //else power=-1000; //no reason
   newX[i]=tempF;
   newY[i]=power; //Units should be mV/Hz for the y-axis.
   tempF+=deltaF;
   }
-   
+
   TGraph *grPower = new TGraph(newLength,newX,newY);
   delete [] theFFT;
   delete [] newY;
   delete [] newX;
-  return grPower;  
+  return grPower;
   }
 */
 
@@ -664,67 +664,67 @@ TGraph *makeFFTPlot(TGraph *grWave)
   double deltaT=oldX[1]-oldX[0];
   int length=grWave->GetN();
   FFTWComplex *theFFT=FFTtools::doFFT(length,oldY);
-     
+
   int newLength=(length/2)+1;
-     
+
   double *newY = new double [newLength];
   double *newX = new double [newLength];
-     
+
   //    double fMax = 1/(2*deltaT);  // In Hz
   double deltaF=1/(deltaT*length); //Hz
   deltaF*=1e3; //MHz
   //    std::cout << fMax << "\t" << deltaF << "\t" << deltaT << "\t" << length << std::endl;
-       
+
   double tempF=0;
   for(int i=0;i<newLength;i++) {
     float power=sqrt(2)*FFTtools::getAbs(theFFT[i]);//Adding a factor of sqrt(2) to account for negative freuencies, i.e. integrate from 0-infinity instead of -inf to inf
     power*=1.e-3;//convert to V
-           
+
     //if (power>0 ) power=10*TMath::Log10(power);
     //else power=-1000; //no reason
     newX[i]=tempF;
     newY[i]=power; //Units should be mV/Hz for the y-axis.
     tempF+=deltaF;
   }
-   
+
   TGraph *grPower = new TGraph(newLength,newX,newY);
   delete [] theFFT;
   delete [] newY;
   delete [] newX;
-  return grPower;  
+  return grPower;
 }
 
 TGraph *makeFreqV_MilliVoltsNanoSeconds ( TGraph *grWave ) {
 
-  double *oldY = grWave->GetY(); // mV                                                                                                                                                        
-  double *oldX = grWave->GetX(); // ns                                                                                                                                                        
+  double *oldY = grWave->GetY(); // mV
+  double *oldX = grWave->GetX(); // ns
   int length=grWave->GetN();
 
-  /*                                                                                                                                                                                          
-  // don't modify original valus as it will modify original waveform                                                                                                                          
-  for (int i=0; i<length; i++) {                                                                                                                                                              
-  oldY[i] = oldY[i] * 1.e-3; //from mV to V                                                                                                                                               
-  oldX[i] = oldX[i] * 1.e-9; // from ns to s                                                                                                                                              
-  }                                                                                                                                                                                           
+  /*
+  // don't modify original valus as it will modify original waveform
+  for (int i=0; i<length; i++) {
+  oldY[i] = oldY[i] * 1.e-3; //from mV to V
+  oldX[i] = oldX[i] * 1.e-9; // from ns to s
+  }
   */
-  double deltaT = (oldX[1]-oldX[0]) * 1.e-9; // deltaT in s                                                                                                                                   
+  double deltaT = (oldX[1]-oldX[0]) * 1.e-9; // deltaT in s
 
-  FFTWComplex *theFFT=FFTtools::doFFT(length,oldY); // FFT with mV unit                                                                                                                       
+  FFTWComplex *theFFT=FFTtools::doFFT(length,oldY); // FFT with mV unit
 
   int newLength=(length/2)+1;
-  //int newLength=(length+1)/2;                                                                                                                                                               
+  //int newLength=(length+1)/2;
 
   double *newY = new double [newLength];
   double *newX = new double [newLength];
 
-  double deltaF=1./(deltaT*(double)length); //Hz                                                                                                                                              
-  deltaF*=1e-6; //from Hz to MHz                                                                                                                                                              
+  double deltaF=1./(deltaT*(double)length); //Hz
+  deltaF*=1e-6; //from Hz to MHz
 
   double tempF=0;
   for(int i=0;i<newLength;i++) {
-    //float FreqV = FFTtools::getAbs(theFFT[i]) * 1.e-3; // from mV to V                                                                                                                      
-    newY[i] = FFTtools::getAbs(theFFT[i]) * 1.e-3; // from mV to V                                                                                                                            
-    //newY[i]=FreqV;                                                                                                                                                                          
+    //float FreqV = FFTtools::getAbs(theFFT[i]) * 1.e-3; // from mV to V
+    newY[i] = FFTtools::getAbs(theFFT[i]) * 1.e-3; // from mV to V
+    //newY[i]=FreqV;
     newX[i]=tempF;
     tempF+=deltaF;
   }
@@ -841,14 +841,14 @@ void getDiodeModel(int NFOUR, double TIMESTEP, vector<double>&fdiode_real, vecto
   double idelaybeforepeak = (int)(13.E-9 / TIMESTEP);
   int iwindow = (int)(4.E-9 / TIMESTEP);
   int ibinshift = NFOUR/4 - (int)( maxt_diode / TIMESTEP );
-	
+
   //  this is our homegrown diode response function which is a downgoing gaussian followed by an upward step function
   TF1 *fdown1=new TF1("fl_down1","[3]+[0]*exp(-1.*(x-[1])*(x-[1])/(2*[2]*[2]))",-300.E-9,300.E-9);
   fdown1->SetParameter(0,-0.8);
   fdown1->SetParameter(1,15.E-9);
   fdown1->SetParameter(2,2.3E-9);
   fdown1->SetParameter(3,0.);
-	
+
   TF1 *fdown2=new TF1("fl_down2","[3]+[0]*exp(-1.*(x-[1])*(x-[1])/(2*[2]*[2]))",-300.E-9,300.E-9);
   fdown2->SetParameter(0,-0.2);
   fdown2->SetParameter(1,15.E-9);
@@ -871,10 +871,10 @@ void getDiodeModel(int NFOUR, double TIMESTEP, vector<double>&fdiode_real, vecto
 	diode_real[i]+=f_up->Eval((double)i*TIMESTEP);
     }
   }
-	
+
   // diode_real is the time domain response of the diode
   // now get f domain response with realft
-  double diode_real_fft[NFOUR];  // double sized array for myconvlv	
+  double diode_real_fft[NFOUR];  // double sized array for myconvlv
   for (int i=0; i<NFOUR; i++) {  // 512 bin added for zero padding
     if ( i<(int)(maxt_diode/TIMESTEP) ) {
       diode_real_fft[i] = diode_real[i];
@@ -882,7 +882,7 @@ void getDiodeModel(int NFOUR, double TIMESTEP, vector<double>&fdiode_real, vecto
     else {
       diode_real_fft[i] = 0.;
     }
-  }	
+  }
 
   // forward FFT
   realft(diode_real_fft,1,NFOUR);
@@ -899,7 +899,7 @@ void getDiodeModel(int NFOUR, double TIMESTEP, vector<double>&fdiode_real, vecto
 TGraph* doConvolve(TGraph *grIn){
 
   TGraph *grClone = (TGraph*)grIn->Clone();
-  for (int i=0;i<grClone->GetN();i++) grClone->GetX()[i] *= 1.e-9; 
+  for (int i=0;i<grClone->GetN();i++) grClone->GetX()[i] *= 1.e-9;
 
   int length=grClone->GetN();
   int NFOUR=length*2; //NFOUR is 2 x n bins for readout
@@ -971,7 +971,7 @@ TGraph* doConvolve(TGraph *grIn){
   diodeX.clear();
   diodeconv.clear();
 
-  
+
   return grDiode;
 }
 
@@ -987,11 +987,11 @@ bool isTriggered(double threshold, double *peaks, double &thirdHighest_pol){
     //  printf("3rd is %f, threshold is %d \n",thirdHighest_pol,threshold);
       return true;
   }
-  
+
   if(abs(thirdHighest_pol)<abs(threshold)){
     return false;
   }
-  
+
 }
 
 double getTriggerRate(TGraph * graph, double thres){
@@ -1001,6 +1001,6 @@ double getTriggerRate(TGraph * graph, double thres){
     yValue=graph->GetY()[i];
     if(abs(yValue)>=abs(thres)) nCrossDiode++;
   }
-   
+
   return nCrossDiode/(1.E-9*getBinsforRMS(graph));
 }
