@@ -72,7 +72,7 @@ sort(Earray, Earray+64);
   // for(int i=0;i<64;i++){
   //   cout << Earray[i] << " ";
   // }
-  double P2P = abs(Earray[0]-Earray[64]);
+  double P2P = abs(Earray[0]-Earray[63]);
   return P2P;
 }
 
@@ -99,35 +99,48 @@ int main(int argc, char **argv) {    // this is for manual power threshold value
   signal->SetMedium(0);   // set medium as ice
   event = new Event ( settings1, spectra, primary1, icemodel, detector, signal, sec1, 1 );
   settings1->SHOWER_MODE = 2;
-  event->Nu_Interaction[0].emfrac=0.;
-  event->Nu_Interaction[0].hadfrac=1.;
+  //event->Nu_Interaction[0].emfrac=1;
+  //event->Nu_Interaction[0].hadfrac=0;
+//  cout << event->Nu_Interaction[0].HAD_LQ << endl;
   //event->Nu_Interaction[0].primary_shower =1;
-  double Tarray[64];
-  double Earray[64];
 
+  // event->Nu_Interaction[0].HAD_LQ=0;
+  // event->Nu_Interaction[0].EM_LQ=3.66057e+20;
+  printf("EMLQ:%e, HADLQ:%f\n", event->Nu_Interaction[0].EM_LQ, event->Nu_Interaction[0].HAD_LQ);
   int skip_bins;
   double E_shower = event->pnu*event->Nu_Interaction[0].emfrac;
   double atten_factor = 1. / 10000.;//* IceAttenFactor * mag * fresnel;  // assume whichray = 0, now vmmhz1m_tmp has all factors except for the detector properties (antenna gain, etc)
-  cout << "EShower is " << E_shower << endl;
-  FILE *fout = fopen("Askaryan_angles_P2P_Alvarez2000.csv", "w+");//open file
+  double Tarray[64];
+  double Earray[64];
+  /*
+  FILE *fout = fopen("Askaryan_angles_P2P_Alvarez2011_HAD.csv", "w+");//open file
   fprintf(fout, "angle,P2P\n");
   for (double angle=-5; angle<=5; angle+=0.1){
+  double Tarray[64];
+  double Earray[64];
+  // double angle = 10;
   signal->GetVm_FarField_Tarray(event, settings1, ch_angle+angle*(PI/180), atten_factor, 64, Tarray, Earray, skip_bins );
   double P2P = GetP2P(Earray);
   fprintf(fout, "%0.2f,%0.2e\n",angle,P2P);
   }
-  int size = sizeof(Earray)/sizeof(Earray[0]);
-  cout << size << endl;
   fclose(fout);
-  //cout << event->Nu_Interaction[0].hadfrac << endl;
+ */
 
-  // FILE *fout = fopen("Askaryan_angles_Alvarez2000_nosin.csv", "w+");//open file
-   //fprintf(fout, "freqs,0deg,2deg,5deg,10deg,20deg,30deg,40deg\n");
-  // fclose(fout);
 
+  //Get waveform into file
+  FILE *fout_wf = fopen("Askaryan_wform_Alvarez2011_EM_10deg.csv", "w+");//open file
+  fprintf(fout_wf, "time,voltage\n");
+  //Tarray[64]={0};
+  //Earray[64]={0};
+  signal->GetVm_FarField_Tarray(event, settings1, ch_angle+10*(PI/180), atten_factor, 64, Tarray, Earray, skip_bins );
+  for(int j=0;j<64;j++){
+    fprintf(fout_wf,"%0.3f,%0.3e \n",Tarray[j],Earray[j]);
+  }
   // //plot the thing
   // TGraph *gr = new TGraph(64, Tarray, Earray);
   // TCanvas *cc = new TCanvas("","",800,800);
+  // cout << GetP2P(Earray) << endl;
+  //
   // // gr->GetXaxis()->SetRangeUser(10., 1.e3);
   // // gr->GetYaxis()->SetRangeUser(1.e-4, 1);
   // gr->Draw("AC");
