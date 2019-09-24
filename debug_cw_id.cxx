@@ -102,7 +102,7 @@ int main(int argc, char **argv)
 	}
 
   // Long64_t numEntries=eventTree->GetEntries();
-  Long64_t numEntries=200;
+  Long64_t numEntries=35;
 	Long64_t starEvery=numEntries/80;
 	if(starEvery==0) starEvery++;
 	printf("Num events is %d \n", numEntries);
@@ -217,7 +217,23 @@ int main(int argc, char **argv)
 			titlesForGraphs.push_back(ss.str());
 		}
 		vector<TGraph*> grWaveformsRaw = makeGraphsFromRF(realAtriEvPtr, 16, xLabel, yLabel, titlesForGraphs);
-		if(hasError){
+
+    TCanvas *c2 = new TCanvas("","",1550,1550);
+    c2->Divide(4,4);
+    for(int i=0; i<16; i++){//canvas loop
+      char ch_name[20];
+      sprintf(ch_name,"chan %d",i);
+      c2->cd(i+1);
+      // temp_phs[i]->SetTitle(ch_name);
+      grWaveformsRaw[i]->Draw("AL");
+    }//canvas loop
+    char h3name[60];
+    sprintf(h3name,"./plots/trouble_events/wforms/wf_event%d_run%d.png",event, runNum);
+    c2->SaveAs(h3name);
+    delete c2;
+
+
+    if(hasError){
 			//if it has a digitizer error, just push back junk
 			for(int i=0; i<16; i++){
 				temp_phs[i] = new TGraph();
@@ -230,6 +246,23 @@ int main(int argc, char **argv)
 			for(int chan=0; chan<16; chan++){
 				temp_phs[chan] = getFFTPhase(grWaveformsPadded[chan],120.,1000.);
 			}
+
+      TCanvas *c2 = new TCanvas("","",1550,1550);
+      c2->Divide(4,4);
+      for(int i=0; i<16; i++){//canvas loop
+        char ch_name[20];
+        sprintf(ch_name,"chan %d",i);
+        gPad->SetLogy();
+        c2->cd(i+1);
+        // temp_phs[i]->SetTitle(ch_name);
+        FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(grWaveformsPadded[i])->Draw("AL");
+      }//canvas loop
+      char h3name[60];
+      sprintf(h3name,"./plots/trouble_events/ffts/fft_event%d_run%d.png",event, runNum);
+      c2->SaveAs(h3name);
+      delete c2;
+
+
 			deleteGraphVector(grWaveformsInt);
 			deleteGraphVector(grWaveformsPadded);
 		}
@@ -274,6 +307,7 @@ int main(int argc, char **argv)
 
 		vector<TGraph*> grWaveformsRaw = makeGraphsFromRF(realAtriEvPtr, 16, xLabel, yLabel, titlesForGraphs);
 		tempTree->GetEntry(event);
+
 
 		if(!hasError){
 
@@ -460,6 +494,7 @@ int main(int argc, char **argv)
 					phases_backward.push_back(this_event_phases);
 				}
 			}
+
 			//if we have enough events to conduct the CW check
 			if(found_events_backwards==0){
 				// printf("	We have sufficient number of events to do phase variance calculation in backward direction\n");
