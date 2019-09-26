@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 
 	isSimulation=atoi(argv[1]);
 	int station_num=atoi(argv[2]);
-	calpulserRunMode=4;
+	calpulserRunMode=0;
 	int yearConfig=atoi(argv[3]);
 	int radiusBin = atoi(argv[4]);
 
@@ -192,7 +192,7 @@ int main(int argc, char **argv)
 
 	}
 
-	Long64_t numEntries=34;
+	Long64_t numEntries=40;
 	Long64_t starEvery=numEntries/80;
 	if(starEvery==0) starEvery++;
 
@@ -432,8 +432,8 @@ int main(int argc, char **argv)
 			}
 
 		int solNum = 0;
-			TH2D *map_V_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select_NewNormalization_SNRweighted_justcalpul(settings, detector, realAtriEvPtr, Vpol, isSimulation, chan_list_V, chan_SNRs, solNum);
-			TH2D *map_H_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select_NewNormalization_SNRweighted_justcalpul(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H, chan_SNRs, solNum);
+			TH2D *map_V_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select_NewNormalization_SNRweighted(settings, detector, realAtriEvPtr, Vpol, isSimulation, chan_list_V, chan_SNRs, solNum);
+			TH2D *map_H_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select_NewNormalization_SNRweighted(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H, chan_SNRs, solNum);
       peakTheta_single[0]=-1000.;
       peakTheta_single[1]=-1000.;
       peakPhi_single[0]=-1000.;
