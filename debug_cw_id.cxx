@@ -199,14 +199,16 @@ int main(int argc, char **argv)
 	}
 	for(int event=0; event<numEntries; event++){
 		eventTree->GetEntry(event);
+    bool isCalpulser = rawAtriEvPtr->isCalpulserEvent();
+    // if(isCalpulser) continue;
 		if (isSimulation == false){
 			realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib);
 			hasError = !(qualCut->isGoodEvent(realAtriEvPtr));
+
 		}
 		else if(isSimulation){
 			hasError=false;
 		}
-
 		stringstream ss;
 		string xLabel, yLabel;
 		xLabel = "Time (ns)"; yLabel = "Voltage (mV)";
@@ -229,8 +231,25 @@ int main(int argc, char **argv)
     }//canvas loop
     char h3name[60];
     sprintf(h3name,"./plots/trouble_events/wforms/wf_event%d_run%d.png",event, runNum);
-    c2->SaveAs(h3name);
+    //c2->SaveAs(h3name);
     delete c2;
+
+vector<TGraph*> electChansGraphs;
+electChansGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(6));
+electChansGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(14));
+electChansGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(22));
+electChansGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(30));
+TCanvas *cWave_spare = new TCanvas("","",4*1100,850);
+cWave_spare->Divide(4,1);
+for(int i=0; i<4; i++){
+cWave_spare->cd(i+1);
+electChansGraphs[i]->Draw("AL");
+electChansGraphs[i]->SetLineWidth(3);
+}
+char save_temp_title[100];
+//sprintf(save_temp_title,"./plots/trouble_events/wforms_spare/wf_event%d_run%d.png",event, runNum);
+//cWave_spare->SaveAs(save_temp_title);
+delete cWave_spare;
 
 
     if(hasError){
@@ -259,7 +278,7 @@ int main(int argc, char **argv)
       }//canvas loop
       char h3name[60];
       sprintf(h3name,"./plots/trouble_events/ffts/fft_event%d_run%d.png",event, runNum);
-      c2->SaveAs(h3name);
+      //c2->SaveAs(h3name);
       delete c2;
 
 
@@ -290,6 +309,8 @@ int main(int argc, char **argv)
 		if(event%starEvery==0) { std::cerr << "*"; }
 
 		eventTree->GetEntry(event); //get the event
+    bool isCalpulser = rawAtriEvPtr->isCalpulserEvent();
+    // if(isCalpulser) continue;
 
 		if (isSimulation == false){
 			realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib);
@@ -387,7 +408,19 @@ int main(int argc, char **argv)
 				first_event_in_sequence_phases_forward.push_back((TGraph*) temp_phs[chan]->Clone());
 			}
 			phases_forward.push_back(first_event_in_sequence_phases_forward);
-
+      TCanvas *c2 = new TCanvas("","",1550,1550);
+      c2->Divide(4,4);
+      for(int i=0; i<16; i++){//canvas loop
+        char ch_name[20];
+        sprintf(ch_name,"chan %d",i);
+        c2->cd(i+1);
+        // temp_phs[i]->SetTitle(ch_name);
+        first_event_in_sequence_phases_forward[i]->Draw("AL");
+      }//canvas loop
+      char h3name[60];
+      sprintf(h3name,"./plots/trouble_events/phase_plots/phases_event%d_run%d.png",event, runNum);
+      c2->SaveAs(h3name);
+      delete c2;
 			//okay, now we need to try and move forward
 			int found_events_forward=0;
 			for(int event_next=event+1; event_next<numEntries;event_next++){
@@ -395,6 +428,7 @@ int main(int argc, char **argv)
 				// printf("			I've found %d good events \n",found_events_forward);
 				if(found_events_forward==14) break; //after you've collected 15 events (0->14), we're good to go.
 				tempTree->GetEntry(event_next);
+
 				if(!hasError){
 					found_events_forward++;
 					vector<TGraph*> this_event_phases;
