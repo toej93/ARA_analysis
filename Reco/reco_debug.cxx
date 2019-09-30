@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 
 	isSimulation=atoi(argv[1]);
 	int station_num=atoi(argv[2]);
-	calpulserRunMode=0;
+	calpulserRunMode=2;
 	int yearConfig=atoi(argv[3]);
 	int radiusBin = atoi(argv[4]);
 
@@ -451,7 +451,7 @@ int main(int argc, char **argv)
 					cMaps->cd(2);
 					map_H_raytrace->Draw("colz");
 				char save_temp_title[400];
-				sprintf(save_temp_title,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/trouble_events/interf_maps/%d.%d.%d_Run%d_Ev%d_Maps_FromRecoCode.png",year_now,month_now,day_now,runNum,event);
+				sprintf(save_temp_title,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/trouble_events/interf_maps/A%d_%d.%d.%d_Run%d_Ev%d_Maps_FromRecoCode.png",station_num, year_now,month_now,day_now,runNum,event);
 				cMaps->SaveAs(save_temp_title);
 				delete cMaps;
 			}

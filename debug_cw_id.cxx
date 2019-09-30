@@ -34,6 +34,16 @@
 RawAtriStationEvent *rawAtriEvPtr;
 UsefulAtriStationEvent *realAtriEvPtr;
 
+bool isBalloonEvent(TGraph * spectrum){
+  // cout << "Number of samples is "<< spectrum->GetN() << endl;
+  // for(int i=0;i<spectrum->GetN();i++){
+  //   printf("n:%d, x:%f, y:%f \n", i, spectrum->GetX()[i],spectrum->GetY()[i]);
+  // }
+  if(spectrum->GetY()[410]>100*spectrum->GetY()[310]) return true;
+  else return false;
+ }
+
+
 int main(int argc, char **argv)
 {
 
@@ -101,8 +111,8 @@ int main(int argc, char **argv)
 		printf("Data; load raw event tree \n");
 	}
 
-  // Long64_t numEntries=eventTree->GetEntries();
-  Long64_t numEntries=35;
+  Long64_t numEntries=eventTree->GetEntries();
+  // Long64_t numEntries=4902;
 	Long64_t starEvery=numEntries/80;
 	if(starEvery==0) starEvery++;
 	printf("Num events is %d \n", numEntries);
@@ -203,7 +213,10 @@ int main(int argc, char **argv)
     // if(isCalpulser) continue;
 		if (isSimulation == false){
 			realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib);
-			hasError = !(qualCut->isGoodEvent(realAtriEvPtr));
+      if(event>10350 && event<11000){
+        hasError = !(qualCut->isGoodEvent(realAtriEvPtr));
+      }
+      else hasError=true;
 
 		}
 		else if(isSimulation){
@@ -262,7 +275,27 @@ delete cWave_spare;
 			//otherwise, interpolate, pad, and get the phase
 			vector<TGraph*> grWaveformsInt = makeInterpolatedGraphs(grWaveformsRaw, interpolationTimeStep, xLabel, yLabel, titlesForGraphs);
 			vector<TGraph*> grWaveformsPadded = makePaddedGraphs(grWaveformsInt, 0, xLabel, yLabel, titlesForGraphs);
-			for(int chan=0; chan<16; chan++){
+      bool isballoon=false;
+      TCanvas *cc = new TCanvas("","",1550,1550);
+      cc->Divide(4,4);
+      for(int i=0; i<16; i++){//canvas loop
+        char ch_name[20];
+        sprintf(ch_name,"chan %d",i);
+        gPad->SetLogy();
+        cc->cd(i+1);
+        // temp_phs[i]->SetTitle(ch_name);
+        TGraph *spectrum = FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(grWaveformsPadded[i]);
+        spectrum->Draw("AL");
+        // if(i<3) isballoon = isBalloonEvent(spectrum);
+      }//canvas loop
+      char h5name[60];
+      sprintf(h5name,"./plots/trouble_events/ffts/fft_event%d_run%d_A%d.png",event, runNum, station_num);
+      int unixTime=(int)rawAtriEvPtr->unixTime;
+      // cout << unixTime << endl;
+      // if(unixTime>=1431034500 && unixTime<=1431036900) cc->SaveAs(h5name);
+      delete cc;
+
+      for(int chan=0; chan<16; chan++){
 				temp_phs[chan] = getFFTPhase(grWaveformsPadded[chan],120.,1000.);
 			}
 
@@ -404,9 +437,11 @@ delete cWave_spare;
 
 			vector<vector<TGraph*> > phases_forward;
 			vector <TGraph*> first_event_in_sequence_phases_forward;
+
 			for(int chan=0; chan<16; chan++){
 				first_event_in_sequence_phases_forward.push_back((TGraph*) temp_phs[chan]->Clone());
 			}
+
 			phases_forward.push_back(first_event_in_sequence_phases_forward);
       TCanvas *c2 = new TCanvas("","",1550,1550);
       c2->Divide(4,4);
@@ -414,12 +449,42 @@ delete cWave_spare;
         char ch_name[20];
         sprintf(ch_name,"chan %d",i);
         c2->cd(i+1);
+        int NumPhasePoints=first_event_in_sequence_phases_forward[i]->GetN();
+        double PhaseFrequency[NumPhasePoints], PhaseWrapped[NumPhasePoints];
+        for(int p=0;p<=NumPhasePoints;p++){
+          PhaseFrequency[p]=first_event_in_sequence_phases_forward[i]->GetX()[p];
+          PhaseWrapped[p]=first_event_in_sequence_phases_forward[i]->GetY()[p];
+        }
+
+        double AccumulatedPhase=0.;
+        vector<Double_t> PhaseUnwrapped;
+        PhaseUnwrapped.push_back(PhaseWrapped[0]); //we need to manually insert the first point
+        for(int k=1; k<NumPhasePoints; k++){
+
+          PhaseWrapped[k]+=AccumulatedPhase; //first, bring the current value up to the accumulated phase quantity
+          double oldPhasecurrent = PhaseWrapped[k]; //the current phase value, before being adjusted by the accumulated phase
+          double oldPhaseprevious = PhaseWrapped[k-1]; //the previous phase value entry, before being adjusted by the accumulated phase
+
+          //then, decide if it needs further adjustment
+          if( (oldPhasecurrent-oldPhaseprevious)>TMath::Pi()){ //this point is too large
+            AccumulatedPhase-=2*TMath::Pi(); //we need to pull out a factor of pi
+          }
+          else if( (oldPhasecurrent-oldPhaseprevious)<-1.*TMath::Pi()){ //this point is too small
+            AccumulatedPhase+=2*TMath::Pi(); //we need to put in a factor of pi
+          }
+          //otherwise, this point doesn't violate our phase wrapping, and we can just leave it alone
+          PhaseUnwrapped.push_back(PhaseWrapped[k]+AccumulatedPhase); //fill the unwrapped phase array with the unwrapped phase!
+          //cout<<"The new accumulated phase is "<<AccumulatedPhase<<endl;
+          //cout<<"The new phase value for frequency "<<PhaseFrequency[k]<<" MHz is "<<PhaseUnwrapped[k]<<endl;
+        }
+        TGraph *PhaseUnwrappedGraph= new TGraph(NumPhasePoints,PhaseFrequency,& PhaseUnwrapped[0]);
+        PhaseUnwrappedGraph->Draw("AL");
         // temp_phs[i]->SetTitle(ch_name);
-        first_event_in_sequence_phases_forward[i]->Draw("AL");
+        // first_event_in_sequence_phases_forward[i]->Draw("AL");
       }//canvas loop
       char h3name[60];
-      sprintf(h3name,"./plots/trouble_events/phase_plots/phases_event%d_run%d.png",event, runNum);
-      c2->SaveAs(h3name);
+      sprintf(h3name,"./plots/trouble_events/phase_plots/phases_event%d_run%d_A%d.png",event, runNum,station_num);
+      // c2->SaveAs(h3name);
       delete c2;
 			//okay, now we need to try and move forward
 			int found_events_forward=0;
@@ -503,7 +568,6 @@ delete cWave_spare;
 			//assume the initial event is the "15th" entry, and try to go backwards
 			//if there aren't enough good events ahead of us (no errors) to do the forward case,
 			//then we declare it a failure and leave the vector of bad freqs and such empty!
-
 			tempTree->GetEntry(event);
 
 			vector<vector<TGraph*> > phases_backward;
@@ -563,7 +627,7 @@ delete cWave_spare;
 				vector<TGraph*> vGrSigmaVarianceAverage_back;
 				vGrSigmaVarianceAverage_back.resize(numPols);
 				for(int pol=0; pol<numPols; pol++){
-					vGrSigmaVarianceAverage_back[pol] = getPhaseVariance(vvdGrPhaseDiff_back[pol], runNum, event, pol, true);
+					vGrSigmaVarianceAverage_back[pol] = getPhaseVariance(vvdGrPhaseDiff_back[pol], runNum, event, pol, false);
 					vector<double> badFreqs_temp;
 					vector<double> badSigmas_temp;
 					double threshold = 1.0;
@@ -589,6 +653,7 @@ delete cWave_spare;
 				}
 			}
 		}
+
 		NewCWTree->Fill();
 		deleteGraphVector(grWaveformsRaw);
 		if(isSimulation==false){
