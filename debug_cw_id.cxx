@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 	}
 
   Long64_t numEntries=eventTree->GetEntries();
-  // Long64_t numEntries=4902;
+  // Long64_t numEntries=100;
 	Long64_t starEvery=numEntries/80;
 	if(starEvery==0) starEvery++;
 	printf("Num events is %d \n", numEntries);
@@ -209,11 +209,13 @@ int main(int argc, char **argv)
 	}
 	for(int event=0; event<numEntries; event++){
 		eventTree->GetEntry(event);
-    bool isCalpulser = rawAtriEvPtr->isCalpulserEvent();
+    // bool isCalpulser = rawAtriEvPtr->isCalpulserEvent();
     // if(isCalpulser) continue;
 		if (isSimulation == false){
 			realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib);
-      if(event>10350 && event<11000){
+      int unixTime=(int)rawAtriEvPtr->unixTime;
+      // cout << unixTime << endl;
+       if(event>=10529 && event<=10800){
         hasError = !(qualCut->isGoodEvent(realAtriEvPtr));
       }
       else hasError=true;
@@ -232,37 +234,38 @@ int main(int argc, char **argv)
 			titlesForGraphs.push_back(ss.str());
 		}
 		vector<TGraph*> grWaveformsRaw = makeGraphsFromRF(realAtriEvPtr, 16, xLabel, yLabel, titlesForGraphs);
+    // if(event==29){
+    // TCanvas *c2 = new TCanvas("","",1550,1550);
+    // c2->Divide(4,4);
+    // for(int i=0; i<16; i++){//canvas loop
+    //   char ch_name[20];
+    //   sprintf(ch_name,"chan %d",i);
+    //   c2->cd(i+1);
+    //   // temp_phs[i]->SetTitle(ch_name);
+    //   grWaveformsRaw[i]->Draw("AL");
+    // }//canvas loop
+    // char h3name[60];
+    // sprintf(h3name,"./plots/trouble_events/wforms/wf_event%d_run%d.png",event, runNum);
+    // c2->SaveAs(h3name);
+    // delete c2;
+  // }
 
-    TCanvas *c2 = new TCanvas("","",1550,1550);
-    c2->Divide(4,4);
-    for(int i=0; i<16; i++){//canvas loop
-      char ch_name[20];
-      sprintf(ch_name,"chan %d",i);
-      c2->cd(i+1);
-      // temp_phs[i]->SetTitle(ch_name);
-      grWaveformsRaw[i]->Draw("AL");
-    }//canvas loop
-    char h3name[60];
-    sprintf(h3name,"./plots/trouble_events/wforms/wf_event%d_run%d.png",event, runNum);
-    //c2->SaveAs(h3name);
-    delete c2;
-
-vector<TGraph*> electChansGraphs;
-electChansGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(6));
-electChansGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(14));
-electChansGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(22));
-electChansGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(30));
-TCanvas *cWave_spare = new TCanvas("","",4*1100,850);
-cWave_spare->Divide(4,1);
-for(int i=0; i<4; i++){
-cWave_spare->cd(i+1);
-electChansGraphs[i]->Draw("AL");
-electChansGraphs[i]->SetLineWidth(3);
-}
-char save_temp_title[100];
-//sprintf(save_temp_title,"./plots/trouble_events/wforms_spare/wf_event%d_run%d.png",event, runNum);
-//cWave_spare->SaveAs(save_temp_title);
-delete cWave_spare;
+// vector<TGraph*> electChansGraphs;
+// electChansGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(6));
+// electChansGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(14));
+// electChansGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(22));
+// electChansGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(30));
+// TCanvas *cWave_spare = new TCanvas("","",4*1100,850);
+// cWave_spare->Divide(4,1);
+// for(int i=0; i<4; i++){
+// cWave_spare->cd(i+1);
+// electChansGraphs[i]->Draw("AL");
+// electChansGraphs[i]->SetLineWidth(3);
+// }
+// char save_temp_title[100];
+// //sprintf(save_temp_title,"./plots/trouble_events/wforms_spare/wf_event%d_run%d.png",event, runNum);
+// //cWave_spare->SaveAs(save_temp_title);
+// delete cWave_spare;
 
 
     if(hasError){
@@ -276,25 +279,23 @@ delete cWave_spare;
 			vector<TGraph*> grWaveformsInt = makeInterpolatedGraphs(grWaveformsRaw, interpolationTimeStep, xLabel, yLabel, titlesForGraphs);
 			vector<TGraph*> grWaveformsPadded = makePaddedGraphs(grWaveformsInt, 0, xLabel, yLabel, titlesForGraphs);
       bool isballoon=false;
-      TCanvas *cc = new TCanvas("","",1550,1550);
-      cc->Divide(4,4);
-      for(int i=0; i<16; i++){//canvas loop
-        char ch_name[20];
-        sprintf(ch_name,"chan %d",i);
-        gPad->SetLogy();
-        cc->cd(i+1);
-        // temp_phs[i]->SetTitle(ch_name);
-        TGraph *spectrum = FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(grWaveformsPadded[i]);
-        spectrum->Draw("AL");
-        // if(i<3) isballoon = isBalloonEvent(spectrum);
-      }//canvas loop
-      char h5name[60];
-      sprintf(h5name,"./plots/trouble_events/ffts/fft_event%d_run%d_A%d.png",event, runNum, station_num);
-      int unixTime=(int)rawAtriEvPtr->unixTime;
-      // cout << unixTime << endl;
-      // if(unixTime>=1431034500 && unixTime<=1431036900) cc->SaveAs(h5name);
-      delete cc;
-
+      // // if(event==29){
+      // TCanvas *cc = new TCanvas("","",1550,1550);
+      // cc->Divide(4,4);
+      // for(int i=0; i<16; i++){//canvas loop
+      //   // gPad->SetLogy();
+      //   cc->cd(i+1);
+      //   // temp_phs[i]->SetTitle(ch_name);
+      //   TGraph *spectrum = FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(grWaveformsPadded[i]);
+      //   spectrum->Draw("AL");
+      //   // if(i<3) isballoon = isBalloonEvent(spectrum);
+      //   delete spectrum;
+      // }//canvas loop
+      // char h5name[60];
+      // sprintf(h5name,"./plots/trouble_events/ffts/fft_event%d_run%d_A%d.png",event, runNum, station_num);
+      // cc->SaveAs(h5name);
+      // delete cc;
+      // // }
       for(int chan=0; chan<16; chan++){
 				temp_phs[chan] = getFFTPhase(grWaveformsPadded[chan],120.,1000.);
 			}
@@ -310,8 +311,8 @@ delete cWave_spare;
         FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(grWaveformsPadded[i])->Draw("AL");
       }//canvas loop
       char h3name[60];
-      sprintf(h3name,"./plots/trouble_events/ffts/fft_event%d_run%d.png",event, runNum);
-      //c2->SaveAs(h3name);
+      sprintf(h3name,"./plots/trouble_events/ffts/fft_event%d_run%d_A%d.png",event, runNum, station_num);
+      c2->SaveAs(h3name);
       delete c2;
 
 
@@ -342,7 +343,7 @@ delete cWave_spare;
 		if(event%starEvery==0) { std::cerr << "*"; }
 
 		eventTree->GetEntry(event); //get the event
-    bool isCalpulser = rawAtriEvPtr->isCalpulserEvent();
+    // bool isCalpulser = rawAtriEvPtr->isCalpulserEvent();
     // if(isCalpulser) continue;
 
 		if (isSimulation == false){

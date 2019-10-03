@@ -102,9 +102,9 @@ int main(int argc, char **argv)
 			calibrator->setAtriPedFile(ped_file_name,station); //because someone had a brain (!!), this will error handle itself if the pedestal doesn't exist
 		}
     char histName[50];
-    sprintf(histName,"Bad frequencies, threshold=1.5, Run %d", runNum);
-    // TH1F * hist = new TH1F("hist",histName,1000,0,1000);
-		// cout << "Run " << file_num << " :: " << argv[file_num] << endl;
+    sprintf(histName,"400 MHz phase variance factor, Run %d, pol=0", runNum);
+    TH1F * hist = new TH1F("hist",histName,100,0,5);
+		cout << "Run " << file_num << " :: " << argv[file_num] << endl;
 
 		TFile *inputFile = TFile::Open(argv[file_num]);
 		if(!inputFile){
@@ -251,7 +251,7 @@ int main(int argc, char **argv)
 				threshCW = 1.5;
 			}
 			else if(station==3){
-				threshCW = 1.5;
+				threshCW = 2.0;
 			}
 
       bool isFiltered_fwd=false;
@@ -279,14 +279,22 @@ int main(int argc, char **argv)
 					}
 				}
 			}
+      // cout << unixTime_in << endl;
       bool isFiltered_back=false;
 			vector<double> badFreqList_back;
 			vector<double> badSigmaList_back;
+      vector<double> peak_phase;
 			for(int pol=0; pol<badFreqs_back->size(); pol++){
-        cout << badFreqs_back->size() << endl;
+        // cout << badFreqs_back->size() << endl;
 				badFreqList_back=badFreqs_back->at(pol);
 				badSigmaList_back=badSigmas_back->at(pol);
 				for(int iCW=0; iCW<badFreqList_back.size(); iCW++){
+          if(abs(403.3 - badFreqList_back[iCW]) < 4 && (pol==0)){
+            cout << event << endl;
+            cout << badFreqList_back[iCW] << endl;
+            // cout << badFreqList_back[iCW] << endl;
+            peak_phase.push_back(badSigmaList_back[iCW]);
+          }
 					if(
 						badSigmaList_back[iCW] > threshCW
 						&&
@@ -309,6 +317,10 @@ int main(int argc, char **argv)
 					}
 				}
 			}
+      sort(peak_phase.begin(), peak_phase.end(), greater<double>());
+      if(peak_phase.size()!=0){
+        hist->Fill(peak_phase[0]);
+      }
 		}//loop over events
 		inputFile->Close();
 		NewCWFile->Close();
@@ -318,19 +330,21 @@ int main(int argc, char **argv)
 		// sprintf(outfile_name,"%s/CW_contaminated_events_run_%d.root",output_location.c_str(),runNum);
     //
 		// // TFile *fpOut = new TFile(outfile_name,"recreate");
-    // TCanvas *cc = new TCanvas("","",800,800);
-    // gStyle->SetOptStat(1111);
-    // hist->Draw();
-    // gStyle->SetOptStat(1111);
-    // gPad->SetLogy();
-    // cc->Draw();
-    // char h5name[60];
-    // sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/hist_run%d_A%d.png",runNum, station);
-    // cc->SaveAs(h5name);
+    TCanvas *cc = new TCanvas("","",800,800);
+    gStyle->SetOptStat(1111);
+    hist->GetXaxis()->SetTitle("Phase variance factor");
+    hist->Draw();
+    gStyle->SetOptStat(1111);
+    gPad->SetLogy();
+    cc->Draw();
+    char h5name[60];
+    sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/400MHz_hist_run%d_A%d.png",runNum, station);
+    cc->SaveAs(h5name);
+    delete hist;
+
     // hist->Write();
 		// fpOut->Write();
 		// fpOut->Close();
-    // delete hist;
 		// delete fpOut;
 
 		printf("Done! Run Number %d \n", runNum);
