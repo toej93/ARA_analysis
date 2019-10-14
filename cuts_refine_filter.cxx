@@ -95,6 +95,9 @@ int main(int argc, char **argv)
 
 	vector<int> BadRunList=BuildBadRunList(station);
 
+  TH1F *rms_V = new TH1F("Vpol","Vpol",120,-5.,5.);
+  TH1F *rms_H = new TH1F("Hpol","Hpol",120,-5.,5.);
+
 	for(int file_num=6; file_num<argc; file_num++){
 
 		string chRun = "run";
@@ -162,11 +165,14 @@ int main(int argc, char **argv)
 		inputTree_filter->SetBranchAddress("unixTime",&unixTime);
 
 		int numEntries = inputTree_filter->GetEntries();
+    // int numEntries=10;
 		Long64_t starEvery=numEntries/200;
 		if(starEvery==0) starEvery++;
 
 		//now to loop over events
 		// numEntries=2;
+
+    // TH1F * bestRMS[2] = new TH1F(100,0,1);
 		for(int event=0; event<numEntries; event++){
 			inputTree_filter->GetEvent(event);
 
@@ -201,26 +207,38 @@ int main(int argc, char **argv)
 				rms_faces_H.resize(numFaces_A2_drop);
 				num_faces_for_H_loop=numFaces_A2_drop;
 			}
-			else if(station==3){
-				if(runNum>getA3BadRunBoundary()){ //it's 2014+, drop string four
-					rms_faces_V.resize(numFaces_A3_drop);
-					num_faces_for_V_loop=numFaces_A3_drop;
-					rms_faces_H.resize(numFaces_A3_drop);
-					num_faces_for_H_loop=numFaces_A3_drop;
-				}
-				else{ //it's 2013-, keep string four
-					rms_faces_V.resize(numFaces);
-					num_faces_for_V_loop=numFaces;
-					rms_faces_H.resize(numFaces);
-					num_faces_for_H_loop=numFaces;
-				}
-			}
+
+      else if(station==3){
+      	if(
+      		(isSim && config>2)
+      		||
+      		(!isSim && runNum>getA3BadRunBoundary())
+      	){
+      		// do three string analysis
+      		rms_faces_V.resize(numFaces_A3_drop);
+      		num_faces_for_V_loop=numFaces_A3_drop;
+      		rms_faces_H.resize(numFaces_A3_drop);
+      		num_faces_for_H_loop=numFaces_A3_drop;
+      	}
+      	else{
+      		// do four string analysis
+      		rms_faces_V.resize(numFaces);
+      		num_faces_for_V_loop=numFaces;
+      		rms_faces_H.resize(numFaces);
+      		num_faces_for_H_loop=numFaces;
+      	}
+      }
+
 			//now we loop over the faces
 			for(int i=0; i<num_faces_for_V_loop; i++){
-				rms_faces_V[i] = rms_pol_thresh_face_alternate_V[thresholdBin_pol[0]][i];
+        if (num_faces_for_V_loop==12) rms_faces_V[i]=rms_pol_thresh_face_V[thresholdBin_pol[0]][i];
+				else rms_faces_V[i] = rms_pol_thresh_face_alternate_V[thresholdBin_pol[0]][i];
+        // printf("Num: %i, face_rms: %f \n", i, rms_faces_V[i]);
+
 			}
 			for(int i=0; i<num_faces_for_H_loop; i++){
-				rms_faces_H[i] = rms_pol_thresh_face_alternate_H[thresholdBin_pol[1]][i];
+        if (num_faces_for_H_loop==12) rms_faces_H[i]=rms_pol_thresh_face_H[thresholdBin_pol[0]][i];
+				else rms_faces_H[i] = rms_pol_thresh_face_alternate_H[thresholdBin_pol[1]][i];
 			}
 
 			//now to sort them smallest to largest; lowest RMS is best
@@ -257,6 +275,8 @@ int main(int argc, char **argv)
 			// }
 
 			if(!isCalPulser && !isShort && !isSoftTrigger){
+				rms_V->Fill(log10(bestFaceRMS[0]));
+	      rms_H->Fill(log10(bestFaceRMS[1]));
 				num_thermal[0]+=weight;
 				num_thermal[1]+=weight;
 				if(isSim){
@@ -337,12 +357,12 @@ int main(int argc, char **argv)
 	printf("-----------------------\n");
 	printf("Num passing either: %.3f/%.3f events, %.3f rate \n",num_passing_either, num_thermal[0], 100.*num_passing_either/num_thermal[0]);
 
-  char filename[100];
-  if (isSim=0) sprintf(filename, "wfront_RMS_cut_c%i.csv", config);//,angle[i]);
-  else sprintf(filename, "wfront_RMS_cut_c%i_sim.csv", config);
-  FILE *fout_RMS = fopen(filename, "a+");//open file
-  fprintf(fout_RMS,"%.1f,%.3f,%.3f,%.3f \n",selected_cut,100.*num_passing[0]/num_thermal[0],100.*num_passing[1]/num_thermal[1],100.*num_passing_either/num_thermal[0]);
-  fclose(fout_RMS);
+  // char filename[100];
+  // if (isSim==0) sprintf(filename, "wfront_RMS_cut_A%i_c%i.csv", station, config);//,angle[i]);
+  // else sprintf(filename, "wfront_RMS_cut_A%i_c%i_sim.csv", station,config);
+  // FILE *fout_RMS = fopen(filename, "a+");//open file
+  // fprintf(fout_RMS,"%.1f,%.3f,%.3f,%.3f \n",selected_cut,100.*num_passing[0]/num_thermal[0],100.*num_passing[1]/num_thermal[1],100.*num_passing_either/num_thermal[0]);
+  // fclose(fout_RMS);
 
 
 	TH1D *projections[2];
@@ -516,5 +536,29 @@ int main(int argc, char **argv)
 		sprintf(title,"%s/filter_cut/%d.%d.%d_sim_A%d_c%d_%dEvents_Filter_Efficiency_Vpol%.1f_Hpol%.1f.png",plotPath,year_now, month_now, day_now,station,config,int(num_total),0.1*double(thresholdBin_pol[0]) + 2.0,0.1*double(thresholdBin_pol[1])+2.0);
 		c2->SaveAs(title);
 	}
+  TCanvas *cc = new TCanvas("","",2*1000,2*1000);
+  cc->Divide(2,2);
+  cc->cd(1);
+  gPad->SetLogy();
+  rms_V->GetYaxis()->SetRangeUser(0.5,1E6);
+  rms_V->Draw();
+  cc->cd(2);
+  gPad->SetLogy();
+  rms_H->GetYaxis()->SetRangeUser(0.5,1E6);
+  rms_H->Draw();
+  cc->cd(3);
+  TH1* hc_v = rms_V->GetCumulative();
+	double normv= hc_v->Integral("width");
+	hc_v->Scale(1/normv);
+	hc_v->Draw();
+  cc->cd(4);
+	TH1* hc_h = rms_H->GetCumulative();
+	double normh = hc_h->Integral("width");
+	hc_h->Scale(1/normh);
+	hc_h->Draw();
 
+  char plotname[100];
+  sprintf(plotname, "wfront_RMS_cut_A%i_c%i.png", station,config);
+  cc->SaveAs(plotname);
+  delete cc;
 }
