@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 	// double wavefrontRMScut[]={-1.5, -1.5}; //event wavefrontRMS < this value
 
 	int thresholdBin_pol[]={selected_bin, selected_bin}; //bin 3 = 2.3, bin 5 = 2.5 //what is the faceRMS inclusion threshold?
-	double wavefrontRMScut[]={selected_cut, selected_cut-0.1}; //event wavefrontRMS < this value
+	double wavefrontRMScut[]={selected_cut, selected_cut}; //event wavefrontRMS < this value
 
 	TH2D *wfrms_plots[2];
 	wfrms_plots[0] = new TH2D("Vpol","Vpol_org",200,-5,5,30,0,30);
@@ -237,7 +237,7 @@ int main(int argc, char **argv)
 
 			}
 			for(int i=0; i<num_faces_for_H_loop; i++){
-        if (num_faces_for_H_loop==12) rms_faces_H[i]=rms_pol_thresh_face_H[thresholdBin_pol[0]][i];
+        if (num_faces_for_H_loop==12) rms_faces_H[i]=rms_pol_thresh_face_H[thresholdBin_pol[1]][i];
 				else rms_faces_H[i] = rms_pol_thresh_face_alternate_H[thresholdBin_pol[1]][i];
 			}
 
@@ -357,12 +357,12 @@ int main(int argc, char **argv)
 	printf("-----------------------\n");
 	printf("Num passing either: %.3f/%.3f events, %.3f rate \n",num_passing_either, num_thermal[0], 100.*num_passing_either/num_thermal[0]);
 
-  // char filename[100];
-  // if (isSim==0) sprintf(filename, "wfront_RMS_cut_A%i_c%i.csv", station, config);//,angle[i]);
-  // else sprintf(filename, "wfront_RMS_cut_A%i_c%i_sim.csv", station,config);
-  // FILE *fout_RMS = fopen(filename, "a+");//open file
-  // fprintf(fout_RMS,"%.1f,%.3f,%.3f,%.3f \n",selected_cut,100.*num_passing[0]/num_thermal[0],100.*num_passing[1]/num_thermal[1],100.*num_passing_either/num_thermal[0]);
-  // fclose(fout_RMS);
+  char filename[100];
+  if (isSim==0) sprintf(filename, "wfront_RMS_cut_A%i_c%i.csv", station, config);//,angle[i]);
+  else sprintf(filename, "wfront_RMS_cut_A%i_c%i_sim.csv", station,config);
+  FILE *fout_RMS = fopen(filename, "a+");//open file
+  fprintf(fout_RMS,"%.1f,%.3f,%.3f,%.3f \n",selected_cut,100.*num_passing[0]/num_thermal[0],100.*num_passing[1]/num_thermal[1],100.*num_passing_either/num_thermal[0]);
+  fclose(fout_RMS);
 
 
 	TH1D *projections[2];
