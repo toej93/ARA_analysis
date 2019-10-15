@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 		size_t diff=(foundFilter-wordRun.length())-foundRun;
 		string strRunNum = file.substr(foundRun+4,diff);
 		int runNum = atoi(strRunNum.c_str());
-
+		cout << runNum << endl;
 		if(!isSimulation){
 			//we're almost certainly going to need the calibrator, so let's just load it now
 			char ped_file_name[400];
