@@ -80,11 +80,18 @@ int main(int argc, char **argv)
 	int dropBadChans = atoi(argv[5]);
 	string output_location = argv[6];
 
-  int num_tot_events=0;
-  int num_total_filtered_back=0;
-  int num_total_filtered_fwd=0;
 
+
+	char filename[100];
+  sprintf(filename, "CWID_A%i_c%i.csv", station, config);//,angle[i]);
+  // else sprintf(filename, "wfront_RMS_cut_A%i_c%i_sim.csv", station,config);
+  FILE *fout_RMS = fopen(filename, "a+");//open file
+	int runNum=0;
 	for(int file_num=7; file_num<argc; file_num++){
+		int num_tot_events=0;
+	  int num_total_filtered_back=0;
+	  int num_total_filtered_fwd=0;
+		int baseline_count = 0;
 
 		string file = string(argv[file_num]);
 		string wordRun = "run_";
@@ -93,7 +100,7 @@ int main(int argc, char **argv)
 		size_t foundFilter = file.find(wordFilter);
 		size_t diff=(foundFilter-wordRun.length())-foundRun;
 		string strRunNum = file.substr(foundRun+4,diff);
-		int runNum = atoi(strRunNum.c_str());
+		runNum = atoi(strRunNum.c_str());
 		cout << runNum << endl;
 		if(!isSimulation){
 			//we're almost certainly going to need the calibrator, so let's just load it now
@@ -101,9 +108,9 @@ int main(int argc, char **argv)
 			sprintf(ped_file_name,"%s/run_specific_peds/A%d/all_peds/event%d_specificPeds.dat",PedDirPath,station,runNum);
 			calibrator->setAtriPedFile(ped_file_name,station); //because someone had a brain (!!), this will error handle itself if the pedestal doesn't exist
 		}
-    char histName[50];
-    sprintf(histName,"400 MHz phase variance factor, Run %d, pol=0", runNum);
-    TH1F * hist = new TH1F("hist",histName,100,0,5);
+    // char histName[50];
+    // sprintf(histName,"400 MHz phase variance factor, Run %d, pol=0", runNum);
+    // TH1F * hist = new TH1F("hist",histName,100,0,5);
 		cout << "Run " << file_num << " :: " << argv[file_num] << endl;
 
 		TFile *inputFile = TFile::Open(argv[file_num]);
@@ -171,7 +178,7 @@ int main(int argc, char **argv)
 				sprintf(summary_file_name,"%s/CWID/A%d/c%d/E%d/CWID_station_%d_run_%d.root",SimDirPath,station,config,int(year_or_energy),station,runNum);
 		}
 		else{
-			sprintf(summary_file_name,"%s/CWID/A%d/%d/CWID_station_%d_run_%d.root",AuxDirPath,station,year_or_energy,station,runNum);
+			sprintf(summary_file_name,"%s/CWID/A%d/by_config/c%d/CWID_station_%d_run_%d.root",AuxDirPath,station,config,station,runNum);
 		}
 		TFile *NewCWFile = TFile::Open(summary_file_name);
 		if(!NewCWFile) {
@@ -194,6 +201,15 @@ int main(int argc, char **argv)
 		NewCWTree->SetBranchAddress("badFreqs_back",&badFreqs_back);
 		NewCWTree->SetBranchAddress("badSigmas_back",&badSigmas_back);
 		NewCWTree->SetBranchAddress("badFreqs_baseline",&badFreqs_baseline);
+
+		double threshCW=10;
+		if(station==2){
+			threshCW = 1.5;
+		}
+		else if(station==3){
+			if(hasUntaggedCalpul("./a23_analysis_tools",station,config, runNum)) threshCW = 2.0;
+			else threshCW = 1.5;
+		}
 
 		int numEntries = inputTree_filter->GetEntries();
     num_tot_events+=numEntries;
@@ -245,14 +261,7 @@ int main(int argc, char **argv)
 				vector<double> badFreqListLocal_baseline = badFreqs_baseline->at(pol);
 				if(badFreqListLocal_baseline.size()>0) isCutonCW_baseline[pol]=true;
 			}
-
-			double threshCW=10;
-			if(station==2){
-				threshCW = 1.5;
-			}
-			else if(station==3){
-				threshCW = 2.0;
-			}
+			if(isCutonCW_baseline[0]==true || isCutonCW_baseline[1]==true) baseline_count++;
 
       bool isFiltered_fwd=false;
 			vector<double> badFreqList_fwd;
@@ -290,9 +299,9 @@ int main(int argc, char **argv)
 				badSigmaList_back=badSigmas_back->at(pol);
 				for(int iCW=0; iCW<badFreqList_back.size(); iCW++){
           if(abs(403.3 - badFreqList_back[iCW]) < 4 && (pol==0)){
-            cout << event << endl;
-            cout << badFreqList_back[iCW] << endl;
+            // cout << event << endl;
             // cout << badFreqList_back[iCW] << endl;
+            // // cout << badFreqList_back[iCW] << endl;
             peak_phase.push_back(badSigmaList_back[iCW]);
           }
 					if(
@@ -319,7 +328,7 @@ int main(int argc, char **argv)
 			}
       sort(peak_phase.begin(), peak_phase.end(), greater<double>());
       if(peak_phase.size()!=0){
-        hist->Fill(peak_phase[0]);
+        // hist->Fill(peak_phase[0]);
       }
 		}//loop over events
 		inputFile->Close();
@@ -330,26 +339,30 @@ int main(int argc, char **argv)
 		// sprintf(outfile_name,"%s/CW_contaminated_events_run_%d.root",output_location.c_str(),runNum);
     //
 		// // TFile *fpOut = new TFile(outfile_name,"recreate");
-    TCanvas *cc = new TCanvas("","",800,800);
-    gStyle->SetOptStat(1111);
-    hist->GetXaxis()->SetTitle("Phase variance factor");
-    hist->Draw();
-    gStyle->SetOptStat(1111);
-    gPad->SetLogy();
-    cc->Draw();
-    char h5name[60];
-    sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/400MHz_hist_run%d_A%d.png",runNum, station);
-    cc->SaveAs(h5name);
-    delete hist;
+    // TCanvas *cc = new TCanvas("","",800,800);
+    // gStyle->SetOptStat(1111);
+    // hist->GetXaxis()->SetTitle("Phase variance factor");
+    // hist->Draw();
+    // gStyle->SetOptStat(1111);
+    // gPad->SetLogy();
+    // cc->Draw();
+    // char h5name[60];
+    // sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/400MHz_hist_run%d_A%d.png",runNum, station);
+    // cc->SaveAs(h5name);
+    // delete hist;
 
     // hist->Write();
 		// fpOut->Write();
 		// fpOut->Close();
 		// delete fpOut;
-
+		fprintf(fout_RMS,"%i,%0.2f,%0.2f\n",runNum, (float) 100*num_total_filtered_back/num_tot_events, (float) 100*baseline_count/num_tot_events);
+		cout <<runNum<<endl;
 		printf("Done! Run Number %d \n", runNum);
 	} //end loop over input files
-  printf("Num events = %i, num filtered events backward = %i, ratio = %f \n", num_tot_events, num_total_filtered_back, (float) num_total_filtered_back/num_tot_events);
-  printf("Num events = %i, num filtered events fwd = %i, ratio = %f \n", num_tot_events, num_total_filtered_fwd, (float) num_total_filtered_fwd/num_tot_events);
+
+	fclose(fout_RMS);
+
+  // printf("Num events = %i, num filtered events backward = %i, ratio = %f \n", num_tot_events, num_total_filtered_back, (float) num_total_filtered_back/num_tot_events);
+  // printf("Num events = %i, num filtered events fwd = %i, ratio = %f \n", num_tot_events, num_total_filtered_fwd, (float) num_total_filtered_fwd/num_tot_events);
 
 }
