@@ -85,9 +85,10 @@ int main(int argc, char **argv)
 	char filename[100];
   sprintf(filename, "CWID_A%i_c%i.csv", station, config);//,angle[i]);
   // else sprintf(filename, "wfront_RMS_cut_A%i_c%i_sim.csv", station,config);
-  FILE *fout_RMS = fopen(filename, "a+");//open file
+  // FILE *fout_RMS = fopen(filename, "a+");//open file
 	int runNum=0;
-	for(int file_num=7; file_num<argc; file_num++){
+	TH1F *hist_freq = new TH1F("","",300,0,1000);
+	for(int file_num=7; file_num<argc; file_num++){//7
 		int num_tot_events=0;
 	  int num_total_filtered_back=0;
 	  int num_total_filtered_fwd=0;
@@ -111,7 +112,7 @@ int main(int argc, char **argv)
     // char histName[50];
     // sprintf(histName,"400 MHz phase variance factor, Run %d, pol=0", runNum);
     // TH1F * hist = new TH1F("hist",histName,100,0,5);
-		cout << "Run " << file_num << " :: " << argv[file_num] << endl;
+		// cout << "Run " << file_num << " :: " << argv[file_num] << endl;
 
 		TFile *inputFile = TFile::Open(argv[file_num]);
 		if(!inputFile){
@@ -207,17 +208,18 @@ int main(int argc, char **argv)
 			threshCW = 1.5;
 		}
 		else if(station==3){
+			// cout << hasUntaggedCalpul("./a23_analysis_tools",station,config, runNum) << endl;
 			if(hasUntaggedCalpul("./a23_analysis_tools",station,config, runNum)) threshCW = 2.0;
 			else threshCW = 1.5;
 		}
-
+		// cout << threshCW << endl;
 		int numEntries = inputTree_filter->GetEntries();
     num_tot_events+=numEntries;
 		Long64_t starEvery=numEntries/200;
 		if(starEvery==0) starEvery++;
-		cout<<"Num entries is "<<numEntries<<endl;
-		cout<<"Star every is "<<starEvery<<endl;
-		// numEntries=2000;
+		// cout<<"Num entries is "<<numEntries<<endl;
+		// cout<<"Star every is "<<starEvery<<endl;
+		// // numEntries=2000;
 
 		int start=0;
 		//now to loop over events
@@ -281,6 +283,8 @@ int main(int argc, char **argv)
 						&&
 						badFreqList_fwd[iCW] < 850.
 					){
+						hist_freq->Fill(badFreqList_fwd[iCW]);
+						// cout << badFreqList_fwd[iCW] << endl;
 						isCutonCW_fwd[pol] = true;
 
             if(!isFiltered_fwd) num_total_filtered_fwd++;
@@ -339,30 +343,30 @@ int main(int argc, char **argv)
 		// sprintf(outfile_name,"%s/CW_contaminated_events_run_%d.root",output_location.c_str(),runNum);
     //
 		// // TFile *fpOut = new TFile(outfile_name,"recreate");
-    // TCanvas *cc = new TCanvas("","",800,800);
-    // gStyle->SetOptStat(1111);
-    // hist->GetXaxis()->SetTitle("Phase variance factor");
-    // hist->Draw();
-    // gStyle->SetOptStat(1111);
-    // gPad->SetLogy();
-    // cc->Draw();
-    // char h5name[60];
-    // sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/400MHz_hist_run%d_A%d.png",runNum, station);
-    // cc->SaveAs(h5name);
-    // delete hist;
+
 
     // hist->Write();
 		// fpOut->Write();
 		// fpOut->Close();
 		// delete fpOut;
-		fprintf(fout_RMS,"%i,%0.2f,%0.2f\n",runNum, (float) 100*num_total_filtered_back/num_tot_events, (float) 100*baseline_count/num_tot_events);
-		cout <<runNum<<endl;
+		// fprintf(fout_RMS,"%i,%0.2f,%0.2f\n",runNum, (float) 100*num_total_filtered_back/num_tot_events, (float) 100*baseline_count/num_tot_events);
+		// cout <<runNum<<endl;
 		printf("Done! Run Number %d \n", runNum);
 	} //end loop over input files
 
-	fclose(fout_RMS);
+	// fclose(fout_RMS);
 
   // printf("Num events = %i, num filtered events backward = %i, ratio = %f \n", num_tot_events, num_total_filtered_back, (float) num_total_filtered_back/num_tot_events);
   // printf("Num events = %i, num filtered events fwd = %i, ratio = %f \n", num_tot_events, num_total_filtered_fwd, (float) num_total_filtered_fwd/num_tot_events);
-
+	TCanvas *cc = new TCanvas("","",1800,1800);
+	gStyle->SetOptStat(1111);
+	hist_freq->GetXaxis()->SetTitle("Contaminated frequencies");
+	hist_freq->Draw();
+	gStyle->SetOptStat(1111);
+	gPad->SetLogy();
+	cc->Draw();
+	char h5name[60];
+	sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_hist_c%d_A%d.png",config, station);
+	cc->SaveAs(h5name);
+	delete hist_freq;
 }
