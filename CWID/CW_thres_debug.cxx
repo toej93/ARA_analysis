@@ -102,7 +102,12 @@ int main(int argc, char **argv)
 		size_t diff=(foundFilter-wordRun.length())-foundRun;
 		string strRunNum = file.substr(foundRun+4,diff);
 		runNum = atoi(strRunNum.c_str());
+		if(config==3 && (runNum>3500)) continue;
+		if(config==4 && (/*runNum<6000 || */runNum<6500)) continue;
+		if(config==5 && runNum>2200) continue;
+
 		cout << runNum << endl;
+
 		if(!isSimulation){
 			//we're almost certainly going to need the calibrator, so let's just load it now
 			char ped_file_name[400];
@@ -367,6 +372,6 @@ int main(int argc, char **argv)
 	cc->Draw();
 	char h5name[60];
 	sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_hist_c%d_A%d.png",config, station);
-	cc->SaveAs(h5name);
+	// cc->SaveAs(h5name);
 	delete hist_freq;
 }
