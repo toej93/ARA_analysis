@@ -80,14 +80,13 @@ int main(int argc, char **argv)
 	int dropBadChans = atoi(argv[5]);
 	string output_location = argv[6];
 
-
-
 	char filename[100];
   sprintf(filename, "CWID_A%i_c%i.csv", station, config);//,angle[i]);
   // else sprintf(filename, "wfront_RMS_cut_A%i_c%i_sim.csv", station,config);
-  // FILE *fout_RMS = fopen(filename, "a+");//open file
+  FILE *fout_RMS = fopen(filename, "a+");//open file
 	int runNum=0;
-	TH1F *hist_freq = new TH1F("","",300,0,1000);
+	// TH1F *hist_freq = new TH1F("","",300,0,1000);
+	vector<int> BadRunList = BuildBadRunList(3);
 	for(int file_num=7; file_num<argc; file_num++){//7
 		int num_tot_events=0;
 	  int num_total_filtered_back=0;
@@ -102,9 +101,10 @@ int main(int argc, char **argv)
 		size_t diff=(foundFilter-wordRun.length())-foundRun;
 		string strRunNum = file.substr(foundRun+4,diff);
 		runNum = atoi(strRunNum.c_str());
-		if(config==3 && (runNum>3500)) continue;
-		if(config==4 && (/*runNum<6000 || */runNum<6500)) continue;
-		if(config==5 && runNum>2200) continue;
+		if(isBadRun(3, runNum, BadRunList)) continue;
+		// if(config==3 && (runNum>3500)) continue;
+		// if(config==4 && (/*runNum<6000 || */runNum<6500)) continue;
+		// if(config==5 && runNum>2200) continue;
 
 		cout << runNum << endl;
 
@@ -288,7 +288,7 @@ int main(int argc, char **argv)
 						&&
 						badFreqList_fwd[iCW] < 850.
 					){
-						hist_freq->Fill(badFreqList_fwd[iCW]);
+						// hist_freq->Fill(badFreqList_fwd[iCW]);
 						// cout << badFreqList_fwd[iCW] << endl;
 						isCutonCW_fwd[pol] = true;
 
@@ -354,24 +354,24 @@ int main(int argc, char **argv)
 		// fpOut->Write();
 		// fpOut->Close();
 		// delete fpOut;
-		// fprintf(fout_RMS,"%i,%0.2f,%0.2f\n",runNum, (float) 100*num_total_filtered_back/num_tot_events, (float) 100*baseline_count/num_tot_events);
+		fprintf(fout_RMS,"%i,%0.2f,%0.2f\n",runNum, (float) 100*num_total_filtered_back/num_tot_events, (float) 100*baseline_count/num_tot_events);
 		// cout <<runNum<<endl;
 		printf("Done! Run Number %d \n", runNum);
 	} //end loop over input files
 
-	// fclose(fout_RMS);
+	fclose(fout_RMS);
 
   // printf("Num events = %i, num filtered events backward = %i, ratio = %f \n", num_tot_events, num_total_filtered_back, (float) num_total_filtered_back/num_tot_events);
   // printf("Num events = %i, num filtered events fwd = %i, ratio = %f \n", num_tot_events, num_total_filtered_fwd, (float) num_total_filtered_fwd/num_tot_events);
-	TCanvas *cc = new TCanvas("","",1800,1800);
-	gStyle->SetOptStat(1111);
-	hist_freq->GetXaxis()->SetTitle("Contaminated frequencies");
-	hist_freq->Draw();
-	gStyle->SetOptStat(1111);
-	gPad->SetLogy();
-	cc->Draw();
-	char h5name[60];
-	sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_hist_c%d_A%d.png",config, station);
-	// cc->SaveAs(h5name);
-	delete hist_freq;
+	// TCanvas *cc = new TCanvas("","",1800,1800);
+	// gStyle->SetOptStat(1111);
+	// hist_freq->GetXaxis()->SetTitle("Contaminated frequencies");
+	// hist_freq->Draw();
+	// gStyle->SetOptStat(1111);
+	// gPad->SetLogy();
+	// cc->Draw();
+	// char h5name[60];
+	// sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_hist_c%d_A%d.png",config, station);
+	// // cc->SaveAs(h5name);
+	// delete hist_freq;
 }
