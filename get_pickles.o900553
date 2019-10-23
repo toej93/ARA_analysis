@@ -1,0 +1,47 @@
+
+Lmod is automatically replacing "intel/18.0.3" with "gnu/7.3.0".
+
+
+Due to MODULEPATH changes, the following have been reloaded:
+  1) mvapich2/2.3
+
+/users/PCON0003/cond0068
+Loaded PyROOT
+Loaded PyROOT
+Traceback (most recent call last):
+  File "pickle_files.py", line 47, in <module>
+    if(isBadRun(runNum)):
+NameError: name 'isBadRun' is not defined
+Traceback (most recent call last):
+  File "pickle_files.py", line 47, in <module>
+    if(isBadRun(runNum)):
+NameError: name 'isBadRun' is not defined
+Loaded PyROOT
+Traceback (most recent call last):
+  File "pickle_files.py", line 47, in <module>
+    if(isBadRun(runNum)):
+NameError: name 'isBadRun' is not defined
+Loaded PyROOT
+Traceback (most recent call last):
+  File "pickle_files.py", line 47, in <module>
+    if(isBadRun(runNum)):
+NameError: name 'isBadRun' is not defined
+Loaded PyROOT
+Traceback (most recent call last):
+  File "pickle_files.py", line 47, in <module>
+    if(isBadRun(runNum)):
+NameError: name 'isBadRun' is not defined
+
+-----------------------
+Resources requested:
+nodes=1:ppn=6
+mem=28566mb
+-----------------------
+Resources used:
+cput=00:00:07
+walltime=00:00:08
+mem=0.001GB
+vmem=0.000GB
+-----------------------
+Resource units charged (estimate):
+-----------------------
