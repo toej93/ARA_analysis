@@ -111,8 +111,8 @@ int main(int argc, char **argv)
 		printf("Data; load raw event tree \n");
 	}
 
-  Long64_t numEntries=eventTree->GetEntries();
-  // Long64_t numEntries=100;
+  // Long64_t numEntries=eventTree->GetEntries();
+  Long64_t numEntries=200;
 	Long64_t starEvery=numEntries/80;
 	if(starEvery==0) starEvery++;
 	printf("Num events is %d \n", numEntries);
@@ -209,16 +209,16 @@ int main(int argc, char **argv)
 	}
 	for(int event=0; event<numEntries; event++){
 		eventTree->GetEntry(event);
-    // bool isCalpulser = rawAtriEvPtr->isCalpulserEvent();
-    // if(isCalpulser) continue;
+    bool isCalpulser = rawAtriEvPtr->isCalpulserEvent();
+    if(isCalpulser) continue;
 		if (isSimulation == false){
 			realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib);
       int unixTime=(int)rawAtriEvPtr->unixTime;
       // cout << unixTime << endl;
-       if(event>=10529 && event<=10800){
+       // if(event>=10529 && event<=10800){
         hasError = !(qualCut->isGoodEvent(realAtriEvPtr));
-      }
-      else hasError=true;
+      // }
+      // else hasError=true;
 
 		}
 		else if(isSimulation){
@@ -235,19 +235,19 @@ int main(int argc, char **argv)
 		}
 		vector<TGraph*> grWaveformsRaw = makeGraphsFromRF(realAtriEvPtr, 16, xLabel, yLabel, titlesForGraphs);
     // if(event==29){
-    // TCanvas *c2 = new TCanvas("","",1550,1550);
-    // c2->Divide(4,4);
-    // for(int i=0; i<16; i++){//canvas loop
-    //   char ch_name[20];
-    //   sprintf(ch_name,"chan %d",i);
-    //   c2->cd(i+1);
-    //   // temp_phs[i]->SetTitle(ch_name);
-    //   grWaveformsRaw[i]->Draw("AL");
-    // }//canvas loop
-    // char h3name[60];
-    // sprintf(h3name,"./plots/trouble_events/wforms/wf_event%d_run%d.png",event, runNum);
-    // c2->SaveAs(h3name);
-    // delete c2;
+    TCanvas *c2 = new TCanvas("","",1550,1550);
+    c2->Divide(4,4);
+    for(int i=0; i<16; i++){//canvas loop
+      char ch_name[20];
+      sprintf(ch_name,"chan %d",i);
+      c2->cd(i+1);
+      // temp_phs[i]->SetTitle(ch_name);
+      grWaveformsRaw[i]->Draw("AL");
+    }//canvas loop
+    char h3name[60];
+    sprintf(h3name,"./plots/trouble_events/wforms/wf_event%d_run%d.png",event, runNum);
+    c2->SaveAs(h3name);
+    delete c2;
   // }
 
 // vector<TGraph*> electChansGraphs;
@@ -343,8 +343,8 @@ int main(int argc, char **argv)
 		if(event%starEvery==0) { std::cerr << "*"; }
 
 		eventTree->GetEntry(event); //get the event
-    // bool isCalpulser = rawAtriEvPtr->isCalpulserEvent();
-    // if(isCalpulser) continue;
+    bool isCalpulser = rawAtriEvPtr->isCalpulserEvent();
+    if(isCalpulser) continue;
 
 		if (isSimulation == false){
 			realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib);
@@ -485,7 +485,7 @@ int main(int argc, char **argv)
       }//canvas loop
       char h3name[60];
       sprintf(h3name,"./plots/trouble_events/phase_plots/phases_event%d_run%d_A%d.png",event, runNum,station_num);
-      // c2->SaveAs(h3name);
+      c2->SaveAs(h3name);
       delete c2;
 			//okay, now we need to try and move forward
 			int found_events_forward=0;

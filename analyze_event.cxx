@@ -81,7 +81,7 @@ int main(int argc, char **argv)
   chain.SetBranchAddress("event",&rawEvPtr);
 
   // int numEntries = chain.GetEntries();
-  int numEntries = 100;
+  int numEntries = 1000;
   Int_t run_num=0;
   int stationId=0;
 
