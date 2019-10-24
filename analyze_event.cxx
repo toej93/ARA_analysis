@@ -80,8 +80,8 @@ int main(int argc, char **argv)
   RawAtriStationEvent *rawEvPtr=0;
   chain.SetBranchAddress("event",&rawEvPtr);
 
-  // int numEntries = chain.GetEntries();
-  int numEntries = 1000;
+  int numEntries = chain.GetEntries();
+  //int numEntries = 1000;
   Int_t run_num=0;
   int stationId=0;
 
@@ -94,6 +94,8 @@ int main(int argc, char **argv)
     chain.GetEvent(event);
     //if(rawEvPtr->isCalpulserEvent()==false){
       int evt_num = rawEvPtr->eventNumber;//event number
+      //cout << evt_num << endl;
+      if(evt_num!=35047) continue;
       UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
       vector<TGraph*> graphs;
       vector<TGraph*> graphs_spectra;
