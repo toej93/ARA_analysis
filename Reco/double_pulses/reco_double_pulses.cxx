@@ -235,58 +235,58 @@ int main(int argc, char **argv)
 
 	// prepare for output
 	string processedFilename = getProcessedFilename_recoRadius(station_num, argv[6], runNum, radii[radiusBin]);
-	TFile *OutputFile = TFile::Open(processedFilename.c_str(), "RECREATE");
-	TTree* OutputSettingsTree = new TTree("OutputSettingsTree", "OutputSettingsTree");
-	OutputSettingsTree->Branch("detectorCenter", &detectorCenter, "detectorCenter[3]/D");
-	OutputSettingsTree->Branch("calpulserRunMode", &calpulserRunMode, "calpulserRunMode/I");
-	OutputSettingsTree->Branch("numFaces", &numFaces_save, "numFaces");
-	OutputSettingsTree->Branch("numSearchPeaks", &numSearchPeaks, "numSearchPeaks/I");
-	OutputSettingsTree->Branch("thresholdMin", &thresholdMin, "thresholdMin/I");
-	OutputSettingsTree->Branch("thresholdStep", &thresholdStep, "thresholdStep/D");
-	OutputSettingsTree->Branch("thresholdSteps", &thresholdSteps_v, "thresholdSteps/D");
-	OutputSettingsTree->Branch("interpolationTimeStep", &interpolationTimeStep, "interpolationTimeSteps/D");
-	OutputSettingsTree->Branch("numBinsToIntegrate", &numBinsToIntegrate, "numBinsToIntegrate/I");
+	// TFile *OutputFile = TFile::Open(processedFilename.c_str(), "RECREATE");
+	// TTree* OutputSettingsTree = new TTree("OutputSettingsTree", "OutputSettingsTree");
+	// OutputSettingsTree->Branch("detectorCenter", &detectorCenter, "detectorCenter[3]/D");
+	// OutputSettingsTree->Branch("calpulserRunMode", &calpulserRunMode, "calpulserRunMode/I");
+	// OutputSettingsTree->Branch("numFaces", &numFaces_save, "numFaces");
+	// OutputSettingsTree->Branch("numSearchPeaks", &numSearchPeaks, "numSearchPeaks/I");
+	// OutputSettingsTree->Branch("thresholdMin", &thresholdMin, "thresholdMin/I");
+	// OutputSettingsTree->Branch("thresholdStep", &thresholdStep, "thresholdStep/D");
+	// OutputSettingsTree->Branch("thresholdSteps", &thresholdSteps_v, "thresholdSteps/D");
+	// OutputSettingsTree->Branch("interpolationTimeStep", &interpolationTimeStep, "interpolationTimeSteps/D");
+	// OutputSettingsTree->Branch("numBinsToIntegrate", &numBinsToIntegrate, "numBinsToIntegrate/I");
+  //
+	// OutputSettingsTree->Branch("numRadii", &numRadii_v);
+	// OutputSettingsTree->Branch("numRadiiScanned", &numRadiiScanned);
+	// OutputSettingsTree->Branch("startingRadiusBin", &startingRadiusBin);
+	// OutputSettingsTree->Branch("numPols", &numPols_v, "numPols");
+	// OutputSettingsTree->Branch("radii", &radii, "radii[numRadii]");
+	// OutputSettingsTree->Branch("recoFilterThreshold", &recoFilterThreshold, "recoFilterThreshold[numPols]/D");
+	// OutputSettingsTree->Branch("recoFilterThresholdBin", &recoFilterThresholdBin, "recoFilterThresholdBin[numPols]/I");
+	// OutputSettingsTree->Branch("recoFilterWavefrontRMSCut", &recoFilterWavefrontRMSCut, "recoFilterWavefrontRMSCut[numPols]/D");
+	// OutputSettingsTree->Fill();
 
-	OutputSettingsTree->Branch("numRadii", &numRadii_v);
-	OutputSettingsTree->Branch("numRadiiScanned", &numRadiiScanned);
-	OutputSettingsTree->Branch("startingRadiusBin", &startingRadiusBin);
-	OutputSettingsTree->Branch("numPols", &numPols_v, "numPols");
-	OutputSettingsTree->Branch("radii", &radii, "radii[numRadii]");
-	OutputSettingsTree->Branch("recoFilterThreshold", &recoFilterThreshold, "recoFilterThreshold[numPols]/D");
-	OutputSettingsTree->Branch("recoFilterThresholdBin", &recoFilterThresholdBin, "recoFilterThresholdBin[numPols]/I");
-	OutputSettingsTree->Branch("recoFilterWavefrontRMSCut", &recoFilterWavefrontRMSCut, "recoFilterWavefrontRMSCut[numPols]/D");
-	OutputSettingsTree->Fill();
-
-	TTree* OutputTree=new TTree("OutputTree", "OutputTree");
-	// reconstruction information
-	OutputTree->Branch("runReconstruction", &runReconstruction, "runReconstruction/O");
-
-	OutputTree->Branch("peakCorr_single", &peakCorr_single, "peakCorr_single[2]/D");
-	OutputTree->Branch("peakTheta_single", &peakTheta_single, "peakTheta_single[2]/I");
-	OutputTree->Branch("peakPhi_single", &peakPhi_single, "peakPhi_single[2]/I");
-	OutputTree->Branch("minCorr_single", &minCorr_single, "minCorr_single[2]/D");
-	OutputTree->Branch("meanCorr_single", &meanCorr_single, "meanCorr_single[2]/D");
-	OutputTree->Branch("rmsCorr_single", &rmsCorr_single, "rmsCorr_single[2]/D");
-	OutputTree->Branch("peakSigma_single", &peakSigma_single, "peakSigma_single[2]/D");
-	OutputTree->Branch("run",&runNumOut, "run/I");
-	runNumOut=runNum;
-
-	OutputTree->Branch("isCalpulser", &isCalpulser, "isCalpulser/O");
-	OutputTree->Branch("isSoftTrigger", &isSoftTrigger, "isSoftTrigger/O");
-	OutputTree->Branch("unixTime", &unixTime);
-	OutputTree->Branch("unixTimeUs", &unixTimeUs);
-	OutputTree->Branch("eventNumber", &eventNumber);
-	OutputTree->Branch("maxPeakVfromSim", &maxPeakVfromSim);
-	OutputTree->Branch("PeakVfromSim", &PeakVfromSim, "peakVfromSim[16][2]/D");
-
-	// simulation parameters
-	OutputTree->Branch("weight", &weight_out, "weight/D");
-	OutputTree->Branch("flavor", &flavor, "flavor/I");
-	OutputTree->Branch("nu_nubar", &nu_nubar, "nu_nubar/I");
-	OutputTree->Branch("energy", &energy, "energy/D");
-	OutputTree->Branch("posnu", &posnu, "posnu[3]/D");
-	OutputTree->Branch("viewAngle", &viewAngle, "viewAngle[16][2]/D");
-	OutputTree->Branch("viewAngleAvg", &viewAngleAvg, "viewAngleAvg[2]/D");
+	// TTree* OutputTree=new TTree("OutputTree", "OutputTree");
+	// // reconstruction information
+	// OutputTree->Branch("runReconstruction", &runReconstruction, "runReconstruction/O");
+  //
+	// OutputTree->Branch("peakCorr_single", &peakCorr_single, "peakCorr_single[2]/D");
+	// OutputTree->Branch("peakTheta_single", &peakTheta_single, "peakTheta_single[2]/I");
+	// OutputTree->Branch("peakPhi_single", &peakPhi_single, "peakPhi_single[2]/I");
+	// OutputTree->Branch("minCorr_single", &minCorr_single, "minCorr_single[2]/D");
+	// OutputTree->Branch("meanCorr_single", &meanCorr_single, "meanCorr_single[2]/D");
+	// OutputTree->Branch("rmsCorr_single", &rmsCorr_single, "rmsCorr_single[2]/D");
+	// OutputTree->Branch("peakSigma_single", &peakSigma_single, "peakSigma_single[2]/D");
+	// OutputTree->Branch("run",&runNumOut, "run/I");
+	// runNumOut=runNum;
+  //
+	// OutputTree->Branch("isCalpulser", &isCalpulser, "isCalpulser/O");
+	// OutputTree->Branch("isSoftTrigger", &isSoftTrigger, "isSoftTrigger/O");
+	// OutputTree->Branch("unixTime", &unixTime);
+	// OutputTree->Branch("unixTimeUs", &unixTimeUs);
+	// OutputTree->Branch("eventNumber", &eventNumber);
+	// OutputTree->Branch("maxPeakVfromSim", &maxPeakVfromSim);
+	// OutputTree->Branch("PeakVfromSim", &PeakVfromSim, "peakVfromSim[16][2]/D");
+  //
+	// // simulation parameters
+	// OutputTree->Branch("weight", &weight_out, "weight/D");
+	// OutputTree->Branch("flavor", &flavor, "flavor/I");
+	// OutputTree->Branch("nu_nubar", &nu_nubar, "nu_nubar/I");
+	// OutputTree->Branch("energy", &energy, "energy/D");
+	// OutputTree->Branch("posnu", &posnu, "posnu[3]/D");
+	// OutputTree->Branch("viewAngle", &viewAngle, "viewAngle[16][2]/D");
+	// OutputTree->Branch("viewAngleAvg", &viewAngleAvg, "viewAngleAvg[2]/D");
 
 	int eventSim = 0;
 	cerr<<"Run "<<runNum<<" has a starEvery of "<<starEvery<<" and "<<numEntries<<" total events"<<endl;
@@ -304,7 +304,10 @@ int main(int argc, char **argv)
 			unixTime=(int)rawAtriEvPtr->unixTime;
 			unixTimeUs=(int)rawAtriEvPtr->unixTimeUs;
 			eventNumber=(int)rawAtriEvPtr->eventNumber;
-		}else {
+		}
+    if(eventNumber!=39072) continue;
+
+    else {
 			eventNumber = event;
 		}
 
@@ -396,7 +399,7 @@ int main(int argc, char **argv)
 				hasDigitizerError=false;
 			//if the event has a  digitizer error, skip it
 			if(hasDigitizerError){
-				OutputTree->Fill(); //fill this anyway with garbage
+				// OutputTree->Fill(); //fill this anyway with garbage
 				if (isSimulation == false) {
 					delete realAtriEvPtr;
 				}
@@ -445,22 +448,22 @@ int main(int argc, char **argv)
 			TH2D *map_V_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select_NewNormalization_SNRweighted(settings, detector, realAtriEvPtr, Vpol, isSimulation, chan_list_V, chan_SNRs, solNum);
 			TH2D *map_H_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select_NewNormalization_SNRweighted(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H, chan_SNRs, solNum);
 
-			getCorrMapPeak_wStats(map_V_raytrace, peakTheta_single[0], peakPhi_single[0], peakCorr_single[0], minCorr_single[0], meanCorr_single[0], rmsCorr_single[0], peakSigma_single[0]);
-			getCorrMapPeak_wStats(map_H_raytrace, peakTheta_single[1], peakPhi_single[1], peakCorr_single[1], minCorr_single[1], meanCorr_single[1], rmsCorr_single[1], peakSigma_single[1]);
+			// getCorrMapPeak_wStats(map_V_raytrace, peakTheta_single[0], peakPhi_single[0], peakCorr_single[0], minCorr_single[0], meanCorr_single[0], rmsCorr_single[0], peakSigma_single[0]);
+			// getCorrMapPeak_wStats(map_H_raytrace, peakTheta_single[1], peakPhi_single[1], peakCorr_single[1], minCorr_single[1], meanCorr_single[1], rmsCorr_single[1], peakSigma_single[1]);
 
 			//cout<<"For event "<<event<<" the v corr is "<<peakCorr_single[0]<<endl;
 
-			bool print_maps = false;
+			bool print_maps = true;
 			if(print_maps){
 				gStyle->SetOptStat(0);
-				TCanvas *cMaps = new TCanvas("","",2*1100,2*850);
-				cMaps->Divide(2,2);
+				TCanvas *cMaps = new TCanvas("","",2*1100,850);
+				cMaps->Divide(2,1);
 					cMaps->cd(1);
 					map_V_raytrace->Draw("colz");
 					cMaps->cd(2);
 					map_H_raytrace->Draw("colz");
 				char save_temp_title[400];
-				sprintf(save_temp_title,"/users/PAS0654/osu0673/A23_analysis_new2/results/trouble_events/%d.%d.%d_Run%d_Ev%d_Maps_FromRecoCode.png",year_now,month_now,day_now,runNum,event);
+				sprintf(save_temp_title,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/interf_maps/double_pulse/A%i_Run%d_Ev%d_Maps_FromRecoCode.png",station_num,runNum,event);
 				cMaps->SaveAs(save_temp_title);
 				delete cMaps;
 			}
@@ -468,7 +471,7 @@ int main(int argc, char **argv)
 			delete map_V_raytrace;
 			delete map_H_raytrace;
 
-			OutputTree->Fill();
+			// OutputTree->Fill();
 
 			if (isSimulation == false) {
 				delete realAtriEvPtr;
@@ -476,8 +479,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	OutputFile->Write();
-	OutputFile->Close();
+	// OutputFile->Write();
+	// OutputFile->Close();
 	if(hasFilterFile)
 		filterFile->Close();
 	fp->Close();
