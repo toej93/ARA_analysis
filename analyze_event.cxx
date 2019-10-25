@@ -95,7 +95,7 @@ int main(int argc, char **argv)
     //if(rawEvPtr->isCalpulserEvent()==false){
       int evt_num = rawEvPtr->eventNumber;//event number
       //cout << evt_num << endl;
-      if(evt_num!=35047) continue;
+      if(evt_num!=39072) continue;
       UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
       vector<TGraph*> graphs;
       vector<TGraph*> graphs_spectra;
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
         vector<double> thisY;
         thisX.push_back(-250);
         thisX.push_back(800);
-        thisY.push_back(-700);
+        thisY.push_back(0);
         thisY.push_back(700);
         dummy.push_back(new TGraph(2,&thisX[0], &thisY[0]));
       }
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 
       char h2name[60];
       sprintf(h2name,"./plots/wforms/wf_A%i_run%d_event%d.png", station, run_num,evt_num);
-      c2->SaveAs(h2name);
+      // c2->SaveAs(h2name);
       delete c2;
 
       TCanvas *c3 = new TCanvas("","",1550,1550);
@@ -160,8 +160,32 @@ int main(int argc, char **argv)
       }//canvas loop
       char h3name[100];
       sprintf(h3name,"./plots/spectra/spectrum_A%i_run%d_event%d.png", station, run_num,evt_num);
-      c3->SaveAs(h3name);
+      // c3->SaveAs(h3name);
       delete c3;
+
+      TCanvas *c4 = new TCanvas("","",1550,1550);
+      c4->Divide(4,4);
+      TGraph *corr_graph[16];
+      for(int i=0; i<16; i++){//canvas loop
+        char ch_name[20];
+        if(rawEvPtr->isCalpulserEvent()==true) sprintf(ch_name,"chan %d, calpulser",i);
+        else sprintf(ch_name,"chan %d",i);
+        c4->cd(i+1);
+        gPad->SetLogy();
+        corr_graph[i] = FFTtools::getCorrelationGraph(FFTtools::getHilbertEnvelope(graphs[i]),FFTtools::getHilbertEnvelope(graphs[i]));
+        corr_graph[i]->Draw("");
+        corr_graph[i]->SetTitle(ch_name);
+        // dummy[i]->SetTitle(ch_name);
+        // dummy[i]->Draw("AP");
+        // dummy[i]->SetLineColor(kWhite);
+        //delete corr_graph;
+      }//canvas loop
+
+      char h4name[60];
+      sprintf(h4name,"./plots/hilbert_env/correlation_A%i_run%d_event%d.png", station, run_num,evt_num);
+      c4->SaveAs(h4name);
+      delete c4;
+
 
       //    }
       for (int i=0; i < graphs.size(); i++){
