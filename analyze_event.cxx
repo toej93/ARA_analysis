@@ -120,14 +120,14 @@ int main(int argc, char **argv)
       for(int i=0; i<16; i++){
         vector<double> thisX;
         vector<double> thisY;
-        thisX.push_back(-250);
-        thisX.push_back(800);
+        thisX.push_back(450);
+        thisX.push_back(150);
         thisY.push_back(0);
         thisY.push_back(700);
         dummy.push_back(new TGraph(2,&thisX[0], &thisY[0]));
       }
 
-      TCanvas *c2 = new TCanvas("","",1550,1550);
+      TCanvas *c2 = new TCanvas("","",2550,2550);
       c2->Divide(4,4);
       for(int i=0; i<16; i++){//canvas loop
         char ch_name[20];
@@ -135,10 +135,26 @@ int main(int argc, char **argv)
         else sprintf(ch_name,"chan %d",i);
         c2->cd(i+1);
         graphs[i]->SetTitle(ch_name);
-        dummy[i]->SetTitle(ch_name);
-        dummy[i]->Draw("AP");
-        dummy[i]->SetLineColor(kWhite);
-        graphs[i]->Draw("SAMEL");
+        // dummy[i]->SetTitle(ch_name);
+        // dummy[i]->Draw("AP");
+        // dummy[i]->SetLineColor(kWhite);
+        if(i==0) graphs[i]->GetXaxis()->SetRangeUser(200., 300.);
+        if(i==1) graphs[i]->GetXaxis()->SetRangeUser(200., 300.);
+        if(i==2) graphs[i]->GetXaxis()->SetRangeUser(230., 350.);
+        if(i==3) graphs[i]->GetXaxis()->SetRangeUser(250., 330.);
+        if(i==4) graphs[i]->GetXaxis()->SetRangeUser(300., 410.);
+        if(i==5) graphs[i]->GetXaxis()->SetRangeUser(300., 400.);
+        if(i==6) graphs[i]->GetXaxis()->SetRangeUser(0., 450.);
+        if(i==7) graphs[i]->GetXaxis()->SetRangeUser(200., 300.);
+        if(i==8) graphs[i]->GetXaxis()->SetRangeUser(190., 300.);
+        if(i==9) graphs[i]->GetXaxis()->SetRangeUser(180., 270.);
+        if(i==10) graphs[i]->GetXaxis()->SetRangeUser(220., 300.);
+        if(i==11) graphs[i]->GetXaxis()->SetRangeUser(220., 300.);
+        if(i==12) graphs[i]->GetXaxis()->SetRangeUser(290., 380.);
+        if(i==13) graphs[i]->GetXaxis()->SetRangeUser(290., 380.);
+        if(i==14) graphs[i]->GetXaxis()->SetRangeUser(0., 380.);
+        if(i==15) graphs[i]->GetXaxis()->SetRangeUser(340., 420.);
+        graphs[i]->Draw("");
 
       }//canvas loop
 
@@ -163,7 +179,7 @@ int main(int argc, char **argv)
       // c3->SaveAs(h3name);
       delete c3;
 
-      TCanvas *c4 = new TCanvas("","",1550,1550);
+      TCanvas *c4 = new TCanvas("","",2550,2550);
       c4->Divide(4,4);
       TGraph *corr_graph[16];
       for(int i=0; i<16; i++){//canvas loop
@@ -171,18 +187,34 @@ int main(int argc, char **argv)
         if(rawEvPtr->isCalpulserEvent()==true) sprintf(ch_name,"chan %d, calpulser",i);
         else sprintf(ch_name,"chan %d",i);
         c4->cd(i+1);
-        gPad->SetLogy();
-        corr_graph[i] = FFTtools::getCorrelationGraph(FFTtools::getHilbertEnvelope(graphs[i]),FFTtools::getHilbertEnvelope(graphs[i]));
-        corr_graph[i]->Draw("");
+        // gPad->SetLogy();
+        corr_graph[i] = FFTtools::getHilbertEnvelope(graphs[i]);
         corr_graph[i]->SetTitle(ch_name);
         // dummy[i]->SetTitle(ch_name);
         // dummy[i]->Draw("AP");
         // dummy[i]->SetLineColor(kWhite);
-        //delete corr_graph;
+        if(i==0) corr_graph[i]->GetXaxis()->SetRangeUser(200., 300.);
+        if(i==1) corr_graph[i]->GetXaxis()->SetRangeUser(200., 300.);
+        if(i==2) corr_graph[i]->GetXaxis()->SetRangeUser(230., 350.);
+        if(i==3) corr_graph[i]->GetXaxis()->SetRangeUser(250., 330.);
+        if(i==4) corr_graph[i]->GetXaxis()->SetRangeUser(300., 410.);
+        if(i==5) corr_graph[i]->GetXaxis()->SetRangeUser(300., 400.);
+        if(i==6) corr_graph[i]->GetXaxis()->SetRangeUser(0., 450.);
+        if(i==7) corr_graph[i]->GetXaxis()->SetRangeUser(350., 450.);
+        if(i==8) corr_graph[i]->GetXaxis()->SetRangeUser(190., 300.);
+        if(i==9) corr_graph[i]->GetXaxis()->SetRangeUser(180., 270.);
+        if(i==10) corr_graph[i]->GetXaxis()->SetRangeUser(220., 300.);
+        if(i==11) corr_graph[i]->GetXaxis()->SetRangeUser(220., 300.);
+        if(i==12) corr_graph[i]->GetXaxis()->SetRangeUser(290., 380.);
+        if(i==13) corr_graph[i]->GetXaxis()->SetRangeUser(290., 380.);
+        if(i==14) corr_graph[i]->GetXaxis()->SetRangeUser(0., 380.);
+        if(i==15) corr_graph[i]->GetXaxis()->SetRangeUser(340., 420.);
+        corr_graph[i]->Draw("");
+
       }//canvas loop
 
       char h4name[60];
-      sprintf(h4name,"./plots/hilbert_env/correlation_A%i_run%d_event%d.png", station, run_num,evt_num);
+      sprintf(h4name,"./plots/hilbert_env/hilbert_A%i_run%d_event%d.png", station, run_num,evt_num);
       c4->SaveAs(h4name);
       delete c4;
 

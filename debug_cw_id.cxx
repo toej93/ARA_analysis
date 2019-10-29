@@ -246,7 +246,7 @@ int main(int argc, char **argv)
     }//canvas loop
     char h3name[60];
     sprintf(h3name,"./plots/trouble_events/wforms/wf_event%d_run%d.png",event, runNum);
-    c2->SaveAs(h3name);
+    //c2->SaveAs(h3name);
     delete c2;
   // }
 
@@ -312,7 +312,7 @@ int main(int argc, char **argv)
       }//canvas loop
       char h3name[60];
       sprintf(h3name,"./plots/trouble_events/ffts/fft_event%d_run%d_A%d.png",event, runNum, station_num);
-      c2->SaveAs(h3name);
+      //c2->SaveAs(h3name);
       delete c2;
 
 
@@ -485,7 +485,7 @@ int main(int argc, char **argv)
       }//canvas loop
       char h3name[60];
       sprintf(h3name,"./plots/trouble_events/phase_plots/phases_event%d_run%d_A%d.png",event, runNum,station_num);
-      c2->SaveAs(h3name);
+      //c2->SaveAs(h3name);
       delete c2;
 			//okay, now we need to try and move forward
 			int found_events_forward=0;

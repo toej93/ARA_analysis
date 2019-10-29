@@ -79,11 +79,36 @@ int main(int argc, char **argv)
 	int year_or_energy = atoi(argv[4]);
 	int dropBadChans = atoi(argv[5]);
 	string output_location = argv[6];
+	char histoName [100];
+	char histoName2 [100];
+	sprintf(histoName, "Tagged freqs per event, A%i, c%i, vpol", station, config);
+	sprintf(histoName2, "Tagged freqs per event, A%i, c%i, hpol", station, config);
 
+	TH2F * hist_badfreq[2];
+	if(config==1){
+		hist_badfreq[0] = new TH2F(histoName, histoName, 500,1350,2000,1024,0,1000);
+		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,1350,2000,1024,0,1000);
+	}
+	else if(config==2){
+		hist_badfreq[0] = new TH2F(histoName, histoName, 500,400,1500,1024,0,1000);
+		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,400,1500,1024,0,1000);
+	}
+	else if(config==3){
+		hist_badfreq[0] = new TH2F(histoName, histoName, 500,3000,8000,1024,0,1000);
+		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,3000,8000,1024,0,1000);
+	}
+	else if(config==4){
+		hist_badfreq[0] = new TH2F(histoName, histoName, 500,6000,8000,1024,0,1000);
+		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,6000,8000,1024,0,1000);
+	}
+	else if(config==5){
+		hist_badfreq[0] = new TH2F(histoName, histoName, 500,1500,3500,1024,0,1000);
+		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,1500,3500,1024,0,1000);
+	}
 	char filename[100];
-  sprintf(filename, "CWID_A%i_c%i.csv", station, config);//,angle[i]);
+  sprintf(filename, "CWID_test_A%i_c%i.csv", station, config);//,angle[i]);
   // else sprintf(filename, "wfront_RMS_cut_A%i_c%i_sim.csv", station,config);
-  FILE *fout_RMS = fopen(filename, "a+");//open file
+  FILE *fout_RMS = fopen(filename, "w+");//open file
 	int runNum=0;
 	// TH1F *hist_freq = new TH1F("","",300,0,1000);
 	vector<int> BadRunList = BuildBadRunList(3);
@@ -102,11 +127,13 @@ int main(int argc, char **argv)
 		string strRunNum = file.substr(foundRun+4,diff);
 		runNum = atoi(strRunNum.c_str());
 		if(isBadRun(3, runNum, BadRunList)) continue;
+		if(isSoftwareDominatedRun("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools", station, runNum)) continue;
 		// if(config==3 && (runNum>3500)) continue;
 		// if(config==4 && (/*runNum<6000 || */runNum<6500)) continue;
 		// if(config==5 && runNum>2200) continue;
 
 		cout << runNum << endl;
+		double freqTest;
 
 		if(!isSimulation){
 			//we're almost certainly going to need the calibrator, so let's just load it now
@@ -247,6 +274,8 @@ int main(int argc, char **argv)
 
 			inputTree_filter->GetEvent(event);
 
+			if(isBadLivetime(station, unixTime_in)) continue;
+
 
 			bool isShort=false;
 			bool isSurf[2]={false};
@@ -270,6 +299,8 @@ int main(int argc, char **argv)
 			}
 			if(isCutonCW_baseline[0]==true || isCutonCW_baseline[1]==true) baseline_count++;
 
+			double count_tagged_freq_h=0;
+			double count_tagged_freq_v=0;
       bool isFiltered_fwd=false;
 			vector<double> badFreqList_fwd;
 			vector<double> badSigmaList_fwd;
@@ -292,11 +323,20 @@ int main(int argc, char **argv)
 						// cout << badFreqList_fwd[iCW] << endl;
 						isCutonCW_fwd[pol] = true;
 
+						if(pol==0) count_tagged_freq_v++;
+						if(pol==1) count_tagged_freq_h++;
+
+						if(pol==0) hist_badfreq[0]->Fill(runNum,badFreqList_fwd[iCW]);
+						if(pol==1) hist_badfreq[1]->Fill(runNum,badFreqList_fwd[iCW]);
+
             if(!isFiltered_fwd) num_total_filtered_fwd++;
             isFiltered_fwd=true;
 					}
 				}
 			}
+			// hist_badfreq[0]->Fill(runNum,count_tagged_freq_v);
+			// hist_badfreq[1]->Fill(runNum,count_tagged_freq_h);
+
       // cout << unixTime_in << endl;
       bool isFiltered_back=false;
 			vector<double> badFreqList_back;
@@ -325,7 +365,6 @@ int main(int argc, char **argv)
 						badFreqList_back[iCW] < 850.
 					){
 						isCutonCW_back[pol] = true;
-
 						// cout<<"The bad frequency mode is "<<badFreqList_back[iCW]<<endl;
             if(!isFiltered_back){
               num_total_filtered_back++;
@@ -354,24 +393,97 @@ int main(int argc, char **argv)
 		// fpOut->Write();
 		// fpOut->Close();
 		// delete fpOut;
-		fprintf(fout_RMS,"%i,%0.2f,%0.2f\n",runNum, (float) 100*num_total_filtered_back/num_tot_events, (float) 100*baseline_count/num_tot_events);
+		// fprintf(fout_RMS,"%i,%0.2f,%0.2f\n",runNum, (float) 100*num_total_filtered_back/num_tot_events, (float) 100*baseline_count/num_tot_events);
 		// cout <<runNum<<endl;
 		printf("Done! Run Number %d \n", runNum);
+		fprintf(fout_RMS,"%i, %f\n",runNum, freqTest);
+
 	} //end loop over input files
 
 	fclose(fout_RMS);
+	// TFile *outputFile;
 
+  // outputFile = new TFile("./bad_freqs_histograms.root","RECREATE");
+  // //hPedEvent->Write(); //***** I tried this one but error
+  // for(int iBin=0; iBin<2; iBin++){
+  //   hist_badfreq[iBin]->Write(); //***** I tried this one, the software can run, but I cannot call the histogram when opening root file
+  //   std::cout << "stored hPedEvent[" << iBin << "] in " << "./bad_freqs_histograms.root" << std::endl;
+  // }
+  // outputFile->Close();
   // printf("Num events = %i, num filtered events backward = %i, ratio = %f \n", num_tot_events, num_total_filtered_back, (float) num_total_filtered_back/num_tot_events);
   // printf("Num events = %i, num filtered events fwd = %i, ratio = %f \n", num_tot_events, num_total_filtered_fwd, (float) num_total_filtered_fwd/num_tot_events);
-	// TCanvas *cc = new TCanvas("","",1800,1800);
-	// gStyle->SetOptStat(1111);
-	// hist_freq->GetXaxis()->SetTitle("Contaminated frequencies");
-	// hist_freq->Draw();
-	// gStyle->SetOptStat(1111);
-	// gPad->SetLogy();
-	// cc->Draw();
-	// char h5name[60];
-	// sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_hist_c%d_A%d.png",config, station);
-	// // cc->SaveAs(h5name);
-	// delete hist_freq;
+	TCanvas *cc = new TCanvas("","",2500,1000*2);
+	cc->Divide(1,2);
+	cc->cd(1);
+	hist_badfreq[0]->GetXaxis()->SetTitle("Run Number");
+	hist_badfreq[0]->GetYaxis()->SetTitle("Number of tagged frequencies[MHz]");
+	hist_badfreq[0]->GetZaxis()->SetTitle("Counts");
+	hist_badfreq[0]->Draw("colz");
+	gStyle->SetOptStat(1111);
+	gPad->SetLogz();
+	gStyle->SetOptStat(1111);
+	cc->SetRightMargin(0.1);
+
+	cc->cd(2);
+	hist_badfreq[1]->GetXaxis()->SetTitle("Run Number");
+	hist_badfreq[1]->GetYaxis()->SetTitle("Tagged frequencies [MHz]");
+	hist_badfreq[1]->GetZaxis()->SetTitle("Counts");
+	hist_badfreq[1]->Draw("colz");
+	gStyle->SetOptStat(1111);
+	gPad->SetLogz();
+	gStyle->SetOptStat(1111);
+	cc->SetRightMargin(0.1);
+	char h5name[60];
+	sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_hist_perRun_c%d_A%d.png",config, station);
+	cc->SaveAs(h5name);
+	// delete hist_badfreq[0];
+	// delete hist_badfreq[1];
+	delete cc;
+
+	TH1D * projh2X[2];
+	TH1D * projh2Y[2];
+	TCanvas *cc_proj = new TCanvas("","",2000*2,1000*2);
+	cc_proj->Divide(2,2);
+	cc_proj->cd(1);
+	projh2X[0] = hist_badfreq[0]->ProjectionX();
+	projh2X[0]->GetXaxis()->SetTitle("Run Number");
+	projh2X[0]->GetYaxis()->SetTitle("Count");
+	gPad->SetLogy();
+	projh2X[0]->SetFillColor(kBlue+1);
+	projh2X[0]->Draw("bar");
+	gStyle->SetOptStat(1111);
+
+	cc_proj->cd(2);
+	projh2Y[0] = hist_badfreq[0]->ProjectionY();
+	projh2Y[0]->GetXaxis()->SetTitle("Tagged freqs [MHz]");
+	projh2Y[0]->GetYaxis()->SetTitle("Count");
+	projh2Y[0]->SetFillColor(kBlue-2);
+	gPad->SetLogy();
+	projh2Y[0]->Draw("bar");
+	gStyle->SetOptStat(1111);
+
+	cc_proj->cd(3);
+	projh2X[1] = hist_badfreq[1]->ProjectionX();
+	projh2X[1]->GetXaxis()->SetTitle("Run Number");
+	projh2X[1]->GetYaxis()->SetTitle("Count");
+	projh2X[1]->SetFillColor(kBlue+1);
+	gPad->SetLogy();
+	projh2X[1]->Draw("bar");
+	gStyle->SetOptStat(1111);
+
+	cc_proj->cd(4);
+	projh2Y[1] = hist_badfreq[1]->ProjectionY();
+	projh2Y[1]->GetXaxis()->SetTitle("Tagged freqs [MHz]");
+	projh2Y[1]->GetYaxis()->SetTitle("Count");
+	projh2Y[1]->SetFillColor(kBlue-2);
+	gPad->SetLogy();
+	projh2Y[1]->Draw("bar");
+	gStyle->SetOptStat(1111);
+
+	char h6name[60];
+	sprintf(h6name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_proj_perRun_c%d_A%d.png",config, station);
+	cc_proj->SaveAs(h6name);
+	// delete hist_badfreq[0];
+	// delete hist_badfreq[1];
+	delete cc_proj;
 }

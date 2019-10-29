@@ -168,7 +168,7 @@ int main(int argc, char **argv)
   for (int i = 0; i < numRadiiScanned; i++){
     double radius_temp = radii[i+startingRadiusBin];
     cout << "Setup RTCorr : " << radius_temp << endl;
-    theCorrelators[i] = new RayTraceCorrelator(station_num, radius_temp, settings,1, RTTestMode);
+    theCorrelators[i] = new RayTraceCorrelator(station_num, radius_temp, settings, 0.25, RTTestMode);
   }
 
   double weight;
@@ -472,7 +472,7 @@ int main(int argc, char **argv)
       delete map_H_raytrace;
 
 
-      bool doContributingMaps=true;
+      bool doContributingMaps=false;
       if(doContributingMaps){
         stringstream ss1;
         vector<string> titlesForGraphs;
