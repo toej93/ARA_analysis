@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 	// int thresholdBin_pol[]={3,5}; //bin 3 = 2.3, bin 5 = 2.5 //what is the faceRMS inclusion threshold?
 	// double wavefrontRMScut[]={-1.5, -1.5}; //event wavefrontRMS < this value
 
-	int thresholdBin_pol[]={selected_bin, selected_bin}; //bin 3 = 2.3, bin 5 = 2.5 //what is the faceRMS inclusion threshold?
+	int thresholdBin_pol[]={selected_bin, selected_bin+1}; //bin 3 = 2.3, bin 5 = 2.5 //what is the faceRMS inclusion threshold?
 	double wavefrontRMScut[]={selected_cut, selected_cut}; //event wavefrontRMS < this value
 
 	TH2D *wfrms_plots[2];

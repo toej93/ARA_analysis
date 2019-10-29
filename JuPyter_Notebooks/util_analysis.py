@@ -4,6 +4,11 @@ def isBadrun(runNum):
     badRunList=pd.read_csv("/users/PCON0003/cond0068/ARA/AraRoot/analysis/ARA_analysis/files/badRuns_list_A3.txt",names=colname)
     return (badRunList["run"]==runNum).any() #True or false
 
+def isUntaggedCalRun(config,runNum):
+    import pandas as pd
+    badRunList=pd.read_csv("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools/data/A3_c%d_untagged_calpul.csv" % config)
+    return (badRunList["Run Number"]==runNum).any() #True or false
+
 def isBadLivetime(station, unixTime):
     BadLivetime=False
     if(station==2):
