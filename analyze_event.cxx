@@ -219,10 +219,50 @@ int main(int argc, char **argv)
       delete c4;
 
 
+      TCanvas *c5 = new TCanvas("","",2550,2550);
+      c5->Divide(4,4);
+      TGraph *cut_graph[16];
+      for(int i=0; i<16; i++){//canvas loop
+        char ch_name[20];
+        if(rawEvPtr->isCalpulserEvent()==true) sprintf(ch_name,"chan %d, calpulser",i);
+        else sprintf(ch_name,"chan %d",i);
+        c5->cd(i+1);
+        // gPad->SetLogy();
+        cut_graph[i] = FFTtools::getHilbertEnvelope(graphs[i]);
+        cut_graph[i]->SetTitle(ch_name);
+        // dummy[i]->SetTitle(ch_name);
+        // dummy[i]->Draw("AP");
+        // dummy[i]->SetLineColor(kWhite);
+        // if(i==0) corr_graph[i]->GetXaxis()->SetRangeUser(200., 300.);
+        // if(i==1) corr_graph[i]->GetXaxis()->SetRangeUser(200., 300.);
+        // if(i==2) corr_graph[i]->GetXaxis()->SetRangeUser(230., 350.);
+        // if(i==3) corr_graph[i]->GetXaxis()->SetRangeUser(250., 330.);
+        // if(i==4) corr_graph[i]->GetXaxis()->SetRangeUser(300., 410.);
+        // if(i==5) corr_graph[i]->GetXaxis()->SetRangeUser(300., 400.);
+        // if(i==6) corr_graph[i]->GetXaxis()->SetRangeUser(0., 450.);
+        // if(i==7) corr_graph[i]->GetXaxis()->SetRangeUser(350., 450.);
+        // if(i==8) corr_graph[i]->GetXaxis()->SetRangeUser(190., 300.);
+        // if(i==9) corr_graph[i]->GetXaxis()->SetRangeUser(180., 270.);
+        // if(i==10) corr_graph[i]->GetXaxis()->SetRangeUser(220., 300.);
+        // if(i==11) corr_graph[i]->GetXaxis()->SetRangeUser(220., 300.);
+        // if(i==12) corr_graph[i]->GetXaxis()->SetRangeUser(290., 380.);
+        // if(i==13) corr_graph[i]->GetXaxis()->SetRangeUser(290., 380.);
+        // if(i==14) corr_graph[i]->GetXaxis()->SetRangeUser(0., 380.);
+        // if(i==15) corr_graph[i]->GetXaxis()->SetRangeUser(340., 420.);
+        // corr_graph[i]->Draw("");
+
+      }//canvas loop
+
+      char h5name[60];
+      sprintf(h5name,"./plots/hilbert_env/hilbert_A%i_run%d_event%d.png", station, run_num,evt_num);
+      c4->SaveAs(h5name);
+      delete c5;
+
       //    }
       for (int i=0; i < graphs.size(); i++){
         delete graphs[i];
         delete graphs_spectra[i];
+        delete corr_graph[i];
       }
       graphs.clear();
       graphs_spectra.clear();
