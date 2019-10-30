@@ -102,8 +102,8 @@ int main(int argc, char **argv)
 	// need to be able to make the final 2D distribution
 	double max=0.05;
 	TH2D *h2SNRvsCorr[2]; // SNR on Y axis, Corr on X axis, like in the TB
-	h2SNRvsCorr[0]=new TH2D("","V Data, good runs",100,0,max,300,0,30);
-	h2SNRvsCorr[1]=new TH2D("","H Data, good runs",100,0,max,300,0,30);
+	h2SNRvsCorr[0]=new TH2D("","V Data, bad runs",100,0,max,300,0,30);
+	h2SNRvsCorr[1]=new TH2D("","H Data, bad runs",100,0,max,300,0,30);
 
 
 	// load the data up
@@ -112,8 +112,8 @@ int main(int argc, char **argv)
 	TChain dataAllTree("AllTree");
 	char the_data[500];
 	// sprintf(the_data,"/fs/scratch/PAS0654/ara/10pct/ValsForCuts/A%d/c%d/cutvals_drop_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_*.root",station,config);
-	sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/10pct_redo/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_FiltOnly400_snrbins_0_1_wfrmsvals_-1.0_-1.1_run_*.root",station,config);
-	if(config==5) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/10pct_redo/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_FiltOnly400_snrbins_0_1_wfrmsvals_-0.7_-0.8_run_*.root",station,config);
+	sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/10pct_redo/ValsForCuts/A%d_actuallyCWThresh2.0/c%d/cutvals_drop_FiltSurface_CWThresh2.5_snrbins_0_1_wfrmsvals_-1.0_-1.1_run_*.root",station,config);
+	if(config==5) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/10pct_redo/ValsForCuts/A%d_actuallyCWThresh2.0/c%d/cutvals_drop_FiltSurface_CWThresh2.5_snrbins_0_1_wfrmsvals_-0.7_-0.8_run_*.root",station,config);
 	int result = dataVTree.Add(the_data);
 	dataHTree.Add(the_data);
 	dataAllTree.Add(the_data);
@@ -226,13 +226,13 @@ int main(int argc, char **argv)
 				currentRunNum=runNum;
 				isThisABadRun = false;
 				isThisABadRun = isBadRun(station,runNum,BadRunList);
-				// if((config==3) && (runNum>4500 || runNum<3500)) isThisABadRun=true; //bad runs
-				// if((config==4) && (runNum>6500 || runNum<6000)) isThisABadRun=true;
-				// if((config==5) && (runNum>2200 || runNum<1900)) isThisABadRun=true;
+				if((config==3) && (runNum>4500 || runNum<3500)) isThisABadRun=true; //bad runs
+				if((config==4) && (runNum>6500 || runNum<6000)) isThisABadRun=true;
+				if((config==5) && (runNum>2200 || runNum<1900)) isThisABadRun=true;
 
-				if((config==3) && (runNum<4500 && runNum>3500)) isThisABadRun=true; //good runs
-				if((config==4) && (runNum<6500 && runNum>6000)) isThisABadRun=true;
-				if((config==5) && (runNum<2200)) isThisABadRun=true;
+				// if((config==3) && (runNum<4500 && runNum>3500)) isThisABadRun=true; //good runs
+				// if((config==4) && (runNum<6500 && runNum>6000)) isThisABadRun=true;
+				// if((config==5) && (runNum<2200)) isThisABadRun=true;
 
 
 				if(isThisABadRun)
@@ -298,7 +298,7 @@ int main(int argc, char **argv)
 		gPad->SetLogz();
 	}
 	char title[300];
-	sprintf(title, "%s/optimize/A%d_config%d_%dEvents_SNRvsCorr.png",plotPath,station,config,numTotal);
+	sprintf(title, "%s/optimize/A%d_config%d_%dEvents_SNRvsCorr_bad.png",plotPath,station,config,numTotal);
 	// sprintf(title, "%s/optimize/%d.%d.%d_A%d_config%d_%dEvents_SNRvsCorr.png",plotPath,year_now, month_now, day_now,station,config,numTotal);
 	cSNRvsCorr->SaveAs(title);
 	delete cSNRvsCorr;
@@ -388,6 +388,8 @@ int main(int argc, char **argv)
 			hNumObserved[pol]->SetBinContent(bin+1,originalContent);
 		}
 	}
+	double intercept_[2]={(log(-0.05*binWidthIntercept[0]*fitParams[0][0]/10)-fitParams[0][1])/fitParams[0][0],
+		(log(-0.05*binWidthIntercept[0]*fitParams[1][0]/10)-fitParams[1][1])/fitParams[1][0]};
 
 	// at this point, you can save out the figures you need.
 
@@ -405,9 +407,10 @@ int main(int argc, char **argv)
 		vector <double> x_vals_for_line;
 		vector <double> y_vals_for_line;
 		for(double x=0; x<0.020; x+=0.00001){
-			double y_val = (selected_slopes[pol] * x ) + selected_intercepts[pol];
+			double y_val = (selected_slopes[pol] * x ) + intercept_[pol];
 			x_vals_for_line.push_back(x);
 			y_vals_for_line.push_back(y_val);
+			// cout << y_val << endl;
 		}
 		cut_lines.push_back(new TGraph(x_vals_for_line.size(), &x_vals_for_line[0], &y_vals_for_line[0]));
 	}
@@ -428,21 +431,26 @@ int main(int argc, char **argv)
 			hEventsVsSNR[pol]->Draw("");
 			hEventsVsSNR[pol]->GetXaxis()->SetTitle("SNR Cut (y-intercept value)");
 			hEventsVsSNR[pol]->GetYaxis()->SetTitle("Number of Events Cut");
-			hEventsVsSNR[pol]->SetTitle("Differential Distribution, good runs");
+			hEventsVsSNR[pol]->SetTitle("Differential Distribution, bad runs");
+			hEventsVsSNR[pol]->GetXaxis()->SetRangeUser(10,15);
 			gPad->SetLogy();
 		cRcut->cd(pol+3+(pol==0 ? 0 : 5)); // for differential distribution, zoom in
-			hNumObserved[pol]->Draw("HIST");
-			hNumObserved[pol]->GetXaxis()->SetTitle("SNR Cut (y-intercept value)");
-			hNumObserved[pol]->GetYaxis()->SetTitle("Number of Events Cut");
-			sprintf(fit_title_words[pol],"Fit exp(%.2fx + %.2f)",fitParams[pol][0], fitParams[pol][1]);
-			hNumObserved[pol]->SetTitle(fit_title_words[pol]);
-			fit[pol]->Draw("same");
+			// hNumObserved[pol]->GetXaxis()->SetRangeUser(7,20);
+			// hNumObserved[pol]->GetYaxis()->SetRangeUser(0,10000);
+			// hEventsVsSNR[pol]->GetXaxis()->SetRangeUser(0,20);
+			// hEventsVsSNR[pol]->Draw("");
+			hEventsVsSNR[pol]->GetXaxis()->SetTitle("SNR Cut (y-intercept value)");
+			hEventsVsSNR[pol]->GetYaxis()->SetTitle("Number of Events Cut");
+
+			sprintf(fit_title_words[pol],"Fit exp((%.2f+-%.2f)x + (%.2f+-%.2f))",fitParams[pol][0],fitParamErrors[pol][0], fitParams[pol][1],fitParamErrors[pol][1]);
+			hEventsVsSNR[pol]->SetTitle(fit_title_words[pol]);
+			// fit[pol]->Draw("same");
 			fit[pol]->SetLineColor(kRed);
 			gPad->SetLogy();
 
 	char save_title[400];
 	// sprintf(save_title,"%s/optimize/A%d_config%d_Final_VSlope_%.2f_HSlope_%.2f_VInt_%.2f_Hint_%.2f.png",
-	sprintf(save_title,"%s/optimize/%d.%d.%d_A%d_config%d_Final_VSlope_%.2f_HSlope_%.2f_VInt_%.2f_Hint_%.2f.png",
+	sprintf(save_title,"%s/optimize/%d.%d.%d_A%d_config%d_Final_VSlope_%.2f_HSlope_%.2f_VInt_%.2f_Hint_%.2f_bad.png",
 						plotPath,
 						year_now, month_now, day_now,
 						station,
