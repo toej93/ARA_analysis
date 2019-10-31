@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,1500,3500,50,0,50);
 	}
 	char filename[100];
-  sprintf(filename, "CWID_test_A%i_c%i.csv", station, config);//,angle[i]);
+  sprintf(filename, "CWID_A%i_c%i_th2.5.csv", station, config);//,angle[i]);
   // else sprintf(filename, "wfront_RMS_cut_A%i_c%i_sim.csv", station,config);
   FILE *fout_RMS = fopen(filename, "w+");//open file
 	int runNum=0;
@@ -241,8 +241,8 @@ int main(int argc, char **argv)
 		}
 		else if(station==3){
 			// cout << hasUntaggedCalpul("./a23_analysis_tools",station,config, runNum) << endl;
-			if(hasUntaggedCalpul("./a23_analysis_tools",station,config, runNum)) threshCW = 2.0;
-			else threshCW = 1.5;
+			if(hasUntaggedCalpul("./a23_analysis_tools",station,config, runNum)) threshCW = 2.5;
+			else threshCW = 2.5;
 		}
 		// cout << threshCW << endl;
 		int numEntries = inputTree_filter->GetEntries();
@@ -312,8 +312,8 @@ int main(int argc, char **argv)
 						badSigmaList_fwd[iCW] > threshCW
 						&&
 						abs(300. - badFreqList_fwd[iCW]) > 2.
-						&&
-						abs(403.3 - badFreqList_fwd[iCW]) > 4.
+						// &&
+						// abs(403.3 - badFreqList_fwd[iCW]) > 4.
 						&&
 						abs(500. - badFreqList_fwd[iCW]) > 2.
 						&&
@@ -395,10 +395,9 @@ int main(int argc, char **argv)
 		// fpOut->Write();
 		// fpOut->Close();
 		// delete fpOut;
-		// fprintf(fout_RMS,"%i,%0.2f,%0.2f\n",runNum, (float) 100*num_total_filtered_back/num_tot_events, (float) 100*baseline_count/num_tot_events);
+		fprintf(fout_RMS,"%i,%0.2f,%0.2f\n",runNum, (float) 100*num_total_filtered_back/num_tot_events, (float) 100*baseline_count/num_tot_events);
 		// cout <<runNum<<endl;
 		printf("Done! Run Number %d \n", runNum);
-		fprintf(fout_RMS,"%i, %f\n",runNum, freqTest);
 
 	} //end loop over input files
 
@@ -436,7 +435,7 @@ int main(int argc, char **argv)
 	gStyle->SetOptStat(1111);
 	cc->SetRightMargin(0.1);
 	char h5name[60];
-	sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_hist_perRun_c%d_A%d.png",config, station);
+	sprintf(h5name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_hist_perRun_c%d_A%d_th2.5.png",config, station);
 	cc->SaveAs(h5name);
 	// delete hist_badfreq[0];
 	// delete hist_badfreq[1];
@@ -483,7 +482,7 @@ int main(int argc, char **argv)
 	gStyle->SetOptStat(1111);
 
 	char h6name[60];
-	sprintf(h6name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_proj_perEvent_c%d_A%d.png",config, station);
+	sprintf(h6name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_proj_perEvent_c%d_A%d_th2.5.png",config, station);
 	cc_proj->SaveAs(h6name);
 	// delete hist_badfreq[0];
 	// delete hist_badfreq[1];
