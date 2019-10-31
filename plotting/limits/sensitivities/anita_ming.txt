@@ -1,0 +1,16 @@
+# Source: ANITA II (2010)
+# Data type: Upper limit
+# Energy bins per decade: 2
+# Column values:
+# Energy [eV]
+# Flux [GeV cm^-2 s^-1 sr^-1]
+# Flux band minimum
+# Flux band maximum
+
+1.01559e+18	0.000120596	0.0	0.0
+3.15274e+18	3.49022e-06	0.0	0.0
+9.98235e+18	6.12333e-07	0.0	0.0
+3.16399e+19	2.79669e-07	0.0	0.0
+1.00334e+20	1.98251e-07	0.0	0.0
+3.18361e+20	2.41893e-07	0.0	0.0
+1.01e+21	3.18871e-07	0.0	0.0

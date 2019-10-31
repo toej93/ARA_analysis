@@ -1,0 +1,17 @@
+# Source: Auger (2015)
+# Data type: Upper limit
+# Energy bins per decade: 1
+# Column values:
+# Energy [eV]
+# Flux [GeV cm^-2 s^-1 sr^-1]
+# Flux band minimum
+# Flux band maximum
+
+5.45771e+16	1.98354e-07	0.0	0.0
+1.75088e+17	5.74447e-08	0.0	0.0
+5.55243e+17	3.04764e-08	0.0	0.0
+1.7608e+18	4.25847e-08	0.0	0.0
+5.58387e+18	7.22201e-08	0.0	0.0
+1.77077e+19	1.51295e-07	0.0	0.0
+5.61548e+19	3.46119e-07	0.0	0.0
+1.74313e+20	9.11591e-07	0.0	0.0

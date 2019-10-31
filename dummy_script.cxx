@@ -48,5 +48,7 @@ int main (){
     fprintf(fout,"%i\n",BadRunList[i]);
   }
   fclose(fout);
+
+  cout << 4 % 3 << endl;
   return 0;
 }
