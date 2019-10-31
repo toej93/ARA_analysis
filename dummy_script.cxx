@@ -48,7 +48,9 @@ int main (){
     fprintf(fout,"%i\n",BadRunList[i]);
   }
   fclose(fout);
-
-  cout << 4 % 3 << endl;
+  
+  for(double i=0.6;i<=200;i++){
+    if(abs((int) i % 25-25)<2 || (int) i % 25 <2) cout << (int) i << endl;
+    };
   return 0;
 }
