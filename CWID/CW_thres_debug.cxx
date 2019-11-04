@@ -86,24 +86,24 @@ int main(int argc, char **argv)
 
 	TH2F * hist_badfreq[2];
 	if(config==1){
-		hist_badfreq[0] = new TH2F(histoName, histoName, 500,1350,2000,50,0,50);
-		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,1350,2000,50,0,50);
+		hist_badfreq[0] = new TH2F(histoName, histoName, 500,1350,2000,1024,0,1000);
+		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,1350,2000,1024,0,1000);
 	}
 	else if(config==2){
-		hist_badfreq[0] = new TH2F(histoName, histoName, 500,400,1500,50,0,50);
-		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,400,1500,50,0,50);
+		hist_badfreq[0] = new TH2F(histoName, histoName, 500,400,1500,1024,0,1000);
+		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,400,1500,1024,0,1000);
 	}
 	else if(config==3){
-		hist_badfreq[0] = new TH2F(histoName, histoName, 500,3000,8000,50,0,50);
-		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,3000,8000,50,0,50);
+		hist_badfreq[0] = new TH2F(histoName, histoName, 500,3000,8000,1024,0,1000);
+		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,3000,8000,1024,0,1000);
 	}
 	else if(config==4){
-		hist_badfreq[0] = new TH2F(histoName, histoName, 500,6000,8000,50,0,50);
-		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,6000,8000,50,0,50);
+		hist_badfreq[0] = new TH2F(histoName, histoName, 500,6000,8000,1024,0,1000);
+		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,6000,8000,1024,0,1000);
 	}
 	else if(config==5){
-		hist_badfreq[0] = new TH2F(histoName, histoName, 500,1500,3500,50,0,50);
-		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,1500,3500,50,0,50);
+		hist_badfreq[0] = new TH2F(histoName, histoName, 500,1500,3500,1024,0,1000);
+		hist_badfreq[1] = new TH2F(histoName2, histoName2, 500,1500,3500,1024,0,1000);
 	}
 	char filename[100];
   sprintf(filename, "CWID_A%i_c%i_th1.5.csv", station, config);//,angle[i]);
@@ -308,37 +308,38 @@ int main(int argc, char **argv)
 				badFreqList_fwd=badFreqs_fwd->at(pol);
 				badSigmaList_fwd=badSigmas_fwd->at(pol);
 				for(int iCW=0; iCW<badFreqList_fwd.size(); iCW++){
-					if(
+					if ((int) badSigmaList_fwd[iCW] % 25 >22 || (int) badSigmaList_fwd[iCW] % 25 <3) continue;
+					else if(
 						badSigmaList_fwd[iCW] > threshCW
-						// &&
-						// abs(300. - badFreqList_fwd[iCW]) > 2.
 						&&
-						abs(403.3 - badFreqList_fwd[iCW]) > 4.
+						abs(300. - badFreqList_fwd[iCW]) > 2.
+						// abs(403.3 - badFreqList_fwd[iCW]) > 4.
 						&&
-						// abs(500. - badFreqList_fwd[iCW]) > 2.
+						abs(500. - badFreqList_fwd[iCW]) > 2.
+						&&
+						abs(125. - badFreqList_fwd[iCW]) > 2.
 						// &&
-						// abs(125. - badFreqList_fwd[iCW]) > 2.
-						abs((int) badSigmaList_fwd[iCW] % 25-25)<2 || (int) badSigmaList_fwd[iCW] % 25 <2
+						// ((int) badSigmaList_fwd[iCW] % 25 <22 && (int) badSigmaList_fwd[iCW] % 25 >3)
 						&&
 						badFreqList_fwd[iCW] < 850.
 					){
 						// hist_freq->Fill(badFreqList_fwd[iCW]);
-						cout << badFreqList_fwd[iCW] << endl;
+						// cout << badFreqList_fwd[iCW] << endl;
 						isCutonCW_fwd[pol] = true;
 
-						if(pol==0) count_tagged_freq_v++;
-						if(pol==1) count_tagged_freq_h++;
+						// if(pol==0) count_tagged_freq_v++;
+						// if(pol==1) count_tagged_freq_h++;
 
-						// if(pol==0) hist_badfreq[0]->Fill(runNum,badFreqList_fwd[iCW]);
-						// if(pol==1) hist_badfreq[1]->Fill(runNum,badFreqList_fwd[iCW]);
+						if(pol==0) hist_badfreq[0]->Fill(runNum,badFreqList_fwd[iCW]);
+						if(pol==1) hist_badfreq[1]->Fill(runNum,badFreqList_fwd[iCW]);
 
             if(!isFiltered_fwd) num_total_filtered_fwd++;
             isFiltered_fwd=true;
 					}
 				}
 			}
-			hist_badfreq[0]->Fill(runNum,count_tagged_freq_v);
-			hist_badfreq[1]->Fill(runNum,count_tagged_freq_h);
+			// hist_badfreq[0]->Fill(runNum,count_tagged_freq_v);
+			// hist_badfreq[1]->Fill(runNum,count_tagged_freq_h);
 
       // cout << unixTime_in << endl;
       bool isFiltered_back=false;
@@ -457,7 +458,7 @@ int main(int argc, char **argv)
 
 	cc_proj->cd(2);
 	projh2Y[0] = hist_badfreq[0]->ProjectionY();
-	projh2Y[0]->GetXaxis()->SetTitle("Number of tagged freqs per event");
+	projh2Y[0]->GetXaxis()->SetTitle("Tagged freqs per event");
 	projh2Y[0]->GetYaxis()->SetTitle("Count");
 	projh2Y[0]->SetFillColor(kBlue-2);
 	gPad->SetLogy();
@@ -475,7 +476,7 @@ int main(int argc, char **argv)
 
 	cc_proj->cd(4);
 	projh2Y[1] = hist_badfreq[1]->ProjectionY();
-	projh2Y[1]->GetXaxis()->SetTitle("Number of tagged freqs per event");
+	projh2Y[1]->GetXaxis()->SetTitle("Tagged freqs per event");
 	projh2Y[1]->GetYaxis()->SetTitle("Count");
 	projh2Y[1]->SetFillColor(kBlue-2);
 	gPad->SetLogy();
@@ -483,7 +484,7 @@ int main(int argc, char **argv)
 	gStyle->SetOptStat(1111);
 
 	char h6name[60];
-	sprintf(h6name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_proj_perEvent_c%d_A%d_th1.5.png",config, station);
+	sprintf(h6name,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/badFreq_hist/badFreq_proj_perRun_c%d_A%d_th1.5.png",config, station);
 	cc_proj->SaveAs(h6name);
 	// delete hist_badfreq[0];
 	// delete hist_badfreq[1];
