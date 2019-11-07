@@ -99,7 +99,7 @@ int main(int argc, char **argv)
     chain.GetEvent(event);
     //if(rawEvPtr->isCalpulserEvent()==false){
     int evt_num = rawEvPtr->eventNumber;//event number
-    cout << evt_num << endl;
+    // cout << evt_num << endl;
     // if(evt_num<68000) continue;
     UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
     vector<TGraph*> spareElecChanGraphs;
@@ -111,11 +111,11 @@ int main(int argc, char **argv)
     int hasBadSpareChanIssue_v2out = false;
     hasBadSpareChanIssue=hasSpareChannelIssue(spareElecChanGraphs);
     hasBadSpareChanIssue_v2out=hasSpareChannelIssue_v2(spareElecChanGraphs,3);
-  	// if(hasBadSpareChanIssue || hasBadSpareChanIssue_v2out){
-  	// 	cout<<"Has bad spare chan issue! Like, yes, actually"<<endl;
-    //   continue;
-  	// }
-  	deleteGraphVector(spareElecChanGraphs);
+    deleteGraphVector(spareElecChanGraphs);
+  	if(hasBadSpareChanIssue || hasBadSpareChanIssue_v2out){
+  		// cout<<"Has bad spare chan issue! Like, yes, actually"<<endl;
+      continue;
+  	}
 
 
 
@@ -137,17 +137,13 @@ int main(int argc, char **argv)
     }
     delete realAtriEvPtr_fullcalib;
     //isSpikeyStringEvent(3,0,graphs,2);
+    if(!hasOutofBandIssue(graphs,1)){;
+    deleteGraphVector(graphs);
+    deleteGraphVector(graphs_spectra);
+    continue;
+  }
 
-    if(!isCliffEvent(graphs)){
-      for (int i=0; i < graphs.size(); i++){
-        delete graphs[i];
-        delete graphs_spectra[i];
-      }
-      graphs.clear();
-      graphs_spectra.clear();
-      continue;
-    }
-    // if(!isSpikeyStringEvent(3,0,graphs,2)){
+    // if(!isCliffEvent(graphs)){
     //   for (int i=0; i < graphs.size(); i++){
     //     delete graphs[i];
     //     delete graphs_spectra[i];
@@ -156,7 +152,16 @@ int main(int argc, char **argv)
     //   graphs_spectra.clear();
     //   continue;
     // }
-    // cout << "Here" << endl;
+    // if(!isSpikeyStringEvent(3,0,graphs,1)){
+    //   for (int i=0; i < graphs.size(); i++){
+    //     delete graphs[i];
+    //     delete graphs_spectra[i];
+    //   }
+    //   graphs.clear();
+    //   graphs_spectra.clear();
+    //   continue;
+    // }
+    // printf("Event %i is Cliff",evt_num);
 
 
     // else if(isCliffEvent(graphs_spikey)){
@@ -203,13 +208,13 @@ int main(int argc, char **argv)
       // if(i==13) graphs[i]->GetXaxis()->SetRangeUser(290., 380.);
       // if(i==14) graphs[i]->GetXaxis()->SetRangeUser(0., 380.);
       // if(i==15) graphs[i]->GetXaxis()->SetRangeUser(340., 420.);
+      graphs[i]->SetLineColor(kBlue);
       graphs[i]->Draw("");
-
     }//canvas loop
 
     char h2name[60];
     sprintf(h2name,"./plots/wforms/wf_A%i_run%d_event%d.png", station, run_num,evt_num);
-    c2->SaveAs(h2name);
+    // c2->SaveAs(h2name);
     delete c2;
 
     TCanvas *c3 = new TCanvas("","",1550,1550);
@@ -221,6 +226,7 @@ int main(int argc, char **argv)
       c3->cd(i+1);
       gPad->SetLogy();
       graphs_spectra[i]->SetTitle(ch_name);
+      graphs_spectra[i]->SetLineColor(kBlue);
       graphs_spectra[i]->Draw("AL");
     }//canvas loop
     char h3name[100];

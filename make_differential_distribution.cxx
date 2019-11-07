@@ -130,8 +130,8 @@ int main(int argc, char **argv)
 	// need to be able to make the final 2D distribution
 	double max=0.05;
 	TH2D *h2SNRvsCorr[2]; // SNR on Y axis, Corr on X axis, like in the TB
-	h2SNRvsCorr[0]=new TH2D("","V Data, good runs",100,0,max,300,0,30);
-	h2SNRvsCorr[1]=new TH2D("","H Data, good runs",100,0,max,300,0,30);
+	h2SNRvsCorr[0]=new TH2D("","V Data",100,0,max,300,0,30);
+	h2SNRvsCorr[1]=new TH2D("","H Data",100,0,max,300,0,30);
 
 
 	// load the data up
@@ -214,6 +214,9 @@ int main(int argc, char **argv)
 		int hasBadSpareChanIssue2; // and a second version of the glitch detector I whipped up late in the game
 		int runNum;
 		int eventNumber;
+		bool isSpikey;
+		bool isCliff;
+		bool OutofBandIssue;
 
 		dataAllTree.SetBranchAddress("bad",&isBadEvent);
 		dataAllTree.SetBranchAddress("weight",&weight);
@@ -223,6 +226,10 @@ int main(int argc, char **argv)
 		dataAllTree.SetBranchAddress("hasBadSpareChanIssue2",&hasBadSpareChanIssue2);
 		dataAllTree.SetBranchAddress("runNum",&runNum);
 		dataAllTree.SetBranchAddress("eventNumber",&eventNumber);
+		dataAllTree.SetBranchAddress("isSpikey",&isSpikey);
+		dataAllTree.SetBranchAddress("isCliff",&isCliff);
+		dataAllTree.SetBranchAddress("OutofBandIssue",&OutofBandIssue);
+
 
 
 		// if the event was re-filtered, what fraction of the power was filtered in each channel?
@@ -277,7 +284,7 @@ int main(int argc, char **argv)
 					printf(GREEN"*"RESET);
 
 			}
-			if( isSoft || isBadEvent || hasBadSpareChanIssue || hasBadSpareChanIssue2 || isFirstFiveEvent || isShort || isCal || isThisABadRun){
+			if( isSoft || isBadEvent || hasBadSpareChanIssue || hasBadSpareChanIssue2 || isFirstFiveEvent || isShort || isCal || isThisABadRun || isSpikey || isCliff || OutofBandIssue){
 				continue;
 			}
 			if(isBadLivetime(station,unixTime)){
@@ -300,7 +307,7 @@ int main(int argc, char **argv)
 					if(!failsCWPowerCut){
 						h2SNRvsCorr[pol]->Fill(corr_val[pol],snr_val[pol],weight);
 
-						if((pol==0 && (corr_val[0]>0.008|| snr_val[0]>6.5)) || (pol==1 && (corr_val[1]>0.01 || snr_val[1]>7))){
+						if((pol==0 && (corr_val[0]>0.007|| snr_val[0]>7)) || (pol==1 && (corr_val[1]>0.008 || snr_val[1]>8))){
 							printf(RED"eventNumber %d \n"RESET, eventNumber);
 							// cout << eventNumber << endl; //PlotThisEvent(station, config, runNum, event, pol, settings, detector, theCorrelators);
  							PlotThisEvent(station, config, runNum, eventNumber, pol, settings, detector, theCorrelators);
@@ -340,7 +347,7 @@ int main(int argc, char **argv)
 		gPad->SetLogz();
 	}
 	char title[300];
-	sprintf(title, "%s/optimize/A%d_config%d_%dEvents_SNRvsCorr_good.png",plotPath,station,config,numTotal);
+	sprintf(title, "%s/optimize/A%d_config%d_%dEvents_SNRvsCorr.png",plotPath,station,config,numTotal);
 	// sprintf(title, "%s/optimize/%d.%d.%d_A%d_config%d_%dEvents_SNRvsCorr.png",plotPath,year_now, month_now, day_now,station,config,numTotal);
 	cSNRvsCorr->SaveAs(title);
 	delete cSNRvsCorr;
@@ -473,7 +480,7 @@ int main(int argc, char **argv)
 			hEventsVsSNR[pol]->Draw("");
 			hEventsVsSNR[pol]->GetXaxis()->SetTitle("SNR Cut (y-intercept value)");
 			hEventsVsSNR[pol]->GetYaxis()->SetTitle("Number of Events Cut");
-			hEventsVsSNR[pol]->SetTitle("Differential Distribution, good runs");
+			hEventsVsSNR[pol]->SetTitle("Differential Distribution");
 			hEventsVsSNR[pol]->GetXaxis()->SetRangeUser(10,15);
 			gPad->SetLogy();
 		cRcut->cd(pol+3+(pol==0 ? 0 : 5)); // for differential distribution, zoom in
@@ -492,7 +499,7 @@ int main(int argc, char **argv)
 
 	char save_title[400];
 	// sprintf(save_title,"%s/optimize/A%d_config%d_Final_VSlope_%.2f_HSlope_%.2f_VInt_%.2f_Hint_%.2f.png",
-	sprintf(save_title,"%s/optimize/%d.%d.%d_A%d_config%d_Final_VSlope_%.2f_HSlope_%.2f_VInt_%.2f_Hint_%.2f_good.png",
+	sprintf(save_title,"%s/optimize/%d.%d.%d_A%d_config%d_Final_VSlope_%.2f_HSlope_%.2f_VInt_%.2f_Hint_%.2f.png",
 						plotPath,
 						year_now, month_now, day_now,
 						station,

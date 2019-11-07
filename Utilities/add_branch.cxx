@@ -108,6 +108,7 @@ int main(int argc, char **argv){
 		TTree *T = (TTree*)f->Get("AllTree");
 		bool isSpikey;
 		bool isCliff;
+		bool OutofBandIssue;
 
 		int eventNumber;
 		T->SetBranchAddress("eventNumber",&eventNumber);
@@ -115,6 +116,8 @@ int main(int argc, char **argv){
 
 		TBranch *isSpikeyBranch = T->Branch("isSpikey",&isSpikey);
 		TBranch *isCliffBranch = T->Branch("isCliff",&isCliff);
+		TBranch *hasOutofBandIssueBranch = T->Branch("OutofBandIssue",&OutofBandIssue);
+
 
     char dataFName[70];
     sprintf(dataFName,"/fs/project/PAS0654/ARA_DATA/A23/10pct/RawData/A3/all_runs/event%i.root",runNum_in);
@@ -141,6 +144,7 @@ int main(int argc, char **argv){
 		for(int event=0; event<numEntries; event++){
 			isSpikey=false;
 			isCliff=false;
+			OutofBandIssue=false;
 			eventTree->GetEvent(event);
 			T->GetEvent(event);
 	    //if(rawEvPtr->isCalpulserEvent()==false){
@@ -157,6 +161,7 @@ int main(int argc, char **argv){
 			//isSpikeyStringEvent(3,0,graphs,2);
 			if(isCliffEvent(graphs)) isCliff=true;
 			if(isSpikeyStringEvent(station,drop_chan,graphs,config)) isSpikey=true;
+			if(hasOutofBandIssue(graphs,drop_chan)) OutofBandIssue=true;
 
 			for (int i=0; i < graphs.size(); i++){
 				delete graphs[i];
@@ -165,6 +170,7 @@ int main(int argc, char **argv){
 
 			isSpikeyBranch->Fill();
 			isCliffBranch->Fill();
+			hasOutofBandIssueBranch->Fill();
 		}
 		f->cd();
 		T->Write(0,TObject::kOverwrite);
