@@ -98,60 +98,67 @@ int main(int argc, char **argv){
 		printf("On file %d, run number %d \n", file_num-2, runNum_in);
 
 		// TFile *testFile = TFile::Open(argv[file_num]);
-  	// if(!testFile) {
-  	// 	std::cout << "Can't open file\n";
-  	// 	return -1;
-  	// }
+		// if(!testFile) {
+		// 	std::cout << "Can't open file\n";
+		// 	return -1;
+		// }
 		// delete testFile;
 
 		TFile *f = new TFile(argv[file_num],"update");
 		TTree *T = (TTree*)f->Get("AllTree");
-		// bool isSpikey;
-		// bool isCliff;
-		// bool OutofBandIssue;
+		bool isSpikey;
+		bool isCliff;
+		bool OutofBandIssue;
 		bool bad_v2;
+		bool isRFEvent;
+		bool isPayloadBlast;
 
 		int eventNumber;
 		T->SetBranchAddress("eventNumber",&eventNumber);
 
-		// TBranch *isSpikeyBranch = T->Branch("isSpikey",&isSpikey);
-		// TBranch *isCliffBranch = T->Branch("isCliff",&isCliff);
-		// TBranch *hasOutofBandIssueBranch = T->Branch("OutofBandIssue",&OutofBandIssue);
+		TBranch *isSpikeyBranch = T->Branch("isSpikey",&isSpikey);
+		TBranch *isCliffBranch = T->Branch("isCliff",&isCliff);
+		TBranch *hasOutofBandIssueBranch = T->Branch("OutofBandIssue",&OutofBandIssue);
 		TBranch *bad_v2Branch = T->Branch("bad_v2",&bad_v2);
+		TBranch *isRFEventBranch = T->Branch("isRFEvent",&isRFEvent);
+		TBranch *isRFEventBranch = T->Branch("isPayloadBlast",&isPayloadBlast);
 
 
-
-    char dataFName[70];
-    sprintf(dataFName,"/fs/project/PAS0654/ARA_DATA/A23/10pct/RawData/A3/all_runs/event%i.root",runNum_in);
-    TFile *fp = TFile::Open(dataFName);
-  	if(!fp) {
-  		std::cout << "Can't open file\n";
-  		return -1;
-  	}
-  	TTree *eventTree;
-  	eventTree= (TTree*) fp->Get("eventTree");
-  	if(!eventTree) {
-  		std::cout << "Can't find eventTree\n";
-  		return -1;
-  	}
-    RawAtriStationEvent *rawEvPtr=0;
-    eventTree->SetBranchAddress("event",&rawEvPtr);
-    AraQualCuts *qualCut = AraQualCuts::Instance();
-    AraEventCalibrator *calib = AraEventCalibrator::Instance(); //make a calibrator
-    // if(isBadRun(3, runNum_in, BadRunList)) continue;
-  	// if(isSoftwareDominatedRun("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools", 3, runNum_in)) continue;
+		char dataFName[70];
+		sprintf(dataFName,"/fs/project/PAS0654/ARA_DATA/A23/10pct/RawData/A3/all_runs/event%i.root",runNum_in);
+		TFile *fp = TFile::Open(dataFName);
+		if(!fp) {
+			std::cout << "Can't open file\n";
+			return -1;
+		}
+		TTree *eventTree;
+		eventTree= (TTree*) fp->Get("eventTree");
+		if(!eventTree) {
+			std::cout << "Can't find eventTree\n";
+			return -1;
+		}
+		RawAtriStationEvent *rawEvPtr=0;
+		eventTree->SetBranchAddress("event",&rawEvPtr);
+		AraQualCuts *qualCut = AraQualCuts::Instance();
+		AraEventCalibrator *calib = AraEventCalibrator::Instance(); //make a calibrator
+		// if(isBadRun(3, runNum_in, BadRunList)) continue;
+		// if(isSoftwareDominatedRun("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools", 3, runNum_in)) continue;
 		int numEntries = T->GetEntries();
 		cout << "Number of events is " << numEntries << endl;
 
 		for(int event=0; event<numEntries; event++){
-			// isSpikey=false;
-			// isCliff=false;
-			// OutofBandIssue=false;
+			// reset some variables
+			isSpikey=false;
+			isCliff=false;
+			OutofBandIssue=false;
 			bad_v2=false;
+			isRFEvent=false;
+			isPayloadBlast=false;
+
 			eventTree->GetEvent(event);
 			T->GetEvent(event);
-	    //if(rawEvPtr->isCalpulserEvent()==false){
-	    int evt_num = rawEvPtr->eventNumber;//event number
+			//if(rawEvPtr->isCalpulserEvent()==false){
+			int evt_num = rawEvPtr->eventNumber;//event number
 			// cout << evt_num << endl;
 			// cout << eventNumber << endl;
 			UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
@@ -161,21 +168,23 @@ int main(int argc, char **argv){
 				graphs.push_back(gr);
 			}
 			if(!qualCut->isGoodEvent(realAtriEvPtr_fullcalib)) bad_v2=true;
+			isRFTrigger=realAtriEvPtr_fullcalib->isRFTrigger();
 
 			delete realAtriEvPtr_fullcalib;
-			//isSpikeyStringEvent(3,0,graphs,2);
-			// if(isCliffEvent(graphs)) isCliff=true;
-			// if(isSpikeyStringEvent(station,drop_chan,graphs,config)) isSpikey=true;
-			// if(hasOutofBandIssue(graphs,drop_chan)) OutofBandIssue=true;
+			// isSpikeyStringEvent(3,0,graphs,2);
+			if(isCliffEvent(graphs)) isCliff=true;
+			if(isSpikeyStringEvent(station,drop_chan,graphs,config)) isSpikey=true;
+			if(hasOutofBandIssue(graphs,drop_chan)) OutofBandIssue=true;
+			if(isHighPowerStringEvent(graphs, station, runNum)) isPayloadBlast=true;
 
 			for (int i=0; i < graphs.size(); i++){
 				delete graphs[i];
 			}
 			graphs.clear();
 
-			// isSpikeyBranch->Fill();
-			// isCliffBranch->Fill();
-			// hasOutofBandIssueBranch->Fill();
+			isSpikeyBranch->Fill();
+			isCliffBranch->Fill();
+			hasOutofBandIssueBranch->Fill();
 			bad_v2Branch->Fill();
 		}
 		f->cd();
