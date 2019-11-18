@@ -40,20 +40,8 @@ UsefulAtriStationEvent *realAtriEvPtr;
 
 
 int main (){
-  vector<int> BadRunList=BuildBadRunList(3);
-  cout << "Making bad runs list" << endl;
 
-  FILE *fout = fopen("./ARA_analysis/files/badRuns_list_A3.txt", "w+");
-  for(int i=0;i<BadRunList.size();i++){
-    fprintf(fout,"%i\n",BadRunList[i]);
-  }
-  fclose(fout);
-
-  // for(double i=0.6;i<=200;i++){
-  //   if(abs((int) i % 25-25)>2 || (int) i % 25 >2) cout << (int) i << endl;
-  //   };
-// cout << abs((int) 299.805 % 25-25) << endl;
-cout << (int) 299.805 % 25 << endl;
-
+  bool isThisASoftDomRun = isSoftwareDominatedRun("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools", 3, 2488);
+  cout << isThisASoftDomRun << endl;
   return 0;
 }

@@ -106,17 +106,19 @@ int main(int argc, char **argv){
 
 		TFile *f = new TFile(argv[file_num],"update");
 		TTree *T = (TTree*)f->Get("AllTree");
-		bool isSpikey;
-		bool isCliff;
-		bool OutofBandIssue;
+		// bool isSpikey;
+		// bool isCliff;
+		// bool OutofBandIssue;
+		bool bad_v2;
 
 		int eventNumber;
 		T->SetBranchAddress("eventNumber",&eventNumber);
-		cout << "Here" << endl;
 
-		TBranch *isSpikeyBranch = T->Branch("isSpikey",&isSpikey);
-		TBranch *isCliffBranch = T->Branch("isCliff",&isCliff);
-		TBranch *hasOutofBandIssueBranch = T->Branch("OutofBandIssue",&OutofBandIssue);
+		// TBranch *isSpikeyBranch = T->Branch("isSpikey",&isSpikey);
+		// TBranch *isCliffBranch = T->Branch("isCliff",&isCliff);
+		// TBranch *hasOutofBandIssueBranch = T->Branch("OutofBandIssue",&OutofBandIssue);
+		TBranch *bad_v2Branch = T->Branch("bad_v2",&bad_v2);
+
 
 
     char dataFName[70];
@@ -142,9 +144,10 @@ int main(int argc, char **argv){
 		cout << "Number of events is " << numEntries << endl;
 
 		for(int event=0; event<numEntries; event++){
-			isSpikey=false;
-			isCliff=false;
-			OutofBandIssue=false;
+			// isSpikey=false;
+			// isCliff=false;
+			// OutofBandIssue=false;
+			bad_v2=false;
 			eventTree->GetEvent(event);
 			T->GetEvent(event);
 	    //if(rawEvPtr->isCalpulserEvent()==false){
@@ -157,20 +160,23 @@ int main(int argc, char **argv){
 				TGraph* gr = realAtriEvPtr_fullcalib->getGraphFromRFChan(i);
 				graphs.push_back(gr);
 			}
+			if(!qualCut->isGoodEvent(realAtriEvPtr_fullcalib)) bad_v2=true;
+
 			delete realAtriEvPtr_fullcalib;
 			//isSpikeyStringEvent(3,0,graphs,2);
-			if(isCliffEvent(graphs)) isCliff=true;
-			if(isSpikeyStringEvent(station,drop_chan,graphs,config)) isSpikey=true;
-			if(hasOutofBandIssue(graphs,drop_chan)) OutofBandIssue=true;
+			// if(isCliffEvent(graphs)) isCliff=true;
+			// if(isSpikeyStringEvent(station,drop_chan,graphs,config)) isSpikey=true;
+			// if(hasOutofBandIssue(graphs,drop_chan)) OutofBandIssue=true;
 
 			for (int i=0; i < graphs.size(); i++){
 				delete graphs[i];
 			}
 			graphs.clear();
 
-			isSpikeyBranch->Fill();
-			isCliffBranch->Fill();
-			hasOutofBandIssueBranch->Fill();
+			// isSpikeyBranch->Fill();
+			// isCliffBranch->Fill();
+			// hasOutofBandIssueBranch->Fill();
+			bad_v2Branch->Fill();
 		}
 		f->cd();
 		T->Write(0,TObject::kOverwrite);

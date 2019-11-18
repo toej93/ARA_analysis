@@ -75,6 +75,10 @@ int main(int argc, char **argv)
 		cout<< "Usage\n" << argv[0] << " <1-station> <2-config> <3-v_slope> <4-v_intercept> <5-h_slope> <6-h_intercept>"<<endl;;
 		return -1;
 	}
+	double corrValThres_V[5]={0.007,0.007,0.0085,0.009,0.008};
+	double corrValThres_H[5]={0.008,0.008,0.009,0.009,0.009};
+	double SNRValThres_V[5]={7,7,7,7,6.5};
+	double SNRValThres_H[5]={8,8,8,7.5,7};
 
 	int station = atoi(argv[1]);
 	int config = atoi(argv[2]);
@@ -217,6 +221,7 @@ int main(int argc, char **argv)
 		bool isSpikey;
 		bool isCliff;
 		bool OutofBandIssue;
+		bool bad_v2;
 
 		dataAllTree.SetBranchAddress("bad",&isBadEvent);
 		dataAllTree.SetBranchAddress("weight",&weight);
@@ -229,6 +234,7 @@ int main(int argc, char **argv)
 		dataAllTree.SetBranchAddress("isSpikey",&isSpikey);
 		dataAllTree.SetBranchAddress("isCliff",&isCliff);
 		dataAllTree.SetBranchAddress("OutofBandIssue",&OutofBandIssue);
+		dataAllTree.SetBranchAddress("bad_v2",&bad_v2);
 
 
 
@@ -253,8 +259,8 @@ int main(int argc, char **argv)
 
 		dataAllTree.GetEvent(0);
 		int currentRunNum = runNum;
-		bool isThisABadRun = isBadRun(station,runNum,BadRunList); // find out if it was a bad run
-
+		bool isThisABadRun; // find out if it was a bad run
+		bool isThisASoftDomRun;
 		// loop over events
 		for(int event=0; event<numDataEvents; event++){
 			dataVTree.GetEvent(event);
@@ -265,7 +271,10 @@ int main(int argc, char **argv)
 				// std::cout<<"*";
 				currentRunNum=runNum;
 				isThisABadRun = false;
+				isThisASoftDomRun= false;
 				isThisABadRun = isBadRun(station,runNum,BadRunList);
+				isThisASoftDomRun = isSoftwareDominatedRun("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools", station, runNum);
+				if(isThisASoftDomRun) printf(RED"run:%i"RESET,runNum);
 				// if(runNum==1924 || runNum==1925 || runNum==1926 || runNum==2531 || runNum==2781) isThisABadRun=true;
 
 				// if((config==3) && (runNum>4500 || runNum<3500)) isThisABadRun=true; //bad runs
@@ -284,7 +293,7 @@ int main(int argc, char **argv)
 					printf(GREEN"*"RESET);
 
 			}
-			if( isSoft || isBadEvent || hasBadSpareChanIssue || hasBadSpareChanIssue2 || isFirstFiveEvent || isShort || isCal || isThisABadRun || isSpikey || isCliff || OutofBandIssue){
+			if( isSoft || isBadEvent || hasBadSpareChanIssue || hasBadSpareChanIssue2 || isFirstFiveEvent || isShort || isCal || isThisASoftDomRun || isThisABadRun || isSpikey || isCliff || OutofBandIssue || bad_v2){
 				continue;
 			}
 			if(isBadLivetime(station,unixTime)){
@@ -307,7 +316,7 @@ int main(int argc, char **argv)
 					if(!failsCWPowerCut){
 						h2SNRvsCorr[pol]->Fill(corr_val[pol],snr_val[pol],weight);
 
-						if((pol==0 && (corr_val[0]>0.007|| snr_val[0]>7)) || (pol==1 && (corr_val[1]>0.008 || snr_val[1]>8))){
+						if((pol==0 && (corr_val[0]>corrValThres_V[config-1] || snr_val[0]>SNRValThres_V[config-1])) || (pol==1 && (corr_val[1]>corrValThres_H[config-1] || snr_val[1]>SNRValThres_H[config-1]))){
 							printf(RED"eventNumber %d \n"RESET, eventNumber);
 							// cout << eventNumber << endl; //PlotThisEvent(station, config, runNum, event, pol, settings, detector, theCorrelators);
  							PlotThisEvent(station, config, runNum, eventNumber, pol, settings, detector, theCorrelators);
