@@ -82,14 +82,14 @@ int main(int argc, char **argv)
   int station = atoi(argv[1]);
   RawAtriStationEvent *rawEvPtr=0;
   chain.SetBranchAddress("event",&rawEvPtr);
-
   int numEntries = chain.GetEntries();
   //int numEntries = 1000;
   Int_t run_num=0;
   int stationId=0;
 
   chain.SetBranchAddress("run",&run_num); //set the branch address
-  AraQualCuts *qualCut = AraQualCuts::Instance();
+  // cout << run_num << endl;
+  chain.GetEntry(0);
   AraEventCalibrator *calib = AraEventCalibrator::Instance(); //make a calibrator
   vector<int> BadRunList = BuildBadRunList(3);
   if(isBadRun(3, run_num, BadRunList)) return -1;
@@ -99,9 +99,13 @@ int main(int argc, char **argv)
     chain.GetEvent(event);
     //if(rawEvPtr->isCalpulserEvent()==false){
     int evt_num = rawEvPtr->eventNumber;//event number
+    // if(abs(1829-evt_num)>21) continue;
     // cout << evt_num << endl;
-    // if(evt_num<68000) continue;
+
+    if(evt_num!=62065) continue;
+
     UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
+    AraQualCuts *qualCut = AraQualCuts::Instance();
     vector<TGraph*> spareElecChanGraphs;
   	spareElecChanGraphs.push_back(realAtriEvPtr_fullcalib->getGraphFromElecChan(6));
   	spareElecChanGraphs.push_back(realAtriEvPtr_fullcalib->getGraphFromElecChan(14));
@@ -135,13 +139,17 @@ int main(int argc, char **argv)
       graphs.push_back(gr);
       graphs_spectra.push_back(spectra);
     }
+    // if(realAtriEvPtr_fullcalib->isCalpulserEvent()==false){
+    //   delete realAtriEvPtr_fullcalib;
+    //   continue;
+    // }
     delete realAtriEvPtr_fullcalib;
     //isSpikeyStringEvent(3,0,graphs,2);
-    if(!hasOutofBandIssue(graphs,1)){;
-    deleteGraphVector(graphs);
-    deleteGraphVector(graphs_spectra);
-    continue;
-  }
+  //   if(!hasOutofBandIssue(graphs,1)){;
+  //   deleteGraphVector(graphs);
+  //   deleteGraphVector(graphs_spectra);
+  //   continue;
+  // }
 
     // if(!isCliffEvent(graphs)){
     //   for (int i=0; i < graphs.size(); i++){
@@ -208,13 +216,14 @@ int main(int argc, char **argv)
       // if(i==13) graphs[i]->GetXaxis()->SetRangeUser(290., 380.);
       // if(i==14) graphs[i]->GetXaxis()->SetRangeUser(0., 380.);
       // if(i==15) graphs[i]->GetXaxis()->SetRangeUser(340., 420.);
+      graphs[i]->GetXaxis()->SetRangeUser(0., 100.);
       graphs[i]->SetLineColor(kBlue);
       graphs[i]->Draw("");
     }//canvas loop
 
     char h2name[60];
     sprintf(h2name,"./plots/wforms/wf_A%i_run%d_event%d.png", station, run_num,evt_num);
-    // c2->SaveAs(h2name);
+    c2->SaveAs(h2name);
     delete c2;
 
     TCanvas *c3 = new TCanvas("","",1550,1550);
@@ -231,7 +240,7 @@ int main(int argc, char **argv)
     }//canvas loop
     char h3name[100];
     sprintf(h3name,"./plots/spectra/spectrum_A%i_run%d_event%d.png", station, run_num,evt_num);
-    // c3->SaveAs(h3name);
+    c3->SaveAs(h3name);
     delete c3;
 
     TCanvas *c4 = new TCanvas("","",2550,2550);
@@ -273,6 +282,14 @@ int main(int argc, char **argv)
     // c4->SaveAs(h4name);
     delete c4;
 
+    // TFile *fAmy = new TFile("for_Amy.root", "recreate");
+    // fAmy->cd();
+    // char forAmyTitle[20];
+    // for(int i=0; i<16; i++){
+    //   sprintf(forAmyTitle,"gr%i",i);
+    //   corr_graph[i]->SetName(forAmyTitle);
+    //   corr_graph[i]->Write();
+    // }
 
     TCanvas *c5 = new TCanvas("","",2550,2550);
     c5->Divide(4,4);
