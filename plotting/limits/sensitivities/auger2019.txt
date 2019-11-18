@@ -1,0 +1,17 @@
+# Source: Auger 9 years, all flavour (x3)
+# Data type: Upper limit
+# Energy bins per decade: 2
+# Column values:
+# Energy [eV]
+# Flux [GeV cm^-2 s^-1 sr^-1]
+# Flux band minimum
+# Flux band maximum
+
+5.466e+16  9.412e-8 0.0 0.0
+1.762e+17  2.976e-8 0.0 0.0
+5.677e+17  2.133e-8 0.0 0.0
+1.762e+18  2.801e-8 0.0 0.0
+5.677e+18  4.982e-8 0.0 0.0
+1.696e+19  1.031e-7 0.0 0.0
+5.677e+19  2.597e-7 0.0 0.0
+1.762e+20  6.952e-7 0.0 0.0
