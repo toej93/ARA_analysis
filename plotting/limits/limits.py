@@ -200,11 +200,8 @@ class LimitFigure:
             prot10, = self.ax.plot(energy, flux,
                                    color='orchid', linestyle='-.',
                                    label=r'10% protons, van Vliet et al.')
-#             prot = self.ax.fill_between(energy, band_min, band_max,
-#                                         color='orchid', alpha=0.25,
-#                                         label=r'not excluded from UHECRs')
-#             self.neutrino_models.append(prot)
             self.neutrino_models.append(prot10)
+    
 
         elif name=='ahlers':
             energy, flux, _, _ = self.get_data('sensitivities/ahlers_100.txt')
@@ -220,23 +217,39 @@ class LimitFigure:
                                   color='cornflowerblue', linestyle='-.',
                                   label=r'1% protons, Ahlers & Halzen') # (1208.4181)
             self.neutrino_models.extend([prot100, prot10, prot1])
+            
+            
+            
+        elif name=='ahlers_1':
+            energy, flux, band_min, band_max = self.get_data('sensitivities/ahlers_1.txt')
+            prot10, = self.ax.plot(energy, flux,
+                                   color='cornflowerblue', linestyle='-.',
+                                   label=r'Heavy/light proton composition')
+            self.neutrino_models.append(prot10)
+            
+        elif name=='ahlers_100':
+            energy, flux, band_min, band_max = self.get_data('sensitivities/ahlers_100.txt')
+            prot10, = self.ax.plot(energy, flux,
+                                   color='cornflowerblue', linestyle='--')
+#                                    label=r'100% protons, Ahlers & Halzen')
+            self.neutrino_models.append(prot10)
 
         elif name=='kotera':
-            energy, _, band_min, band_max = self.get_data('sensitivities/kotera_ming.txt')
-            compositions = self.ax.fill_between(energy, band_min, band_max,
-                                                color='gray', alpha=0.25,
-                                                label=r'UHECR, Olinto et al.')
+#             energy, _, band_min, band_max = self.get_data('sensitivities/kotera_ming.txt')
+#             compositions = self.ax.fill_between(energy, band_min, band_max,
+#                                                 color='gray', alpha=0.25,
+#                                                 label=r'UHECR, Olinto et al.')
 
             energy, flux, _, _ = self.get_data('sensitivities/kotera_high_e.txt')
             kotera_high, = self.ax.plot(energy, flux,
-                                        color='deeppink', linestyle='--',
+                                        color='blue', linestyle='--',
                                         label=r'SFR $E_{max}=10^{21.5}$, Kotera et al.') # (1009.1382)
 
             energy, flux, _, _ = self.get_data('sensitivities/kotera_mid.txt')
             kotera, = self.ax.plot(energy, flux,
-                                   color='darkmagenta', linestyle='--',
+                                   color='blue', linestyle='-.',
                                    label=r'SFR $E_{max}=10^{20.5}$, Kotera et al.') # (1009.1382)
-            self.neutrino_models.extend([compositions, kotera_high, kotera])
+            self.neutrino_models.extend([kotera_high, kotera])#[compositions, kotera_high, kotera])
 
         elif name=='fang_merger':
             energy, flux, _, _ = self.get_data('sensitivities/fang_ns_merger.txt')
@@ -283,6 +296,87 @@ class LimitFigure:
                                 color="red", linestyle='--',
                                 label="AGN, Murase") # (1511.01590)
             self.neutrino_models.append(agn)
+            
+        elif name=='wittkowski':
+            energy, flux, _, _ = self.get_data('sensitivities/wittkowski_BFields.txt')
+            bfields, = self.ax.plot(energy, flux,
+                                color="red", linestyle='--',
+                                label="With/Without extra-gal. B fields") # (1810.03769)
+            self.neutrino_models.append(bfields)
+        
+        elif name=='wittkowski_off':
+            energy, flux, _, _ = self.get_data('sensitivities/wittkowski_BFields_off.txt')
+            bfields, = self.ax.plot(energy, flux,
+                                color="red", linestyle='-.')#,
+#                                 label="Without extra-gal. B fields") # (1810.03769)
+            self.neutrino_models.append(bfields)
+            
+        elif name=='batista':
+            energy, flux, _, _ = self.get_data('sensitivities/batista18.txt')
+            rshift, = self.ax.plot(energy, flux,
+                                color="saddlebrown", linestyle='-.',
+                                label="High/Low redshift cutoff") # (1810.03769)
+            self.neutrino_models.append(rshift)
+        
+        elif name=='batista_low_z':
+            energy, flux, _, _ = self.get_data('sensitivities/batista18_lowz.txt')
+            rshift, = self.ax.plot(energy, flux,
+                                color="saddlebrown", linestyle='--')
+#                                 label="Low redshift cutoff") # (1810.03769)
+            self.neutrino_models.append(rshift)
+            
+        elif name=='van_vliet2019':
+                energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19.txt')
+                prot10, = self.ax.plot(energy, flux,
+                                       color='orchid', linestyle='-.',
+                                       label=r'High/Low $E_{max}$')
+    #             prot = self.ax.fill_between(energy, band_min, band_max,
+    #                                         color='orchid', alpha=0.25,
+    #                                         label=r'not excluded from UHECRs')
+    #             self.neutrino_models.append(prot)
+                self.neutrino_models.append(prot10)
+        
+        elif name=='van_vliet2019_Elow':
+                energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19_Elow.txt')
+                prot10, = self.ax.plot(energy, flux,
+                                       color='orchid', linestyle='--')
+                self.neutrino_models.append(prot10)
+            
+        elif name=='van_vliet2019_hard':
+                energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19_hard.txt')
+                prot10, = self.ax.plot(energy, flux,
+                                       color='deeppink', linestyle='--')
+                self.neutrino_models.append(prot10)
+                
+        elif name=='van_vliet2019_soft':
+                energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19_soft.txt')
+                prot10, = self.ax.plot(energy, flux,
+                                       color='deeppink', linestyle='-.',
+                                       label=r'Hard/soft spectrum ($E_{max}=10^{12}$ GeV)')
+                self.neutrino_models.append(prot10)
+                
+        elif name=='diagonal':
+                energy, flux, band_min, band_max = self.get_data('sensitivities/diagonal_E2dNdE.txt')
+                prot10, = self.ax.plot(energy, flux,
+                                       color='gray', linestyle='--',
+                                       label=r'$E^2\frac{dN}{dE}=10^{-9}$ [GeV$\,cm^{-2}\, s^{-1} \,sr^{-1}]$')
+                self.neutrino_models.append(prot10)
+                
+        elif name=='kotera_FRII':
+                energy, flux, band_min, band_max = self.get_data('sensitivities/kotera_FRII.txt')
+                prot10, = self.ax.plot(energy, flux,
+                                       color='darkmagenta', linestyle='-.',
+                                       label=r'FRII evolution')
+                self.neutrino_models.append(prot10)
+                
+        elif name=='vanvliet19_highE_hard':
+                energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19_highE_hard.txt')
+                prot10, = self.ax.plot(energy, flux,
+                                       color='royalblue', linestyle='-.',
+                                       label=r'$E_{max}=10^{14}$ GeV, $\alpha=2.0$')
+                self.neutrino_models.append(prot10)
+                
+                
 
         elif name=='murase_grb':
             energy, flux, _, _ = self.get_data('sensitivities/murase_grb_late_prompt.txt')
@@ -383,21 +477,21 @@ class LimitFigure:
                          color='dodgerblue')
 
         elif name=='anita':
-            energy, flux, _, _ = self.get_data('sensitivities/anita.txt')
+            energy, flux, _, _ = self.get_data('sensitivities/anita_iv.txt')
             self.ax.plot(energy, flux,
                          color='darkorange')
             if self.e_power==2:
-                self.ax.annotate('ANITA I - III',
+                self.ax.annotate('ANITA I - IV',
                                  xy=(2e9, 5e-6*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='darkorange')
             if self.e_power==1:
-                self.ax.annotate('ANITA I - III',
+                self.ax.annotate('ANITA I - IV',
                                  xy=(3e9, 1e-15*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='darkorange')
 
         elif name=='auger':
-            energy, flux, _, _ = self.get_data('sensitivities/auger.txt')
-            self.ax.plot(energy, flux,
+            energy, flux, _, _ = self.get_data('sensitivities/auger2019.txt')
+            self.ax.plot(energy, flux*3, #Need to multiply by 3 as sensitivity data is for one neutrino flavor.
                          color='forestgreen')
             if self.e_power==2:
                 self.ax.annotate('Auger',
@@ -405,7 +499,7 @@ class LimitFigure:
                                  horizontalalignment='left', color='forestgreen', rotation=-40)
             if self.e_power==1:
                 self.ax.annotate('Auger',
-                                 xy=(3e10, 9.5e-18*self.e_bins), xycoords='data',
+                                 xy=(2.3e10,1.1e-17*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='forestgreen', rotation=-8)
 
         elif name=='ara':
@@ -430,7 +524,7 @@ class LimitFigure:
                                  xy=(2e8, 9e-16*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='#2288AA', rotation=-50)
                 self.ax.annotate('ARA 2023 (SES)',
-                                 xy=(8.9e7, 7.7e-17*self.e_bins), xycoords='data',
+                                 xy=(5e7, 2e-16*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='black', rotation=-47)
     
         else:
