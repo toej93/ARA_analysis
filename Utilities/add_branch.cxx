@@ -121,7 +121,7 @@ int main(int argc, char **argv){
 		TBranch *hasOutofBandIssueBranch = T->Branch("OutofBandIssue",&OutofBandIssue);
 		TBranch *bad_v2Branch = T->Branch("bad_v2",&bad_v2);
 		TBranch *isRFEventBranch = T->Branch("isRFEvent",&isRFEvent);
-		TBranch *isRFEventBranch = T->Branch("isPayloadBlast",&isPayloadBlast);
+		TBranch *isPayloadBlastBranch = T->Branch("isPayloadBlast",&isPayloadBlast);
 
 
 		char dataFName[70];
@@ -168,14 +168,14 @@ int main(int argc, char **argv){
 				graphs.push_back(gr);
 			}
 			if(!qualCut->isGoodEvent(realAtriEvPtr_fullcalib)) bad_v2=true;
-			isRFTrigger=realAtriEvPtr_fullcalib->isRFTrigger();
+			isRFEvent=rawEvPtr->isRFTrigger();
 
 			delete realAtriEvPtr_fullcalib;
 			// isSpikeyStringEvent(3,0,graphs,2);
 			if(isCliffEvent(graphs)) isCliff=true;
 			if(isSpikeyStringEvent(station,drop_chan,graphs,config)) isSpikey=true;
 			if(hasOutofBandIssue(graphs,drop_chan)) OutofBandIssue=true;
-			if(isHighPowerStringEvent(graphs, station, runNum)) isPayloadBlast=true;
+			if(isHighPowerStringEvent(graphs, station, runNum_in)) isPayloadBlast=true;
 
 			for (int i=0; i < graphs.size(); i++){
 				delete graphs[i];
@@ -186,6 +186,8 @@ int main(int argc, char **argv){
 			isCliffBranch->Fill();
 			hasOutofBandIssueBranch->Fill();
 			bad_v2Branch->Fill();
+			isRFEventBranch->Fill();
+			isPayloadBlastBranch->Fill();
 		}
 		f->cd();
 		T->Write(0,TObject::kOverwrite);
