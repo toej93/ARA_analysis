@@ -75,7 +75,7 @@ int main(int argc, char **argv)
   2: config
   3 : input file
   */
-
+    bool flag=true;
     TChain chain("eventTree"); //this for the events for the exterior loop
     for(int file=3; file<argc; file++){
 
@@ -112,9 +112,9 @@ int main(int argc, char **argv)
     sprintf(rootName,"/fs/scratch/PAS0654/jorge/absPower/c%i_run%i.root", config, run_num);
     TFile *f = TFile::Open(rootName,"RECREATE");
     TTree *t = new TTree("absPower","abspower");
-    vector <float> absPower150;
-    vector <float> absPower100;
-    vector <float> absPower70;
+    vector <double> absPower150;
+    vector <double> absPower100;
+    vector <double> absPower70;
 
     t->Branch("absPower150",&absPower150);
     t->Branch("absPower100",&absPower100);
@@ -123,6 +123,8 @@ int main(int argc, char **argv)
 
     cout << "Number of events is " << numEntries << endl;
     for(int event=0; event<numEntries; event++){//loop over events
+      // cout << event << endl;
+
       chain.GetEvent(event);
       int unixtime = rawEvPtr->unixTime;
       if(isBadLivetime(station,unixtime)) continue;
@@ -174,7 +176,13 @@ int main(int argc, char **argv)
     absPower150.clear();
     absPower100.clear();
     absPower70.clear();
+    std::vector<double>().swap(absPower150);
+    std::vector<double>().swap(absPower100);
+    std::vector<double>().swap(absPower70);
+
+
   }//end loop over events
+cout << "Got to the end, flushing baskets" << endl;
 f->cd();
 f->Write();
 f->Close();
