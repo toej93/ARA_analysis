@@ -21,6 +21,8 @@
 #include <ctime>
 #include "time.h" // for time convert
 #include <TSystem.h>
+#include <sys/stat.h>
+
 
 
 //ROOT Includes
@@ -89,6 +91,11 @@ int main(int argc, char **argv){
 			std::cout << "file does not exist" << std::endl;
 			return -1;
 		}
+		char *PedDirPath(getenv("PED_DIR"));
+		if (PedDirPath == NULL){
+			std::cout << "Warning! $PED_DIR is not set!" << endl;
+			return -1;
+		}
 
 		string chRun = "run";
 		string file = string(argv[file_num]);
@@ -141,6 +148,10 @@ int main(int argc, char **argv){
 		eventTree->SetBranchAddress("event",&rawEvPtr);
 		AraQualCuts *qualCut = AraQualCuts::Instance();
 		AraEventCalibrator *calib = AraEventCalibrator::Instance(); //make a calibrator
+		char ped_file_name[400];
+		sprintf(ped_file_name,"%s/run_specific_peds/A%d/all_peds/event%d_specificPeds.dat",PedDirPath,station,runNum_in);
+		calibrator->setAtriPedFile(ped_file_name,station); //because someone had a brain (!!), this will error handle itself if the pedestal doesn't exist
+
 		// if(isBadRun(3, runNum_in, BadRunList)) continue;
 		// if(isSoftwareDominatedRun("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools", 3, runNum_in)) continue;
 		int numEntries = T->GetEntries();
