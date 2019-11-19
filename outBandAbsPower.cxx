@@ -159,10 +159,8 @@ int main(int argc, char **argv)
       for (int i = 0; i < 16; i++){
         TGraph* gr = realAtriEvPtr_fullcalib->getGraphFromRFChan(i);
         graphs.push_back(gr);
-        gr=NULL;
-        delete gr;
       }
-
+      
       delete realAtriEvPtr_fullcalib;
       outOfBandAbsPower(graphs, dropDDA4, 150, absPower150);
       outOfBandAbsPower(graphs, dropDDA4, 100, absPower100);
