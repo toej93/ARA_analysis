@@ -131,7 +131,10 @@ int main(int argc, char **argv)
 
       isCalpulser = realAtriEvPtr_fullcalib->isCalpulserEvent();
       isSoftTrigger = realAtriEvPtr_fullcalib->isSoftwareTrigger();
-      if(isCalpulser || isSoftTrigger) continue;
+      if(isCalpulser || isSoftTrigger){
+        delete realAtriEvPtr_fullcalib;
+        continue;
+      }
       vector<TGraph*> spareElecChanGraphs;
     	spareElecChanGraphs.push_back(realAtriEvPtr_fullcalib->getGraphFromElecChan(6));
     	spareElecChanGraphs.push_back(realAtriEvPtr_fullcalib->getGraphFromElecChan(14));
@@ -143,13 +146,16 @@ int main(int argc, char **argv)
       hasBadSpareChanIssue_v2out=hasSpareChannelIssue_v2(spareElecChanGraphs,3);
       deleteGraphVector(spareElecChanGraphs);
     	if(hasBadSpareChanIssue || hasBadSpareChanIssue_v2out){
-    		// cout<<"Has bad spare chan issue! Like, yes, actually"<<endl;
+        delete realAtriEvPtr_fullcalib;
         continue;
     	}
-
       vector<TGraph*> graphs;
       double interpolation_step = 0.5;
-      if(!qualCut->isGoodEvent(realAtriEvPtr_fullcalib)) continue;
+      if(!qualCut->isGoodEvent(realAtriEvPtr_fullcalib)){
+        delete realAtriEvPtr_fullcalib;
+        continue;
+      }
+
       for (int i = 0; i < 16; i++){
         TGraph* gr = realAtriEvPtr_fullcalib->getGraphFromRFChan(i);
         graphs.push_back(gr);
@@ -160,7 +166,7 @@ int main(int argc, char **argv)
       delete realAtriEvPtr_fullcalib;
       outOfBandAbsPower(graphs, dropDDA4, 150, absPower150);
       outOfBandAbsPower(graphs, dropDDA4, 100, absPower100);
-      outOfBandAbsPower(graphs, dropDDA4, 75, absPower70);
+      outOfBandAbsPower(graphs, dropDDA4, 70, absPower70);
 
     t->Fill();
     for (int i=0; i < graphs.size(); i++){
