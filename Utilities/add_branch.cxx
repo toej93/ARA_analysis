@@ -150,7 +150,7 @@ int main(int argc, char **argv){
 		AraEventCalibrator *calib = AraEventCalibrator::Instance(); //make a calibrator
 		char ped_file_name[400];
 		sprintf(ped_file_name,"%s/run_specific_peds/A%d/all_peds/event%d_specificPeds.dat",PedDirPath,station,runNum_in);
-		calibrator->setAtriPedFile(ped_file_name,station); //because someone had a brain (!!), this will error handle itself if the pedestal doesn't exist
+		calib->setAtriPedFile(ped_file_name,station); //because someone had a brain (!!), this will error handle itself if the pedestal doesn't exist
 
 		// if(isBadRun(3, runNum_in, BadRunList)) continue;
 		// if(isSoftwareDominatedRun("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools", 3, runNum_in)) continue;
