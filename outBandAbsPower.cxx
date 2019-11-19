@@ -112,9 +112,9 @@ int main(int argc, char **argv)
     sprintf(rootName,"/fs/scratch/PAS0654/jorge/absPower/c%i_run%i.root", config, run_num);
     TFile *f = TFile::Open(rootName,"RECREATE");
     TTree *t = new TTree("absPower","abspower");
-    vector <double> absPower150;
-    vector <double> absPower100;
-    vector <double> absPower70;
+    vector <float> absPower150;
+    vector <float> absPower100;
+    vector <float> absPower70;
 
     t->Branch("absPower150",&absPower150);
     t->Branch("absPower100",&absPower100);
@@ -157,10 +157,10 @@ int main(int argc, char **argv)
       }
 
       for (int i = 0; i < 16; i++){
-        TGraph* gr = realAtriEvPtr_fullcalib->getGraphFromRFChan(i);
-        graphs.push_back(gr);
+        // TGraph* gr = realAtriEvPtr_fullcalib->getGraphFromRFChan(i);
+        graphs.push_back(realAtriEvPtr_fullcalib->getGraphFromRFChan(i));
       }
-      
+
       delete realAtriEvPtr_fullcalib;
       outOfBandAbsPower(graphs, dropDDA4, 150, absPower150);
       outOfBandAbsPower(graphs, dropDDA4, 100, absPower100);
@@ -175,6 +175,8 @@ int main(int argc, char **argv)
     absPower100.clear();
     absPower70.clear();
   }//end loop over events
+f->cd();
 f->Write();
+f->Close();
 delete f;
 }//end main
