@@ -31,7 +31,7 @@
 
 
 // analysis custom
-#include "tools_Cuts.h"
+// #include "tools_Cuts.h"
 #include "tools_Stats.h"
 #include "tools_CommandLine.h"
 #include "tools_outputObjects.h"
@@ -144,10 +144,10 @@ int main(int argc, char **argv)
 	TChain dataAllTree("AllTree");
 	char the_data[500];
 	// sprintf(the_data,"/fs/scratch/PAS0654/ara/10pct/ValsForCuts/A%d/c%d/cutvals_drop_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_*.root",station,config);
-	if (config==1) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/10pct_redo/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_-1.2_-1.3_run_*.root",station,config);
-	if (config==2) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/10pct_redo/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_-1.3_-1.4_run_*.root",station,config);
-	if (config==3 || config==4) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/10pct_redo/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_-1.0_-1.1_run_*.root",station,config);
-	if (config==5) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/10pct_redo/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_-0.7_-0.8_run_*.root",station,config);
+	if (config==1) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/10pct_redo/ValsForCuts_v2/A%d/c%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_-1.2_-1.3_run_*.root",station,config);
+	if (config==2) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/10pct_redo/ValsForCuts_v2/A%d/c%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_-1.3_-1.4_run_*.root",station,config);
+	if (config==3 || config==4) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/10pct_redo/ValsForCuts_v2/A%d/c%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_-1.0_-1.1_run_*.root",station,config);
+	if (config==5) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/10pct_redo/ValsForCuts_v2/A%d/c%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_-0.7_-0.8_run_*.root",station,config);
 	int result = dataVTree.Add(the_data);
 	dataHTree.Add(the_data);
 	dataAllTree.Add(the_data);
@@ -204,8 +204,8 @@ int main(int argc, char **argv)
 		int isSurf[2]; // a surface event after filtering?
 		int isSurfEvent_top[2]; // a top face event?
 
-		dataAllTree.SetBranchAddress("surf_V_new",&isSurf[0]);
-		dataAllTree.SetBranchAddress("surf_H_new",&isSurf[1]);
+		dataAllTree.SetBranchAddress("surf_V_new2",&isSurf[0]);
+		dataAllTree.SetBranchAddress("surf_H_new2",&isSurf[1]);
 
 		dataAllTree.SetBranchAddress("surf_top_V",&isSurfEvent_top[0]);
 		dataAllTree.SetBranchAddress("surf_top_H",&isSurfEvent_top[1]);
@@ -222,6 +222,9 @@ int main(int argc, char **argv)
 		bool isCliff;
 		bool OutofBandIssue;
 		bool bad_v2;
+		bool isRFEvent;
+		bool isPayloadBlast2;
+		int box300;
 
 		dataAllTree.SetBranchAddress("bad",&isBadEvent);
 		dataAllTree.SetBranchAddress("weight",&weight);
@@ -235,6 +238,9 @@ int main(int argc, char **argv)
 		dataAllTree.SetBranchAddress("isCliff",&isCliff);
 		dataAllTree.SetBranchAddress("OutofBandIssue",&OutofBandIssue);
 		dataAllTree.SetBranchAddress("bad_v2",&bad_v2);
+		dataAllTree.SetBranchAddress("isRFEvent",&isRFEvent);
+		dataAllTree.SetBranchAddress("isPayloadBlast2",&isPayloadBlast2);
+		dataAllTree.SetBranchAddress("box300",&box300);
 
 
 
@@ -293,7 +299,7 @@ int main(int argc, char **argv)
 					printf(GREEN"*"RESET);
 
 			}
-			if( isSoft || isBadEvent || hasBadSpareChanIssue || hasBadSpareChanIssue2 || isFirstFiveEvent || isShort || isCal || isThisASoftDomRun || isThisABadRun || isSpikey || isCliff || OutofBandIssue || bad_v2){
+			if(!isRFEvent || isSoft || isBadEvent || hasBadSpareChanIssue || hasBadSpareChanIssue2 || isFirstFiveEvent || isShort || isCal || isThisASoftDomRun || isThisABadRun || isSpikey || isCliff || OutofBandIssue || bad_v2 || isPayloadBlast2 || box300){
 				continue;
 			}
 			if(isBadLivetime(station,unixTime)){
@@ -626,13 +632,13 @@ int main(int argc, char **argv)
 		vector<vector<double> > *badFreqs_back=0;
 		vector<vector<double> > *badSigmas_fwd=0;
 		vector<vector<double> > *badSigmas_back=0;
-		vector<vector<double> > *badFreqs_baseline=0;
+		vector<vector<double> > *badFreqs_baseline_TB=0;
 
 		NewCWTree->SetBranchAddress("badFreqs_fwd",&badFreqs_fwd);
 		NewCWTree->SetBranchAddress("badSigmas_fwd",&badSigmas_fwd);
 		NewCWTree->SetBranchAddress("badFreqs_back",&badFreqs_back);
 		NewCWTree->SetBranchAddress("badSigmas_back",&badSigmas_back);
-		NewCWTree->SetBranchAddress("badFreqs_baseline",&badFreqs_baseline);
+		NewCWTree->SetBranchAddress("badFreqs_baseline_TB",&badFreqs_baseline_TB);
 
 		//deal w/ CW cut
 		//inputTree_CW->GetEntry(event);
@@ -642,8 +648,8 @@ int main(int argc, char **argv)
 		bool isCutonCW_back[2]; isCutonCW_back[0]=false; isCutonCW_back[1]=false;
 		bool isCutonCW_baseline[2]; isCutonCW_baseline[0]=false; isCutonCW_baseline[1]=false;
 
-		for(int pol=0; pol<badFreqs_baseline->size(); pol++){
-			vector<double> badFreqListLocal_baseline = badFreqs_baseline->at(pol);
+		for(int pol=0; pol<badFreqs_baseline_TB->size(); pol++){
+			vector<double> badFreqListLocal_baseline = badFreqs_baseline_TB->at(pol);
 			if(badFreqListLocal_baseline.size()>0) isCutonCW_baseline[pol]=true;
 		}
 		for(int pol=0; pol<2; pol++){
@@ -766,7 +772,7 @@ int main(int argc, char **argv)
 				}
 
 				vector<double> more_freqs_to_add;
-				vector<double> badFreqListLocal_baseline = badFreqs_baseline->at(pol);
+				vector<double> badFreqListLocal_baseline = badFreqs_baseline_TB->at(pol);
 				if(mergedFreqList.size()>0){ //do we already have frequencies to check against?
 					//loop over everything identified by the CW baseline cut
 					for(int newFreq=0; newFreq<badFreqListLocal_baseline.size(); newFreq++){
