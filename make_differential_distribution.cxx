@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 	// just for V for a hot minute
 
 	// let's see if we can do it with arrays....
-	int numSNRbins=300; //let this go all the way up to 30
+	int numSNRbins=600; //let this go all the way up to 30
 	double numEventsPassed[2][numSNRbins]; // number of events passing in a polarization, and for that snr bin
 	double numEventsPassed_diff[2][numSNRbins]; // the difference between the number of events cut between this bin and the next
 
@@ -134,8 +134,8 @@ int main(int argc, char **argv)
 	// need to be able to make the final 2D distribution
 	double max=0.05;
 	TH2D *h2SNRvsCorr[2]; // SNR on Y axis, Corr on X axis, like in the TB
-	h2SNRvsCorr[0]=new TH2D("","V Data",100,0,max,300,0,30);
-	h2SNRvsCorr[1]=new TH2D("","H Data",100,0,max,300,0,30);
+	h2SNRvsCorr[0]=new TH2D("","V Data",100,0,max,600,0,60);
+	h2SNRvsCorr[1]=new TH2D("","H Data",100,0,max,600,0,60);
 
 
 	// load the data up
@@ -378,8 +378,8 @@ int main(int argc, char **argv)
 	}
 
 	TH1D *hEventsVsSNR[2];
-	hEventsVsSNR[0] = new TH1D("DiffDistroV","DiffDistroV",numSNRbins,0,30);
-	hEventsVsSNR[1] = new TH1D("DiffDistroH","DiffDistroH",numSNRbins,0,30);
+	hEventsVsSNR[0] = new TH1D("DiffDistroV","DiffDistroV",numSNRbins,0,60);
+	hEventsVsSNR[1] = new TH1D("DiffDistroH","DiffDistroH",numSNRbins,0,60);
 
 	// now, we have to do the exponential fit
 	// which I chose to code as half-way down the distribution between the maximum bin and the last filled bin
