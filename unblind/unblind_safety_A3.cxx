@@ -112,7 +112,10 @@ int main(int argc, char **argv)
 
 	if(full_or_partial==100){
 		// use the 100pct sample
-		// sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/100pct_try2/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_*.root",station,config);
+    if (config==1) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/100pct_try2/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_-1.2_-1.3_run_*.root",station,config);
+  	if (config==2) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/100pct_try2/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_-1.3_-1.4_run_*.root",station,config);
+  	if (config==3 || config==4) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/100pct_try2/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_-1.0_-1.1_run_*.root",station,config);
+  	if (config==5) sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/100pct_try2/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_-0.7_-0.8_run_*.root",station,config);
 
 	}
 	if(full_or_partial==10 && isOrg==1){
