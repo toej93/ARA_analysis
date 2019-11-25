@@ -79,6 +79,12 @@ int main(int argc, char **argv)
     chain.Add(fileKey); //add files to the chain
   }
 
+  char *PedDirPath(getenv("PED_DIR"));
+  if (PedDirPath == NULL){
+    std::cout << "Warning! $PED_DIR is not set!" << endl;
+    return -1;
+  }
+
   int station = atoi(argv[1]);
   RawAtriStationEvent *rawEvPtr=0;
   chain.SetBranchAddress("event",&rawEvPtr);
@@ -91,6 +97,10 @@ int main(int argc, char **argv)
   // cout << run_num << endl;
   chain.GetEntry(0);
   AraEventCalibrator *calib = AraEventCalibrator::Instance(); //make a calibrator
+  char ped_file_name[400];
+  sprintf(ped_file_name,"%s/run_specific_peds/A%d/all_peds/event%d_specificPeds.dat",PedDirPath,station,run_num);
+  calib->setAtriPedFile(ped_file_name,station); //because someone had a brain (!!), this will error handle itself if the pedestal doesn't exist
+
   vector<int> BadRunList = BuildBadRunList(3);
   if(isBadRun(3, run_num, BadRunList)) return -1;
 	if(isSoftwareDominatedRun("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools", 3, run_num)) return -1;
@@ -99,10 +109,8 @@ int main(int argc, char **argv)
     chain.GetEvent(event);
     //if(rawEvPtr->isCalpulserEvent()==false){
     int evt_num = rawEvPtr->eventNumber;//event number
-    // if(abs(1829-evt_num)>21) continue;
+    if(evt_num!=39072) continue;
     // cout << evt_num << endl;
-
-    if(evt_num!=62065) continue;
 
     UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
     AraQualCuts *qualCut = AraQualCuts::Instance();
@@ -122,6 +130,14 @@ int main(int argc, char **argv)
   	}
 
 
+    double time1[16]={210,200,250,250,300,300,100,360,190,180,220,240,300,200,100,340};
+    double time2[16]={240,240,300,305,360,340,200,400,220,220,260,270,320,325,200,370};
+    double time3[16]={260,265,1000,1000,370,375,1000,405,1000,240,1000,275,1000,360,1000,1000};
+    double time4[16]={260,265,1000,1000,370,375,1000,405,1000,240,1000,275,1000,360,1000,1000};
+
+    // peak2
+    // double time1[16]={210,200,230,250,300,300,0,200,190,180,220,220,290,290,0,340};
+    // double time2[16]={240,300,350,330,410,400,450,300,300,270,300,300,380,380,380,420};
 
     vector<TGraph*> graphs;
     vector<TGraph*> graphs_spectra;
@@ -133,10 +149,21 @@ int main(int argc, char **argv)
       //	delete gr;
       TGraph *Waveform_Padded = FFTtools::padWaveToLength(Waveform_Interpolated, Waveform_Interpolated->GetN()+6000);
       delete Waveform_Interpolated;
-      TGraph *Waveform_Cropped=FFTtools::cropWave(Waveform_Padded,-300.,300.);
+      TGraph *Waveform_Cropped=FFTtools::cropWave(Waveform_Padded,-300.,700.);
       delete Waveform_Padded;
-      TGraph* spectra = FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(Waveform_Cropped);
-      graphs.push_back(gr);
+      int nSamp=Waveform_Cropped->GetN();
+      double newY[nSamp];
+      double newX[nSamp];
+      for(int jj=0;jj<nSamp;jj++){
+        newX[jj]=Waveform_Cropped->GetX()[jj];
+        if(Waveform_Cropped->GetX()[jj]<time3[i]){
+          newY[jj]=0.;
+        }
+        else newY[jj]=Waveform_Cropped->GetY()[jj];
+      }
+      TGraph *grPadded = new TGraph(nSamp,newX,newY);
+      TGraph* spectra = FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(grPadded);
+      graphs.push_back(grPadded);
       graphs_spectra.push_back(spectra);
     }
     // if(realAtriEvPtr_fullcalib->isCalpulserEvent()==false){
@@ -144,48 +171,17 @@ int main(int argc, char **argv)
     //   continue;
     // }
     delete realAtriEvPtr_fullcalib;
-    //isSpikeyStringEvent(3,0,graphs,2);
-  //   if(!hasOutofBandIssue(graphs,1)){;
-  //   deleteGraphVector(graphs);
-  //   deleteGraphVector(graphs_spectra);
-  //   continue;
-  // }
-
-    // if(!isCliffEvent(graphs)){
-    //   for (int i=0; i < graphs.size(); i++){
-    //     delete graphs[i];
-    //     delete graphs_spectra[i];
-    //   }
-    //   graphs.clear();
-    //   graphs_spectra.clear();
-    //   continue;
-    // }
-    // if(!isSpikeyStringEvent(3,0,graphs,1)){
-    //   for (int i=0; i < graphs.size(); i++){
-    //     delete graphs[i];
-    //     delete graphs_spectra[i];
-    //   }
-    //   graphs.clear();
-    //   graphs_spectra.clear();
-    //   continue;
-    // }
-    // printf("Event %i is Cliff",evt_num);
 
 
-    // else if(isCliffEvent(graphs_spikey)){
-    //   cout << run_num << endl;
-    //   cout << evt_num << endl;
-    //   return 0;
-    // }
 
     vector<TGraph*> dummy;
     for(int i=0; i<16; i++){
       vector<double> thisX;
       vector<double> thisY;
-      thisX.push_back(450);
-      thisX.push_back(150);
-      thisY.push_back(0);
-      thisY.push_back(700);
+      thisX.push_back(0);
+      thisX.push_back(1000);
+      thisY.push_back(1);
+      thisY.push_back(1E6);
       dummy.push_back(new TGraph(2,&thisX[0], &thisY[0]));
     }
 
@@ -197,7 +193,7 @@ int main(int argc, char **argv)
       else sprintf(ch_name,"chan %d",i);
       c2->cd(i+1);
       graphs[i]->SetTitle(ch_name);
-      // dummy[i]->SetTitle(ch_name);
+        // dummy[i]->SetTitle(ch_name);
       // dummy[i]->Draw("AP");
       // dummy[i]->SetLineColor(kWhite);
       // if(i==0) graphs[i]->GetXaxis()->SetRangeUser(200., 300.);
@@ -216,9 +212,13 @@ int main(int argc, char **argv)
       // if(i==13) graphs[i]->GetXaxis()->SetRangeUser(290., 380.);
       // if(i==14) graphs[i]->GetXaxis()->SetRangeUser(0., 380.);
       // if(i==15) graphs[i]->GetXaxis()->SetRangeUser(340., 420.);
-      graphs[i]->GetXaxis()->SetRangeUser(0., 100.);
+      // graphs[i]->GetXaxis()->SetRangeUser(0., 100.);
+      dummy[i]->SetTitle(ch_name);
+      dummy[i]->Draw("AP");
+      dummy[i]->SetLineColor(kWhite);
+      dummy[i]->GetYaxis()->SetRangeUser(-1500,1500);
       graphs[i]->SetLineColor(kBlue);
-      graphs[i]->Draw("");
+      graphs[i]->Draw("SAMEL");
     }//canvas loop
 
     char h2name[60];
@@ -234,9 +234,15 @@ int main(int argc, char **argv)
       else sprintf(ch_name,"chan %d",i);
       c3->cd(i+1);
       gPad->SetLogy();
+      dummy[i]->SetTitle(ch_name);
+      dummy[i]->Draw("AP");
+      dummy[i]->SetLineColor(kWhite);
+      dummy[i]->GetXaxis()->SetRangeUser(0.,1000.);
+      dummy[i]->GetYaxis()->SetRangeUser(1.,1E6);
       graphs_spectra[i]->SetTitle(ch_name);
       graphs_spectra[i]->SetLineColor(kBlue);
-      graphs_spectra[i]->Draw("AL");
+      graphs_spectra[i]->SetLineWidth(2);
+      graphs_spectra[i]->Draw("SAMEL");
     }//canvas loop
     char h3name[100];
     sprintf(h3name,"./plots/spectra/spectrum_A%i_run%d_event%d.png", station, run_num,evt_num);
