@@ -183,8 +183,8 @@ int main(int argc, char **argv)
 		int isSurf[2]; // a surface event after filtering?
 		int isSurfEvent_top[2]; // a top event?
 
-		dataAllTree.SetBranchAddress("surf_V_new",&isSurf[0]);
-		dataAllTree.SetBranchAddress("surf_H_new",&isSurf[1]);
+		dataAllTree.SetBranchAddress("surf_V_new2",&isSurf[0]);
+		dataAllTree.SetBranchAddress("surf_H_new2",&isSurf[1]);
 		dataAllTree.SetBranchAddress("surf_top_V",&isSurfEvent_top[0]);
 		dataAllTree.SetBranchAddress("surf_top_H",&isSurfEvent_top[1]);
 
@@ -246,7 +246,7 @@ int main(int argc, char **argv)
 		dataAllTree.GetEvent(0);
 		int currentRunNum = runNum;
 		bool isThisABadRun = isBadRun(station,runNum,BadRunList);
-    bool isThisASoftDomRun;
+    bool isThisASoftDomRun = isSoftwareDominatedRun("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools", station, runNum);
 
 		for(int event=0; event<numDataEvents; event++){
 			dataVTree.GetEvent(event);
@@ -256,7 +256,6 @@ int main(int argc, char **argv)
 
 			if(runNum!=currentRunNum){
 				currentRunNum=runNum;
-
         isThisASoftDomRun = isSoftwareDominatedRun("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools", station, runNum);
         if(isThisASoftDomRun) printf(RED"run:%i"RESET,runNum);
 
@@ -268,7 +267,6 @@ int main(int argc, char **argv)
 				else{
 					printf(GREEN"*"RESET);
 				}
-
 			}
 
 			for(int i=0; i<16; i++){
@@ -320,7 +318,7 @@ int main(int argc, char **argv)
 							// there should be two such events in config 3
 							// and maybe 7 or 8 in config
 							printf(BLUE"\n Run %d, Event %d, pol %d, unixTime %d, reco theta %d, phi %d, Refilt status %d, corr is %.4f \n"RESET, runNum, eventNumber, pol, unixTime, theta_300[pol], phi_300[pol], Refilt[pol], corr_val[pol]);
-							PlotThisEvent(station, config, runNum, eventNumber, pol);
+							// PlotThisEvent(station, config, runNum, eventNumber, pol);
 
 							}
 						}
