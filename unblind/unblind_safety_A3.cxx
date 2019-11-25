@@ -129,43 +129,6 @@ int main(int argc, char **argv)
 
 	printf("The data: %s\n", the_data);
 
-	sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/100pct_try2/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_4111.root",station,config);
-	dataVTree.Add(the_data);
-	dataHTree.Add(the_data);
-	dataAllTree.Add(the_data);
-	dataFilterTree.Add(the_data);
-
-	sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/100pct_try2/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_4837.root",station,config);
-	dataVTree.Add(the_data);
-	dataHTree.Add(the_data);
-	dataAllTree.Add(the_data);
-	dataFilterTree.Add(the_data);
-
-	sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/100pct_try2/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_5660.root",station,config);
-	dataVTree.Add(the_data);
-	dataHTree.Add(the_data);
-	dataAllTree.Add(the_data);
-	dataFilterTree.Add(the_data);
-
-	sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/100pct_try2/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_5669.root",station,config);
-	dataVTree.Add(the_data);
-	dataHTree.Add(the_data);
-	dataAllTree.Add(the_data);
-	dataFilterTree.Add(the_data);
-
-	sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/100pct_try2/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_5676.root",station,config);
-	dataVTree.Add(the_data);
-	dataHTree.Add(the_data);
-	dataAllTree.Add(the_data);
-	dataFilterTree.Add(the_data);
-
-	sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/100pct_try2/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_5679.root",station,config);
-	dataVTree.Add(the_data);
-	dataHTree.Add(the_data);
-	dataAllTree.Add(the_data);
-	dataFilterTree.Add(the_data);
-
-	sprintf(the_data,"/fs/project/PAS0654/ARA_DATA/A23/100pct_try2/ValsForCuts/A%d/c%d/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_6171.root",station,config);
 	dataVTree.Add(the_data);
 	dataHTree.Add(the_data);
 	dataAllTree.Add(the_data);
@@ -647,7 +610,7 @@ int PlotThisEvent(int station, int config, int runNum, int event, int problempol
 			// map_V_raytrace_org->Draw("colz");
 			// gPad->SetRightMargin(0.15);
 		char save_temp_title[400];
-		sprintf(save_temp_title,"/users/PAS0654/osu0673/A23_analysis_new2/results/trouble_events/sideregion_%d.%d.%d_Run%d_Ev%d_Maps.png",year_now,month_now,day_now,runNum,event);
+		sprintf(save_temp_title,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/trouble_events/sideregion_%d.%d.%d_Run%d_Ev%d_Maps.png",year_now,month_now,day_now,runNum,event);
 		cMaps->SaveAs(save_temp_title);
 		delete cMaps;
 	}
@@ -682,7 +645,7 @@ int PlotThisEvent(int station, int config, int runNum, int event, int problempol
 	// 		// cMaps->cd(2);
 	// 		// map_H_raytrace->Draw("colz");
 	// 	char save_temp_title[400];
-	// 	sprintf(save_temp_title,"/users/PAS0654/osu0673/A23_analysis_new2/results/trouble_events/sideregion_%d.%d.%d_Run%d_Ev%d_VMap_OnlyStrong.png",year_now,month_now,day_now,runNum,event);
+	// 	sprintf(save_temp_title,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/trouble_events/sideregion_%d.%d.%d_Run%d_Ev%d_VMap_OnlyStrong.png",year_now,month_now,day_now,runNum,event);
 	// 	cMaps->SaveAs(save_temp_title);
 	// 	delete cMaps;
 	// }
@@ -750,7 +713,7 @@ int PlotThisEvent(int station, int config, int runNum, int event, int problempol
 		cMaps2->cd(35);
 			average->Draw("colz");
 		char save_temp_title[400];
-		sprintf(save_temp_title,"/users/PAS0654/osu0673/A23_analysis_new2/results/trouble_events/sideregion_%d.%d.%d_Run%d_Ev%d_AllMaps.png",year_now,month_now,day_now,runNum,event);
+		sprintf(save_temp_title,"/users/PCON0003/cond0068/ARA/AraRoot/analysis/plots/trouble_events/sideregion_%d.%d.%d_Run%d_Ev%d_AllMaps.png",year_now,month_now,day_now,runNum,event);
 		cMaps2->SaveAs(save_temp_title);
 		delete cMaps2;
 	}
