@@ -105,11 +105,11 @@ int main(int argc, char **argv)
   if(isBadRun(3, run_num, BadRunList)) return -1;
 	if(isSoftwareDominatedRun("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools", 3, run_num)) return -1;
   cout << "Number of events is " << numEntries << endl;
-  for(int event=0; event<numEntries; event++){//loop over events
+  for(int event=133600; event<numEntries; event++){//loop over events
     chain.GetEvent(event);
     //if(rawEvPtr->isCalpulserEvent()==false){
     int evt_num = rawEvPtr->eventNumber;//event number
-    if(evt_num!=39072) continue;
+    if(evt_num!=133861) continue;
     // cout << evt_num << endl;
 
     UsefulAtriStationEvent *realAtriEvPtr_fullcalib = new UsefulAtriStationEvent(rawEvPtr, AraCalType::kLatestCalib); //make the event
@@ -162,8 +162,8 @@ int main(int argc, char **argv)
         else newY[jj]=Waveform_Cropped->GetY()[jj];
       }
       TGraph *grPadded = new TGraph(nSamp,newX,newY);
-      TGraph* spectra = FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(grPadded);
-      graphs.push_back(grPadded);
+      TGraph* spectra = FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(Waveform_Cropped);
+      graphs.push_back(gr);
       graphs_spectra.push_back(spectra);
     }
     // if(realAtriEvPtr_fullcalib->isCalpulserEvent()==false){
@@ -213,12 +213,12 @@ int main(int argc, char **argv)
       // if(i==14) graphs[i]->GetXaxis()->SetRangeUser(0., 380.);
       // if(i==15) graphs[i]->GetXaxis()->SetRangeUser(340., 420.);
       // graphs[i]->GetXaxis()->SetRangeUser(0., 100.);
-      dummy[i]->SetTitle(ch_name);
-      dummy[i]->Draw("AP");
-      dummy[i]->SetLineColor(kWhite);
-      dummy[i]->GetYaxis()->SetRangeUser(-1500,1500);
+      // dummy[i]->SetTitle(ch_name);
+      // dummy[i]->Draw("AP");
+      // dummy[i]->SetLineColor(kWhite);
+      // dummy[i]->GetYaxis()->SetRangeUser(-1500,1500);
       graphs[i]->SetLineColor(kBlue);
-      graphs[i]->Draw("SAMEL");
+      graphs[i]->Draw("");
     }//canvas loop
 
     char h2name[60];

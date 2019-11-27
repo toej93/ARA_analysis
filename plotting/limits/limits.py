@@ -392,6 +392,8 @@ class LimitFigure:
                                 color="gold", linestyle='-.',
                                 label="GRB afterglow-ISM, Murase") # (0707.1140)
             self.neutrino_models.extend([late, wind, ism])
+            
+            
 
         else:
             raise ValueError("Unrecognized data set '"+str(name)+"'")
@@ -491,8 +493,13 @@ class LimitFigure:
 
         elif name=='auger':
             energy, flux, _, _ = self.get_data('sensitivities/auger2019.txt')
-            self.ax.plot(energy, flux*3, #Need to multiply by 3 as sensitivity data is for one neutrino flavor.
+            self.ax.plot(energy, flux,
                          color='forestgreen')
+            
+#             energy, flux, _, _ = self.get_data('sensitivities/IceCube_from_Auger.txt')
+#             self.ax.plot(energy, flux, #Need to multiply by 3/2 as sensitivity data is for one neutrino flavor.
+#                          color='pink')
+            
             if self.e_power==2:
                 self.ax.annotate('Auger',
                                  xy=(1.2e8, 1.1e-7*self.e_bins), xycoords='data',

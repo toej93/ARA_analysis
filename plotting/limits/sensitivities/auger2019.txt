@@ -1,6 +1,6 @@
 # Source: Auger 9 years, all flavour (x3)
 # Data type: Upper limit
-# Energy bins per decade: 2
+# Energy bins per decade: 1
 # Column values:
 # Energy [eV]
 # Flux [GeV cm^-2 s^-1 sr^-1]
