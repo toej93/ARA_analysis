@@ -224,8 +224,24 @@ class LimitFigure:
             energy, flux, band_min, band_max = self.get_data('sensitivities/ahlers_1.txt')
             prot10, = self.ax.plot(energy, flux,
                                    color='cornflowerblue', linestyle='-.',
-                                   label=r'Heavy/light proton composition')
+                                   label=r'1% protons, Ahlers & Halzen')
             self.neutrino_models.append(prot10)
+            energy2, flux_kot, band_min, band_max  = self.get_data('sensitivities/kotera_FRII.txt')
+            fluxInterp = np.interp(energy2, energy, flux)
+            fill2 = self.ax.fill_between(energy2, fluxInterp, flux_kot,
+                             color='0.8',label="Shaded region", alpha=0.6)
+            self.neutrino_models.append(fill2)   
+    
+            energy_SFRHiE, flux_SFRHiE, band_min, band_max  = self.get_data('sensitivities/kotera_high_e.txt')
+            fluxInterp_SFRHiE = np.interp(energy2, energy_SFRHiE, flux_SFRHiE)
+            arrow_SFRHiE = self.ax.annotate(s='', xy=(energy2[33],fluxInterp_SFRHiE[33]), xytext=(energy2[33],flux_kot[33]),                 arrowprops=dict(arrowstyle='<|-|>',color='gray'))
+            
+            energy_heavyComp, flux_heavyComp, band_min, band_max  = self.get_data('sensitivities/ahlers_100.txt')
+            fluxInterp_heavyComp = np.interp(energy2, energy_heavyComp, flux_heavyComp)
+            arrow_heavyComp = self.ax.annotate(s='', xy=(energy2[33],fluxInterp_heavyComp[33]), xytext=(energy2[33],fluxInterp[33]), arrowprops=dict(arrowstyle='<|-|>',color='green'))
+            
+
+#             self.neutrino_models.append([arrow_SFRHiE,arrow_heavyComp])
             
         elif name=='ahlers_100':
             energy, flux, band_min, band_max = self.get_data('sensitivities/ahlers_100.txt')
@@ -364,6 +380,8 @@ class LimitFigure:
                 
         elif name=='kotera_FRII':
                 energy, flux, band_min, band_max = self.get_data('sensitivities/kotera_FRII.txt')
+#                 energy2, flux2, band_min, band_max  = self.get_data('sensitivities/vanvliet19_highE_hard.txt')
+#                 fluxInterp = np.interp(energy2, energy, flux)
                 prot10, = self.ax.plot(energy, flux,
                                        color='darkmagenta', linestyle='-.',
                                        label=r'FRII evolution')
@@ -372,9 +390,16 @@ class LimitFigure:
         elif name=='vanvliet19_highE_hard':
                 energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19_highE_hard.txt')
                 prot10, = self.ax.plot(energy, flux,
-                                       color='royalblue', linestyle='-.',
+                                       color='red', linestyle='-.',
                                        label=r'$E_{max}=10^{14}$ GeV, $\alpha=2.0$')
                 self.neutrino_models.append(prot10)
+#                 energy2, flux_kot, band_min, band_max  = self.get_data('sensitivities/kotera_FRII.txt')
+#                 fluxInterp = np.interp(energy, energy2, flux_kot)
+#                 fill2=self.ax.fill_between(energy, flux, fluxInterp,
+#                                  color='0.8',label="Shaded region", alpha=0.6)
+#                 self.neutrino_models.append(fill2)
+
+                
                 
                 
 
@@ -530,9 +555,22 @@ class LimitFigure:
                 self.ax.annotate('ARA (2x4yr)',
                                  xy=(2e8, 9e-16*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='#2288AA', rotation=-50)
-                self.ax.annotate('ARA 2023 (SES)',
-                                 xy=(5e7, 2e-16*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='black', rotation=-47)
+#                 self.ax.annotate('ARA 2023 (SES)',
+#                                  xy=(5e7, 2e-16*self.e_bins), xycoords='data',
+#                                  horizontalalignment='left', color='black', rotation=-47)
+
+        elif name=='arianna':
+            energy, flux, _, _ = self.get_data('sensitivities/arianna_2019.txt')
+            self.ax.plot(energy, flux,
+                         color='firebrick')
+            if self.e_power==2:
+                self.ax.annotate('ARIANNA',
+                                 xy=(1.2e8, 1.1e-7*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='forestgreen', rotation=-40)
+            if self.e_power==1:
+                self.ax.annotate('ARIANNA',
+                                 xy=(5e9, 6e-16*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='firebrick', rotation=-25, fontsize=12)
     
         else:
             raise ValueError("Unrecognized data set '"+str(name)+"'")
@@ -570,7 +608,7 @@ class LimitFigure:
         elif group=='ara':
             if experiments is None:
                 experiments = ['anita', 'auger', 'ara',
-                               'ice_cube_ehe', 'ice_cube_hese_data', 'ice_cube_mu_fit']
+                               'ice_cube_ehe', 'ice_cube_hese_data', 'ice_cube_mu_fit', 'arianna']
             if models is None:
                 models = ['kotera', 'ahlers']
         elif group=='ara_src':
