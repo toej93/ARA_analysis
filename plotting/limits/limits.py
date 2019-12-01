@@ -229,16 +229,16 @@ class LimitFigure:
             energy2, flux_kot, band_min, band_max  = self.get_data('sensitivities/kotera_FRII.txt')
             fluxInterp = np.interp(energy2, energy, flux)
             fill2 = self.ax.fill_between(energy2, fluxInterp, flux_kot,
-                             color='0.8',label="Shaded region", alpha=0.6)
+                             color='0.8',label="", alpha=0.6)
             self.neutrino_models.append(fill2)   
     
             energy_SFRHiE, flux_SFRHiE, band_min, band_max  = self.get_data('sensitivities/kotera_high_e.txt')
             fluxInterp_SFRHiE = np.interp(energy2, energy_SFRHiE, flux_SFRHiE)
-            arrow_SFRHiE = self.ax.annotate(s='', xy=(energy2[33],fluxInterp_SFRHiE[33]), xytext=(energy2[33],flux_kot[33]),                 arrowprops=dict(arrowstyle='<|-|>',color='gray'))
+            arrow_SFRHiE = self.ax.annotate(s='', xy=(energy2[33],fluxInterp_SFRHiE[33]), xytext=(energy2[33],flux_kot[33]),                 arrowprops=dict(arrowstyle='<|-|>',color='gray',lw=2))
             
             energy_heavyComp, flux_heavyComp, band_min, band_max  = self.get_data('sensitivities/ahlers_100.txt')
             fluxInterp_heavyComp = np.interp(energy2, energy_heavyComp, flux_heavyComp)
-            arrow_heavyComp = self.ax.annotate(s='', xy=(energy2[33],fluxInterp_heavyComp[33]), xytext=(energy2[33],fluxInterp[33]), arrowprops=dict(arrowstyle='<|-|>',color='green'))
+            arrow_heavyComp = self.ax.annotate(s='', xy=(energy2[45],fluxInterp_heavyComp[45]), xytext=(energy2[45],fluxInterp[45]), arrowprops=dict(arrowstyle='<|-|>',color='gray',lw=2))
             
 
 #             self.neutrino_models.append([arrow_SFRHiE,arrow_heavyComp])
@@ -343,14 +343,18 @@ class LimitFigure:
             
         elif name=='van_vliet2019':
                 energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19.txt')
-                prot10, = self.ax.plot(energy, flux,
-                                       color='orchid', linestyle='-.',
-                                       label=r'High/Low $E_{max}$')
+#                 prot10, = self.ax.plot(energy, flux,
+#                                        color='orchid', linestyle='-.',
+#                                        label=r'High/Low $E_{max}$')
     #             prot = self.ax.fill_between(energy, band_min, band_max,
     #                                         color='orchid', alpha=0.25,
     #                                         label=r'not excluded from UHECRs')
     #             self.neutrino_models.append(prot)
-                self.neutrino_models.append(prot10)
+#                 self.neutrino_models.append(prot10)
+        
+                energy_lowE, flux_lowE, band_min, band_max  = self.get_data('sensitivities/vanvliet19_Elow.txt')
+                fluxInterp_lowE = np.interp(energy, energy_lowE, flux_lowE)
+                arrow_heavyComp = self.ax.annotate(s='', xy=(energy[38]+6e9,fluxInterp_lowE[38]), xytext=(4e10,fluxInterp_lowE[38]), arrowprops=dict(arrowstyle='<|-|>',color='gray',lw=2))
         
         elif name=='van_vliet2019_Elow':
                 energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19_Elow.txt')
@@ -374,8 +378,9 @@ class LimitFigure:
         elif name=='diagonal':
                 energy, flux, band_min, band_max = self.get_data('sensitivities/diagonal_E2dNdE.txt')
                 prot10, = self.ax.plot(energy, flux,
-                                       color='gray', linestyle='--',
-                                       label=r'$E^2\frac{dN}{dE}=10^{-9}$ [GeV$\,cm^{-2}\, s^{-1} \,sr^{-1}]$')
+                                       color='gray', linestyle='--')#,
+#                                        label=r'$E^2\frac{dN}{dE}=10^{-9}$ [GeV$\,cm^{-2}\, s^{-1} \,sr^{-1}]$')
+                self.ax.annotate("$E^2dN/dE=10^{-9}$ [GeV$\,cm^{-2}\, s^{-1} \,sr^{-1}]$",(1e6,1e-15),rotation=-43, color="0.2")
                 self.neutrino_models.append(prot10)
                 
         elif name=='kotera_FRII':
@@ -389,7 +394,7 @@ class LimitFigure:
                 
         elif name=='vanvliet19_highE_hard':
                 energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19_highE_hard.txt')
-                prot10, = self.ax.plot(energy, flux,
+                prot10, = self.ax.plot(energy[26:], flux[26:],
                                        color='red', linestyle='-.',
                                        label=r'$E_{max}=10^{14}$ GeV, $\alpha=2.0$')
                 self.neutrino_models.append(prot10)
@@ -531,29 +536,29 @@ class LimitFigure:
                                  horizontalalignment='left', color='forestgreen', rotation=-40)
             if self.e_power==1:
                 self.ax.annotate('Auger',
-                                 xy=(2.3e10,1.1e-17*self.e_bins), xycoords='data',
+                                 xy=(3e10,7e-18*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='forestgreen', rotation=-8)
 
         elif name=='ara':
-            energy, flux, _, _ = self.get_data('sensitivities/ara_ming.txt')
+            energy, flux, _, _ = self.get_data('sensitivities/ara_2019.txt')
             self.ax.plot(energy, flux,
                          color='#2288AA')
             energy, flux, _, _ = self.get_data('sensitivities/ara_projected.txt')
-            self.ax.plot(energy, flux,
-                         color='#2288AA', linestyle='--')
+#             self.ax.plot(energy, flux,
+#                          color='#2288AA', linestyle='--')
             if self.e_power==2:
-                self.ax.annotate('ARA (2x1yr)',
-                                 xy=(3e8, 6e-7*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='#2288AA', rotation=-10)
+#                 self.ax.annotate('ARA (2x1yr)',
+#                                  xy=(3e8, 6e-7*self.e_bins), xycoords='data',
+#                                  horizontalalignment='left', color='#2288AA', rotation=-10)
                 self.ax.annotate('ARA (2x4yr)',
                                  xy=(3e8, 1.5e-7*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='#2288AA', rotation=-10)
             if self.e_power==1:
-                self.ax.annotate('ARA (2x1yr)',
-                                 xy=(3.5e8, 4e-15*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='#2288AA', rotation=-50)
+#                 self.ax.annotate('ARA (2x1yr)',
+#                                  xy=(3.5e8, 4e-15*self.e_bins), xycoords='data',
+#                                  horizontalalignment='left', color='#2288AA', rotation=-50)
                 self.ax.annotate('ARA (2x4yr)',
-                                 xy=(2e8, 9e-16*self.e_bins), xycoords='data',
+                                 xy=(3.5e8, 9e-16*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='#2288AA', rotation=-50)
 #                 self.ax.annotate('ARA 2023 (SES)',
 #                                  xy=(5e7, 2e-16*self.e_bins), xycoords='data',
@@ -569,8 +574,8 @@ class LimitFigure:
                                  horizontalalignment='left', color='forestgreen', rotation=-40)
             if self.e_power==1:
                 self.ax.annotate('ARIANNA',
-                                 xy=(5e9, 6e-16*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='firebrick', rotation=-25, fontsize=12)
+                                 xy=(5e9, 4.3e-16*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='firebrick', rotation=-28)
     
         else:
             raise ValueError("Unrecognized data set '"+str(name)+"'")

@@ -1,0 +1,19 @@
+# Source: A23 Four-Year Real Limit
+# Data type: Upper limit
+# Energy bins per decade: 1
+# Column values:
+# Energy [eV]
+# Flux [eV cm^-2 s^-1 sr^-1]
+# Flux band minimum
+# Flux band maximum
+1.00E+16	77260	0	0
+3.16E+16	7407.04	0	0
+1.00E+17	1753 	0	0
+3.16E+17	678.768	0	0
+1.00E+18	391.6	0	0
+3.16E+18	313.946	0	0
+1.00E+19	297.1	0	0
+3.16E+19	370.668	0	0
+1.00E+20	525.8	0	0
+3.16E+20	813.068	0	0
+1.00E+21	1475	0	0
