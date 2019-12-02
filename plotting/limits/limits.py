@@ -222,23 +222,23 @@ class LimitFigure:
             
         elif name=='ahlers_1':
             energy, flux, band_min, band_max = self.get_data('sensitivities/ahlers_1.txt')
-            prot10, = self.ax.plot(energy, flux,
-                                   color='cornflowerblue', linestyle='-.',
-                                   label=r'1% protons, Ahlers & Halzen')
-            self.neutrino_models.append(prot10)
+#             prot10, = self.ax.plot(energy, flux,
+#                                    color='cornflowerblue', linestyle='-.',
+#                                    label=r'1% protons, Ahlers & Halzen')
+#             self.neutrino_models.append(prot10)
             energy2, flux_kot, band_min, band_max  = self.get_data('sensitivities/kotera_FRII.txt')
             fluxInterp = np.interp(energy2, energy, flux)
             fill2 = self.ax.fill_between(energy2, fluxInterp, flux_kot,
-                             color='0.8',label="", alpha=0.6)
+                             color='red',label="Cosmogenic", alpha=0.1)
             self.neutrino_models.append(fill2)   
     
             energy_SFRHiE, flux_SFRHiE, band_min, band_max  = self.get_data('sensitivities/kotera_high_e.txt')
             fluxInterp_SFRHiE = np.interp(energy2, energy_SFRHiE, flux_SFRHiE)
-            arrow_SFRHiE = self.ax.annotate(s='', xy=(energy2[33],fluxInterp_SFRHiE[33]), xytext=(energy2[33],flux_kot[33]),                 arrowprops=dict(arrowstyle='<|-|>',color='gray',lw=2))
+            arrow_SFRHiE = self.ax.annotate(s='', xy=(energy2[33],fluxInterp_SFRHiE[33]), xytext=(energy2[33],flux_kot[33]),                 arrowprops=dict(arrowstyle='<|-|>',color='rosybrown',lw=2))
             
             energy_heavyComp, flux_heavyComp, band_min, band_max  = self.get_data('sensitivities/ahlers_100.txt')
             fluxInterp_heavyComp = np.interp(energy2, energy_heavyComp, flux_heavyComp)
-            arrow_heavyComp = self.ax.annotate(s='', xy=(energy2[45],fluxInterp_heavyComp[45]), xytext=(energy2[45],fluxInterp[45]), arrowprops=dict(arrowstyle='<|-|>',color='gray',lw=2))
+            arrow_heavyComp = self.ax.annotate(s='', xy=(energy2[45],fluxInterp_heavyComp[45]), xytext=(energy2[45],fluxInterp[45]), arrowprops=dict(arrowstyle='<|-|>',color='rosybrown',lw=2))
             
 
 #             self.neutrino_models.append([arrow_SFRHiE,arrow_heavyComp])
@@ -266,7 +266,14 @@ class LimitFigure:
                                    color='blue', linestyle='-.',
                                    label=r'SFR $E_{max}=10^{20.5}$, Kotera et al.') # (1009.1382)
             self.neutrino_models.extend([kotera_high, kotera])#[compositions, kotera_high, kotera])
-
+        
+        elif name=='kotera_grb':
+            energy, flux, _, _ = self.get_data('sensitivities/kotera_GRB.txt')
+            ns_merger, = self.ax.plot(energy, flux,
+                                      color='green', linestyle=(0, (3, 5, 1, 5)),
+                                      label='Kotera GRB') # (1707.04263)
+            self.neutrino_models.append(ns_merger)
+            
         elif name=='fang_merger':
             energy, flux, _, _ = self.get_data('sensitivities/fang_ns_merger.txt')
             ns_merger, = self.ax.plot(energy, flux,
@@ -280,6 +287,23 @@ class LimitFigure:
                                             color='pink', alpha=0.5,
                                             label="Pulsar, Fang et al.") # (1311.2044)
             self.neutrino_models.append(p_pulsar)
+            
+        elif name=='fang_pulsar_max':
+            energy, _, _, band_max = self.get_data('sensitivities/fang_pulsar.txt')
+            energy2, flux_kot, _, _  = self.get_data('sensitivities/kotera_FRII.txt')
+            fluxInterp = np.interp(energy2, energy, band_max)
+#             fill2 = self.ax.fill_between(energy2, fluxInterp, flux_kot,
+#                              color='0.8',label="", alpha=0.6)
+#             self.neutrino_models.append(fill2)  
+            
+#             p_pulsar, = self.ax.plot(energy2, (fluxInterp+flux_kot)/4.4,
+#                                             color='teal',
+#                                             linestyle="--",
+#                                             label="Pulsar (upper limit)+Kotera FRII (scaled)") # (1311.2044)
+#             self.neutrino_models.append(p_pulsar)
+            
+            
+            
             
         elif name=='fang_cluster':
             energy, flux, _, _ = self.get_data('sensitivities/fang_cluster.txt')
@@ -309,7 +333,7 @@ class LimitFigure:
         elif name=='murase_agn':
             energy, flux, _, _ = self.get_data('sensitivities/murase_agn.txt')
             agn, = self.ax.plot(energy, flux,
-                                color="red", linestyle='--',
+                                color="saddlebrown", linestyle='--',
                                 label="AGN, Murase") # (1511.01590)
             self.neutrino_models.append(agn)
             
@@ -354,7 +378,7 @@ class LimitFigure:
         
                 energy_lowE, flux_lowE, band_min, band_max  = self.get_data('sensitivities/vanvliet19_Elow.txt')
                 fluxInterp_lowE = np.interp(energy, energy_lowE, flux_lowE)
-                arrow_heavyComp = self.ax.annotate(s='', xy=(energy[38]+6e9,fluxInterp_lowE[38]), xytext=(4e10,fluxInterp_lowE[38]), arrowprops=dict(arrowstyle='<|-|>',color='gray',lw=2))
+                arrow_heavyComp = self.ax.annotate(s='', xy=(energy[37]+3e9,fluxInterp_lowE[37]), xytext=(2.5e10,fluxInterp_lowE[37]), arrowprops=dict(arrowstyle='<|-|>',color='rosybrown',lw=2))
         
         elif name=='van_vliet2019_Elow':
                 energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19_Elow.txt')
@@ -380,16 +404,16 @@ class LimitFigure:
                 prot10, = self.ax.plot(energy, flux,
                                        color='gray', linestyle='--')#,
 #                                        label=r'$E^2\frac{dN}{dE}=10^{-9}$ [GeV$\,cm^{-2}\, s^{-1} \,sr^{-1}]$')
-                self.ax.annotate("$E^2dN/dE=10^{-9}$ [GeV$\,cm^{-2}\, s^{-1} \,sr^{-1}]$",(1e6,1e-15),rotation=-43, color="0.2")
+                self.ax.annotate("$E^2dN/dE=10^{-9}$ [GeV$\,cm^{-2}\, s^{-1} \,sr^{-1}]$",(1e6,1e-15),rotation=-43, color="gray")
                 self.neutrino_models.append(prot10)
                 
-        elif name=='kotera_FRII':
+        elif name=='kotera_FRII':#3.9
                 energy, flux, band_min, band_max = self.get_data('sensitivities/kotera_FRII.txt')
 #                 energy2, flux2, band_min, band_max  = self.get_data('sensitivities/vanvliet19_highE_hard.txt')
 #                 fluxInterp = np.interp(energy2, energy, flux)
-                prot10, = self.ax.plot(energy, flux,
-                                       color='darkmagenta', linestyle='-.',
-                                       label=r'FRII evolution')
+                prot10, = self.ax.plot(energy, flux/3.9, 
+                                       color='firebrick', linestyle='-',
+                                       label=r'FRII evolution - saturate limits')
                 self.neutrino_models.append(prot10)
                 
         elif name=='vanvliet19_highE_hard':
@@ -409,19 +433,26 @@ class LimitFigure:
                 
 
         elif name=='murase_grb':
-            energy, flux, _, _ = self.get_data('sensitivities/murase_grb_late_prompt.txt')
-            late, = self.ax.plot(energy, flux,
-                                 color="saddlebrown", linestyle='-.',
-                                 label="GRB afterglow-late prompt, Murase") # (0707.1140)
+#             energy, flux, _, _ = self.get_data('sensitivities/murase_grb_late_prompt.txt')
+#             late, = self.ax.plot(energy, flux,
+#                                  color="saddlebrown", linestyle='-.',
+#                                  label="GRB afterglow-late prompt, Murase") # (0707.1140)
             energy, flux, _, _ = self.get_data('sensitivities/murase_grb_wind.txt')
-            wind, = self.ax.plot(energy, flux,
-                                 color="goldenrod", linestyle='-.',
-                                 label="GRB afterglow-wind, Murase") # (0707.1140)
-            energy, flux, _, _ = self.get_data('sensitivities/murase_grb_ism.txt')
-            ism, = self.ax.plot(energy, flux,
-                                color="gold", linestyle='-.',
-                                label="GRB afterglow-ISM, Murase") # (0707.1140)
-            self.neutrino_models.extend([late, wind, ism])
+#             wind, = self.ax.plot(energy, flux,
+#                                  color="goldenrod", linestyle='-.',
+#                                  label="GRB afterglow-wind, Murase") # (0707.1140)
+#             energy, flux, _, _ = self.get_data('sensitivities/murase_grb_ism.txt')
+#             ism, = self.ax.plot(energy, flux,
+#                                 color="gold", linestyle='-.',
+#                                 label="GRB afterglow-ISM, Murase") # (0707.1140)
+#             self.neutrino_models.extend([late, wind, ism])
+#             self.neutrino_models.append(wind)
+           
+            energy2, _, _, band_max = self.get_data('sensitivities/fang_pulsar.txt')
+            fluxInterp = np.interp(energy2, energy, flux)
+            fill2 = self.ax.fill_between(energy2, fluxInterp, band_max,
+                             color='blue',label="Astrophysical", alpha=0.1)
+            self.neutrino_models.append(fill2)   
             
             
 
@@ -536,8 +567,8 @@ class LimitFigure:
                                  horizontalalignment='left', color='forestgreen', rotation=-40)
             if self.e_power==1:
                 self.ax.annotate('Auger',
-                                 xy=(3e10,7e-18*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='forestgreen', rotation=-8)
+                                 xy=(9.5e7,6e-16*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='forestgreen', rotation=-49)
 
         elif name=='ara':
             energy, flux, _, _ = self.get_data('sensitivities/ara_2019.txt')
@@ -558,7 +589,7 @@ class LimitFigure:
 #                                  xy=(3.5e8, 4e-15*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='#2288AA', rotation=-50)
                 self.ax.annotate('ARA (2x4yr)',
-                                 xy=(3.5e8, 9e-16*self.e_bins), xycoords='data',
+                                 xy=(3.1e8, 9e-16*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='#2288AA', rotation=-50)
 #                 self.ax.annotate('ARA 2023 (SES)',
 #                                  xy=(5e7, 2e-16*self.e_bins), xycoords='data',
@@ -674,8 +705,9 @@ class LimitFigure:
             self.ax.add_artist(plt.legend(handles=self.neutrino_models, loc=4, fontsize=legend_size))
             self.ax.add_artist(plt.legend(handles=self.custom_limits, loc=2, fontsize=legend_size))
         elif self.e_power==1:
-            self.ax.add_artist(plt.legend(handles=self.neutrino_models, loc=3, fontsize=legend_size))
-            self.ax.add_artist(plt.legend(handles=self.custom_limits, loc=1, fontsize=legend_size))
+            joined = self.neutrino_models+self.custom_limits
+            self.ax.add_artist(plt.legend(handles=joined, loc=3,fontsize=legend_size))
+#             self.ax.add_artist(plt.legend(handles=self.custom_limits, loc=1, fontsize=legend_size))
         plt.tight_layout()
         if save_name is not None:
             plt.savefig(save_name, *args, **kwargs)

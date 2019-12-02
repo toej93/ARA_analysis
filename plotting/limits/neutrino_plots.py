@@ -65,7 +65,7 @@ def plot_neutrinos_by_year_ara(fluxes, energies, veff_additions, styles=None,
     else:
         plt.xlim(*xlim)
 #     plt.ylim(0, plt.ylim()[1])
-    plt.ylim(0, 5)
+    plt.ylim(0, 10)
     plt.axvline(2019, c='k', ls='--')
 #     ticks = plt.xticks()[0]
 #   plt.xticks(ticks[ticks%0==0], [str(int(tick)) for tick in ticks[ticks%1==0]])
@@ -124,6 +124,11 @@ kotera3 = LimitFigure._read_data('sensitivities/kotera_high_e.txt')
 def kotera_high_e_flux(energies):
     return np.interp(energies, kotera3[0], kotera3[1]*kotera3[0]**(-1-kotera3[4]['energy_power']))
 
+kotera_FR2 = LimitFigure._read_data('sensitivities/kotera_FRII.txt')
+def kotera_FRII(energies):#scaled
+    return np.interp(energies, kotera_FR2[0], (kotera_FR2[1]/3.9)*kotera_FR2[0]**(-1-kotera_FR2[4]['energy_power']))
+
+
 
 biehl = LimitFigure._read_data('sensitivities/biehl_tde.txt')
 def biehl_tde_flux(energies):
@@ -171,6 +176,9 @@ murase_grb_late = LimitFigure._read_data('sensitivities/murase_grb_late_prompt.t
 def murase_grb_late_flux(energies):
     return np.interp(energies, murase_grb_late[0], murase_grb_late[1]*murase_grb_late[0]**(-1-murase_grb_late[4]['energy_power']))
 
+def pulsar_koteraFRII(energies):
+    kotera_interp=np.interp(fang_pulsar[0],kotera_FR2[0],kotera_FR2[1])
+    return np.interp(energies, fang_pulsar[0], ((fang_pulsar[3]+kotera_interp)/4.4)*fang_pulsar[0]**(-1-fang_pulsar[4]['energy_power']))
 
 
 if __name__=="__main__":
