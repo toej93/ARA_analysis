@@ -210,8 +210,6 @@ if __name__=="__main__":
                                stations=["ARA 1", "ARA 1-3", "ARA 1-3", "ARA 1-3", "ARA 1-3", "ARA 1-3", "ARA 1-5"],
                                save_name='yearly_neutrinos_ara_fluxes.pdf')
 
-
-
     fluxes = {
         "AGN, Murase": murase_agn_flux,
         "GRB afterglow-late prompt, Murase": murase_grb_late_flux,

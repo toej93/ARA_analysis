@@ -467,7 +467,7 @@ class LimitFigure:
                                  xy=(1e6, 5e-8), xycoords='data',
                                  horizontalalignment='center', color='dodgerblue', rotation=0)
             if self.e_power==1:
-                self.ax.annotate('IceCube \n (LIMIT)',
+                self.ax.annotate('IceCube \n (9yr limit)',
                                  xy=(1.3e7, 2.1e-15), xycoords='data',
                                  horizontalalignment='center', color='dodgerblue', rotation=-30)
 
@@ -562,13 +562,13 @@ class LimitFigure:
 #                          color='pink')
             
             if self.e_power==2:
-                self.ax.annotate('Auger',
+                self.ax.annotate('Auger (14.7yr)',
                                  xy=(1.2e8, 1.1e-7*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='forestgreen', rotation=-40)
             if self.e_power==1:
-                self.ax.annotate('Auger',
-                                 xy=(9.5e7,6e-16*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='forestgreen', rotation=-49)
+                self.ax.annotate('Auger (14.7yr)',
+                                 xy=(9.e7,8e-16*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='forestgreen', rotation=-58)
 
         elif name=='ara':
             energy, flux, _, _ = self.get_data('sensitivities/ara_2019.txt')
@@ -604,7 +604,7 @@ class LimitFigure:
                                  xy=(1.2e8, 1.1e-7*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='forestgreen', rotation=-40)
             if self.e_power==1:
-                self.ax.annotate('ARIANNA',
+                self.ax.annotate('ARIANNA (4.5yr)',
                                  xy=(5e9, 4.3e-16*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='firebrick', rotation=-28)
     

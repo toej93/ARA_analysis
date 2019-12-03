@@ -1,4 +1,4 @@
-# Source: Auger 9 years, all flavour (x3)
+# Source: Auger 14.7 years, single flavour [https://arxiv.org/pdf/1906.07422.pdf]
 # Data type: Upper limit
 # Energy bins per decade: 1
 # Column values:
