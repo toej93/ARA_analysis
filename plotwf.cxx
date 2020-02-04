@@ -57,6 +57,8 @@
 #include "TPaletteAxis.h"
 #include "CalibUtil.h"
 #include "AraGeomTool.h"
+#include "SNR_defs.h"
+
 TStyle* RootStyle();
 
 using namespace std;
@@ -140,23 +142,40 @@ int main(int argc, char **argv)
         c2->SaveAs(h3name);
         delete c2;
 
-
-        TCanvas *c3 = new TCanvas("","",1550,1550);
-        c3->Divide(4,4);
+        TCanvas *c4 = new TCanvas("","",1550,1550);
+        c4->Divide(4,4);
         for(int i=0; i<16; i++){//canvas loop
           char ch_name[20];
           sprintf(ch_name,"chan %d",i);
-          c3->cd(i+1);
+          c4->cd(i+1);
           // temp_phs[i]->SetTitle(ch_name);
-          TGraph *fft = FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(grWaveformsRaw[i]);
-          fft->Draw("AL");
-          fft->GetYaxis()->SetRangeUser(1,1e5);
-          gPad->SetLogy();
+          TGraph *sumV2 = getSqrtVoltageSquaredSummedWaveform(grWaveformsRaw[i],0);
+          sumV2->Draw("AL");
         }//canvas loop
         char h4name[60];
-        sprintf(h4name,"./plots/spectra/spectra_A%d_%d_event%d_run%d.png",station, year, event, runNum);
-        c3->SaveAs(h4name);
-        delete c3;
+        sprintf(h4name,"./plots/summedV2/summedV2_A%d_%d_event%d_run%d.png",station, year, event, runNum);
+        c4->SaveAs(h4name);
+        delete c4;
+
+
+        // TCanvas *c3 = new TCanvas("","",1550,1550);
+        // c3->Divide(4,4);
+        // for(int i=0; i<16; i++){//canvas loop
+        //   char ch_name[20];
+        //   sprintf(ch_name,"chan %d",i);
+        //   c3->cd(i+1);
+        //   // temp_phs[i]->SetTitle(ch_name);
+        //   TGraph *fft = FFTtools::makePowerSpectrumMilliVoltsNanoSeconds(grWaveformsRaw[i]);
+        //   fft->Draw("AL");
+        //   fft->GetYaxis()->SetRangeUser(1,1e5);
+        //   gPad->SetLogy();
+        // }//canvas loop
+        // char h4name[60];
+        // sprintf(h4name,"./plots/spectra/spectra_A%d_%d_event%d_run%d.png",station, year, event, runNum);
+        // // c3->SaveAs(h4name);
+        // delete c3;
+
+
         cout << "\033[1;31mDONE\033[0m\n";
 
         /*

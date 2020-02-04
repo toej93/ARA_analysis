@@ -27,7 +27,7 @@ UsefulAtriStationEvent *realAtriEvPtr;
 
 #include "AraAntennaInfo.h"
 #include "AraQualCuts.h"
-#include "RayTraceCorrelator.h"
+
 
 #include "tools_inputParameters.h"
 #include "tools_outputObjects.h"
@@ -37,7 +37,7 @@ UsefulAtriStationEvent *realAtriEvPtr;
 #include "tools_Constants.h"
 #include "tools_RecoFns.h"
 #include "tools_Cuts.h"
-
+#include "SNR_defs.h"
 
 int main (){
 
