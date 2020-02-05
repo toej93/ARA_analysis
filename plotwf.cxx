@@ -157,6 +157,11 @@ int main(int argc, char **argv)
         c4->SaveAs(h4name);
         delete c4;
 
+        float v2SNRArray[16];
+        getChannelSlidingV2SNR_UW(grWaveformsRaw, 1, 1, v2SNRArray);
+        for(int k=0;k<grWaveformsRaw.size();k++){
+          cout << v2SNRArray[k] << endl;
+        }
 
         // TCanvas *c3 = new TCanvas("","",1550,1550);
         // c3->Divide(4,4);

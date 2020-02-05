@@ -103,9 +103,10 @@ void setMeanAndSigmaInNoMax(TGraph *gr, double *stats){
 
 }
 
-void getChannelSlidingV2SNR(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *snrArray){
+void getChannelSlidingV2SNR_UW(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *snrArray){
 /*
-* Returns the sliding V^2 SNR peak time as the number of sigmas between the V^2 peak and mean for all channels. This is Thomas' definition of SNR
+Returns the sliding V^2 SNR peak time as the number of sigmas between the V^2 peak and mean for all channels. This is UW definition of SNR
+inputs: vector of TGraphs, sampling for V and H channels, SNR array to be filled.
 */
    double sigma;
    double mean;
