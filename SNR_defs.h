@@ -28,6 +28,7 @@ TGraph* getSqrtVoltageSquaredSummedWaveform(TGraph *gr, int nIntSamp){
    TGraph *grV2Summed = new TGraph();
    double t, v, t0;
    double sum;
+    // cout << gr->GetN() << endl;
    for(int p=0; p<gr->GetN()-nIntSamp; p++){
 
       sum=0.;

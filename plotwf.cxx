@@ -149,7 +149,7 @@ int main(int argc, char **argv)
           sprintf(ch_name,"chan %d",i);
           c4->cd(i+1);
           // temp_phs[i]->SetTitle(ch_name);
-          TGraph *sumV2 = getSqrtVoltageSquaredSummedWaveform(grWaveformsRaw[i],0);
+          TGraph *sumV2 = getSqrtVoltageSquaredSummedWaveform(grWaveformsRaw[i],1);
           sumV2->Draw("AL");
         }//canvas loop
         char h4name[60];
