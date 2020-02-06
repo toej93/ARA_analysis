@@ -158,7 +158,11 @@ void getChannelSlidingV2SNR_UW(const vector<TGraph *>& cleanEvent, int nIntSamp_
 
 
 void getThirdVPeakOverRMS_OSU(const vector<TGraph *>& grWaveformsInt, vector<int> polarizations, vector<int> antenna_numbers, vector<int> chan_exclusion_list, double RMS_SoftTrigger[16], double RMS_RFTrigger[16], vector<double> &ThirdVpeakOverRms){
-
+/*
+Inputs: already interpolated vecctor of waveforms (TGraphs), vector with polarisations for each channel (16), a vector with the antenna number, a vector with any excluded channels, an array with the rms of soft triggers, and array with the
+rms of RF triggers, a vector to be filled with the 3rd peak over rms.
+Outputs: A vector with 3rdvPeakOverRms for vpol channels as a first entry, 3rdvPeakOverRms for hpol channels as a second entry, the highest of the two previous entry as a 3rd entry.
+*/
   vector<double> VPeak;
   vector<double> VPeakTimes;
 
