@@ -157,7 +157,7 @@ void getChannelSlidingV2SNR_UW(const vector<TGraph *>& cleanEvent, int nIntSamp_
 
 
 
-void getThirdVPeakOverRMS(const vector<TGraph *>& grWaveformsInt, vector<int> polarizations, vector<int> antenna_numbers, vector<int> chan_exclusion_list, double RMS_SoftTrigger[16], double RMS_RFTrigger[16], vector<double> &ThirdVpeakOverRms){
+void getThirdVPeakOverRMS_OSU(const vector<TGraph *>& grWaveformsInt, vector<int> polarizations, vector<int> antenna_numbers, vector<int> chan_exclusion_list, double RMS_SoftTrigger[16], double RMS_RFTrigger[16], vector<double> &ThirdVpeakOverRms){
 
   vector<double> VPeak;
   vector<double> VPeakTimes;
@@ -181,39 +181,41 @@ void getThirdVPeakOverRMS(const vector<TGraph *>& grWaveformsInt, vector<int> po
   double interpolationTimeStep = grWaveformsInt[0]->GetX()[1]-grWaveformsInt[0]->GetX()[0];
   int first50ns = (int)(50./interpolationTimeStep);
   getRMS(grWaveformsInt, waveformRMS_50ns, first50ns);
-
   vector<double> VPeakOverRMS;
   VPeakOverRMS.resize(16);
   for (int i = 0; i < 16; i++){
     VPeakOverRMS[i] = VPeak[i]/WaveformRMS[i];
   }
 
-  vector<double> ThirdVPeakOverRMS;
-  vector<double> vPeakOverRms;
+  vector<double> ThirdVPeakOverRms;
+  // vector<double> vPeakOverRms;
 
-  ThirdVPeakOverRMS.resize(3);
+  ThirdVPeakOverRms.resize(3);
 
   vector<double> vPeakOverRms_V;
   vector<double> vPeakOverRms_H;
   vector<double> vPeakOverRms_Total;
 
-  for (int chan = 0; chan < vPeakOverRms.size(); chan++){
+  for (int chan = 0; chan < VPeakOverRMS.size(); chan++){
     if(std::find(chan_exclusion_list.begin(), chan_exclusion_list.end(), antenna_numbers[chan]) == chan_exclusion_list.end()){ //if this channel is *not* excluded
       if (polarizations[chan] == 0){
-        vPeakOverRms_V.push_back(vPeakOverRms[chan]);
+        vPeakOverRms_V.push_back(VPeakOverRMS[chan]);
       }
       if (polarizations[chan] == 1){
-        vPeakOverRms_H.push_back(vPeakOverRms[chan]);
+        vPeakOverRms_H.push_back(VPeakOverRMS[chan]);
       }
-      vPeakOverRms_Total.push_back(vPeakOverRms[chan]);
+      vPeakOverRms_Total.push_back(VPeakOverRMS[chan]);
     }
   }
 
   sort(vPeakOverRms_V.begin(), vPeakOverRms_V.end());
   sort(vPeakOverRms_H.begin(), vPeakOverRms_H.end());
   sort(vPeakOverRms_Total.begin(), vPeakOverRms_Total.end());
+  // printf("Size: %i \n",(int)vPeakOverRms_Total.size());
+  // cout << "\033[1;31mHERE!\033[0m\n";
+  ThirdVpeakOverRms.push_back(vPeakOverRms_V[(int)vPeakOverRms_V.size()-3]);
+  ThirdVpeakOverRms.push_back(vPeakOverRms_H[(int)vPeakOverRms_H.size()-3]);
+  ThirdVpeakOverRms.push_back(vPeakOverRms_Total[(int)vPeakOverRms_Total.size()-3]);
+  for(int l=0;l<ThirdVpeakOverRms.size();l++) cout << ThirdVpeakOverRms[l] << endl;
 
-  ThirdVpeakOverRms[0] = vPeakOverRms_V[(int)vPeakOverRms_V.size()-3];
-  ThirdVpeakOverRms[1] = vPeakOverRms_H[(int)vPeakOverRms_H.size()-3];
-  ThirdVpeakOverRms[2] = vPeakOverRms_Total[(int)vPeakOverRms_Total.size()-3];
 }

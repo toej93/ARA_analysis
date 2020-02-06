@@ -162,6 +162,44 @@ int main(int argc, char **argv)
         for(int k=0;k<grWaveformsRaw.size();k++){
           cout << v2SNRArray[k] << endl;
         }
+        bool isSimulation=0;
+        vector<int> chan_exclusion_list;
+        if(station==2){
+          // hpol channel 15
+          chan_exclusion_list.push_back(15);
+          printf("Station 2: Dropping ch 15\n");
+        }
+        else if(station==3){
+          if(
+            (!isSimulation && runNum>getA3BadRunBoundary())
+          ){
+            printf("Station 3: Dropping ch 3, 7, 11, 15\n");
+            chan_exclusion_list.push_back(3);
+            chan_exclusion_list.push_back(7);
+            chan_exclusion_list.push_back(11);
+            chan_exclusion_list.push_back(15);
+          }
+        }
+
+        float OSUSNRArray[16];
+
+        vector<int> polarizations;
+      	vector<int> antenna_numbers;
+      	polarizations.resize(16);
+      	antenna_numbers.resize(16);
+        double RMS_SoftTrigger[16];
+        double RMS_RFTrigger[16];
+      	vector< vector <double> > ant_loc;
+      	ant_loc.resize(16);
+      	for (int i = 0; i < 16; i++){
+      		polarizations[i] = (int)geomTool->getStationInfo(station)->getAntennaInfo(i)->polType;
+      		antenna_numbers[i]=i;
+          RMS_SoftTrigger[i]=30.;
+          RMS_RFTrigger[i]=30.;
+      	}
+        vector<double> ThirdVpeakOverRms;
+        getThirdVPeakOverRMS_OSU(grWaveformsRaw, polarizations, antenna_numbers, chan_exclusion_list, RMS_SoftTrigger, RMS_RFTrigger, ThirdVpeakOverRms);
+        // cout << "\033[1;31mHERE!\033[0m\n";
 
         // TCanvas *c3 = new TCanvas("","",1550,1550);
         // c3->Divide(4,4);
