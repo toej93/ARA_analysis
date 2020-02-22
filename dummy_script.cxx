@@ -41,7 +41,5 @@ UsefulAtriStationEvent *realAtriEvPtr;
 
 int main (){
 
-  bool isThisASoftDomRun = isSoftwareDominatedRun("/users/PCON0003/cond0068/ARA/AraRoot/analysis/a23_analysis_tools", 3, 2488);
-  cout << isThisASoftDomRun << endl;
   return 0;
 }
