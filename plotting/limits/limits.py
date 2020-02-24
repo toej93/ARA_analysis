@@ -234,11 +234,11 @@ class LimitFigure:
     
             energy_SFRHiE, flux_SFRHiE, band_min, band_max  = self.get_data('sensitivities/kotera_high_e.txt')
             fluxInterp_SFRHiE = np.interp(energy2, energy_SFRHiE, flux_SFRHiE)
-            arrow_SFRHiE = self.ax.annotate(s='', xy=(energy2[33],fluxInterp_SFRHiE[33]), xytext=(energy2[33],flux_kot[33]),                 arrowprops=dict(arrowstyle='<|-|>',color='rosybrown',lw=2))
+#             arrow_SFRHiE = self.ax.annotate(s='', xy=(energy2[33],fluxInterp_SFRHiE[33]), xytext=(energy2[33],flux_kot[33]),                 arrowprops=dict(arrowstyle='<|-|>',color='rosybrown',lw=2))
             
             energy_heavyComp, flux_heavyComp, band_min, band_max  = self.get_data('sensitivities/ahlers_100.txt')
             fluxInterp_heavyComp = np.interp(energy2, energy_heavyComp, flux_heavyComp)
-            arrow_heavyComp = self.ax.annotate(s='', xy=(energy2[45],fluxInterp_heavyComp[45]), xytext=(energy2[45],fluxInterp[45]), arrowprops=dict(arrowstyle='<|-|>',color='rosybrown',lw=2))
+#             arrow_heavyComp = self.ax.annotate(s='', xy=(energy2[45],fluxInterp_heavyComp[45]), xytext=(energy2[45],fluxInterp[45]), arrowprops=dict(arrowstyle='<|-|>',color='rosybrown',lw=2))
             
 
 #             self.neutrino_models.append([arrow_SFRHiE,arrow_heavyComp])
@@ -378,7 +378,7 @@ class LimitFigure:
         
                 energy_lowE, flux_lowE, band_min, band_max  = self.get_data('sensitivities/vanvliet19_Elow.txt')
                 fluxInterp_lowE = np.interp(energy, energy_lowE, flux_lowE)
-                arrow_heavyComp = self.ax.annotate(s='', xy=(energy[37]+3e9,fluxInterp_lowE[37]), xytext=(2.5e10,fluxInterp_lowE[37]), arrowprops=dict(arrowstyle='<|-|>',color='rosybrown',lw=2))
+#                 arrow_heavyComp = self.ax.annotate(s='', xy=(energy[37]+3e9,fluxInterp_lowE[37]), xytext=(2.5e10,fluxInterp_lowE[37]), arrowprops=dict(arrowstyle='<|-|>',color='rosybrown',lw=2))
         
         elif name=='van_vliet2019_Elow':
                 energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19_Elow.txt')
@@ -574,6 +574,9 @@ class LimitFigure:
             energy, flux, _, _ = self.get_data('sensitivities/ara_2019.txt')
             self.ax.plot(energy, flux,
                          color='#2288AA')
+            self.ax.fill_between(energy, flux, flux+0.1,
+                         color='green', alpha=0.2, label ="Excluded by ARA")
+            
             energy, flux, _, _ = self.get_data('sensitivities/ara_projected.txt')
 #             self.ax.plot(energy, flux,
 #                          color='#2288AA', linestyle='--')
@@ -588,9 +591,12 @@ class LimitFigure:
 #                 self.ax.annotate('ARA (2x1yr)',
 #                                  xy=(3.5e8, 4e-15*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='#2288AA', rotation=-50)
-                self.ax.annotate('ARA (2x4yr)',
+                self.ax.annotate('ARA (2x4yr, this work)',
                                  xy=(3.1e8, 9e-16*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='#2288AA', rotation=-50)
+                self.ax.annotate('Region excluded \n   by our work',
+                                 xy=(7e9, 5e-15*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='red', rotation=-50, fontsize=12)
 #                 self.ax.annotate('ARA 2023 (SES)',
 #                                  xy=(5e7, 2e-16*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='black', rotation=-47)
@@ -643,7 +649,7 @@ class LimitFigure:
                 models = ['heinze', 'ahlers']
         elif group=='ara':
             if experiments is None:
-                experiments = ['anita', 'auger', 'ara',
+                experiments = ['anita', 'ara',
                                'ice_cube_ehe', 'ice_cube_hese_data', 'ice_cube_mu_fit', 'arianna']
             if models is None:
                 models = ['kotera', 'ahlers']
