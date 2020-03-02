@@ -1,4 +1,4 @@
-//////////////////////////////////////
+/////////////////////////////////////
 //To calculate various veff and aeff
 //Run as ./veff_aeff2 $RADIUS $DEPTH $FILE
 //For example ./veff_aeff2 8000 3000 /data/user/ypan/bin/AraSim/trunk/outputs/AraOut.setup_single_station_2_energy_20.run0.root
@@ -23,7 +23,7 @@
 #include "TFile.h"
 #include "TRandom.h"
 #include "TRandom2.h"
-#include "TRandom3.h" 
+#include "TRandom3.h"
 #include "TTree.h"
 #include "TLegend.h"
 #include "TLine.h"
@@ -63,7 +63,7 @@
 #include "Report.h"
 
 using namespace std;
-class EarthModel; 
+class EarthModel;
 
 int main(int argc, char **argv){
   //string readfile;
@@ -73,6 +73,8 @@ int main(int argc, char **argv){
   int ifile = 0;
   double totweightsq;
   double totweight;
+  double totweight_thrown=0;
+
   int totnthrown;
   int typetotnthrown[12];
   double tottrigeff;
@@ -96,8 +98,9 @@ int main(int argc, char **argv){
   double veffNu[2], vefferrNu[2], aeffNu[2], aefferrNu[2];
   double veff, vefferr, aeff, aefferr, aeff2;
   double pnu;
+  double numNus; //Number of passing neutrinos
 
-  Detector *detector = 0; 
+  Detector *detector = 0;
   //Settings *settings = 0;
   //IceModel *icemodel = 0;
   Event *event = 0;
@@ -127,7 +130,7 @@ int main(int argc, char **argv){
     typetotweightsq[i] = 0.0;
     typetotnthrown[i] = 0;
   }
-  
+
   totweightsq = 0.0;
   totweight = 0.0;
   totsigmaweight = 0.0;
@@ -142,14 +145,14 @@ int main(int argc, char **argv){
   pnu = event->pnu;
   cout << "Energy " << pnu << endl;
   for(int iEvt2=0; iEvt2<totnthrown; iEvt2++) {
-    
+
     AraTree2->GetEntry(iEvt2);
 
     double sigm = event->Nu_Interaction[0].sigma;
     int iflavor = (event->nuflavorint)-1;
     int inu = event->nu_nubar;
     int icurr = event->Nu_Interaction[0].currentint;
-    
+    totweight_thrown+=event->Nu_Interaction[0].weight;
     sigma[inu+2*icurr+4*iflavor] = sigm;
     typetotnthrown[inu+2*icurr+4*iflavor]++;
 
@@ -161,6 +164,7 @@ int main(int argc, char **argv){
         cout << weight << "; " << iEvt2 << endl;
         continue;
     }
+    numNus+=weight;
 //    cout << weight << endl;
     totweightsq += pow(weight,2);
     totweight += weight;
@@ -187,16 +191,14 @@ int main(int argc, char **argv){
 
   }
 
-  tottrigeff = totweight / double(totnthrown); 
-  double nnucleon = 5.54e29;
+  tottrigeff = totweight / double(totnthrown);
+  double nnucleon = 5.54e29; //units here are 1/m^3
   double vtot = PI * double(volradius) * double(volradius) * double(voldepth) / 1e9;
   veff = vtot * totweight / double(totnthrown) * 4.0 * PI;
   //vefferr = sqrt(SQ(sqrt(double(totnthrown))/double(totnthrown))+SQ(sqrt(totweightsq)/totweight));
   vefferr = sqrt(totweightsq) / totweight * veff;
   aeff = vtot * (1e3) * nnucleon * totsigmaweight / double(totnthrown);
-  //aefferr = sqrt(SQ(sqrt(double(totnthrown))/double(totnthrown))+SQ(sqrt(totsigmaweightsq)/totsigmaweight));
-  //aefferr = sqrt(SQ(sqrt(double(totnthrown))/double(totnthrown))+SQ(sqrt(totweightsq)/totweight));
-  aefferr = sqrt(totweightsq) / totweight * aeff;
+  // aefferr = sqrt(totweightsq) / totweight * aeff;
   double sigmaave = 0.0;
 
   for(int iflavor=0; iflavor<3; iflavor++) {
@@ -256,7 +258,7 @@ int main(int argc, char **argv){
 
     aeffNu[inu] = veffNu[inu]*(1e3)*nnucleon*tempsig;
     aefferrNu[inu] = sqrt(tempweightsq)/tempweight;
-    
+
   }
 
   double totalveff = 0.0;
@@ -271,12 +273,16 @@ int main(int argc, char **argv){
       totalaeff += aeffT[iflavor+3*inu]*(double(typetotthrown)/double(totnthrown));
     }
   }
-  aeff2 = veff*(1e3)*nnucleon*sigmaave;
+  aeff2 = veff*(1e3)*nnucleon*sigmaave;//aeff2=4pi*aeff (km^2 x sr)
+  // aeff = vtot * (1e3) * nnucleon * totsigmaweight / double(totnthrown);
+
   aeff = aeff2;
+  aefferr = sqrt(totweightsq) / totweight * aeff;
+
   // veff1 = weight1 / totnthrown * vtot * 4.0 * PI;
   //veff2 = weight2 / totnthrown * vtot * 4.0 * PI;
   //veff3 = weight3 / totnthrown * vtot * 4.0 * PI;
-
+  // printf("Number of passing neutrinos is %i", numNus);
   printf("\nvolthrown: %.6f; totweight: %.6f; Veff: %.6f +- %.6f\n", vtot, totweight, veff, vefferr);
   //printf("veff1: %.3f; veff2: %.3f; veff3: %.3f\n", veff1, veff2, veff3);
   //string des = string(argv[4]);
@@ -284,9 +290,10 @@ int main(int argc, char **argv){
   std::ostringstream stringStream;
   stringStream << string(argv[3]);
   std::string copyOfStr = stringStream.str();
-  snprintf(buf, sizeof(buf), "Veff_config%s.txt", copyOfStr.c_str());
+  snprintf(buf, sizeof(buf), "./veffs/Veff_%s.txt", copyOfStr.c_str());
   FILE *fout = fopen(buf, "a+");
-  fprintf(fout, "%e, %.6f, %.6f \n", pnu, veff, vefferr);
+  fprintf(fout, "%e, %e, %e, %i, %e, %e, %e, %e \n", pnu, aeff*1E10, aefferr*1E10, totnthrown, numNus, totweight_thrown, veff, vefferr);//convert to cm^2
+  //fprintf(fout, "%e, %.6f, %.6f, %i,%e,%e \n", pnu, veff, vefferr, totnthrown, numNus, totweight_thrown)
   fclose(fout);
 
   return 0;
