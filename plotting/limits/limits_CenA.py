@@ -8,7 +8,7 @@ import pyrex
 # This class based on Anna Nelles's plotting script:
 # https://github.com/nu-radio/NuRadioMC/blob/138f8419e2db935bd07cb41d88ff2ea1b9ee99e1/NuRadioMC/examples/Sensitivities/E2_fluxes2.py
 class LimitFigure:
-    def __init__(self, figsize=(7, 6), xlims=(1e5, 1e11), ylims=(1e-11, 1e-5),
+    def __init__(self, figsize=(7, 6), xlims=(1e5, 1e11), ylims=(1e-11, 5e-5),
                  energy_units=1, flux_units=1, e_bins_per_decade=1, e_power=2,
                  font_size=12, tick_size=12):
         self.fig, self.ax = plt.subplots(1, 1, figsize=figsize)
@@ -18,10 +18,10 @@ class LimitFigure:
 
         self.ax.set_xlabel(r'Neutrino Energy [GeV]')
         if e_power==2:
-            self.ax.set_ylabel(r'$E^2\Phi$ [GeV cm$^{-2}$ s$^{-1}$ sr$^{-1}$]')
+            self.ax.set_ylabel(r'$E^2\Phi$ [GeV cm$^{-2}$ s$^{-1}$]')
         elif e_power==1:
 #             self.ax.set_ylabel(r'$E\Phi$ [cm$^{-2}$ s$^{-1}$ sr$^{-1}$]')
-            self.ax.set_ylabel(r'$E\ dN/(dE\ dA\ d\Omega\ dt)$ [cm$^{-2}$ s$^{-1}$ sr$^{-1}$]')
+            self.ax.set_ylabel(r'$E\ dN/(dE\ dA\ dt)$ [cm$^{-2}$ s$^{-1}$]')
         else:
             raise ValueError("Invalid power ("+e_power+")")
 
@@ -432,7 +432,7 @@ class LimitFigure:
                 energy, flux, band_min, band_max = self.get_data('sensitivities/Cuoco_CenA.txt')
                 prot10, = self.ax.plot(energy, flux, 
                                        color='firebrick', linestyle='-',
-                                       label=r'Cen A, Cuoco et. al.')
+                                       label=r'Cen A UHE-$\nu$ flux, Cuoco et. al.')
                 self.neutrino_models.append(prot10)
                 
                 
@@ -577,7 +577,7 @@ class LimitFigure:
 
         elif name=='ara':
             energy, flux, _, _ = self.get_data('sensitivities/ara_2019.txt')
-            self.ax.plot(energy, flux,
+            self.ax.plot(energy, flux*3.2E-3,#assume 1% of ideal FOV
                          color='#2288AA')
 #             self.ax.fill_between(energy, flux, flux+0.1,
 #                          color='green', alpha=0.2, label ="Excluded by ARA")
@@ -596,9 +596,9 @@ class LimitFigure:
 #                 self.ax.annotate('ARA (2x1yr)',
 #                                  xy=(3.5e8, 4e-15*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='#2288AA', rotation=-50)
-                self.ax.annotate('ARA (2x4yr)',
-                                 xy=(3.1e8, 9e-16*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='#2288AA', rotation=-50)
+                self.ax.annotate('ARA (2x4yr), 1% FOV',
+                                 xy=(3.1e7, 1e-16*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='#2288AA', rotation=-60)
 #                 self.ax.annotate('Region excluded \n   by our work',
 #                                  xy=(7e9, 5e-15*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='red', rotation=-50, fontsize=12)
@@ -654,8 +654,7 @@ class LimitFigure:
                 models = ['heinze', 'ahlers']
         elif group=='ara':
             if experiments is None:
-                experiments = ['anita', 'ara',
-                               'ice_cube_ehe', 'ice_cube_hese_data', 'ice_cube_mu_fit', 'arianna']
+                experiments = ['ara']
             if models is None:
                 models = ['kotera', 'ahlers']
         elif group=='ara_src':
