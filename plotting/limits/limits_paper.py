@@ -757,7 +757,7 @@ def count_neutrinos(flux, stations, years):
     energies = np.array([1.00000000e+07, 3.16227766e+07, 1.00000000e+08, 3.16227766e+08, 1.00000000e+09,
        3.16227766e+09, 1.00000000e+10, 3.16227766e+10, 1.00000000e+11, 3.16227766e+11, 1.00000000e+12])
     ara_flux = np.array([1.6029E-11, 3.2296E-13, 2.4554E-14, 2.8822E-15, 5.6214E-16, 1.4488E-16, 4.4660E-17, 1.7444E-17, 7.7699E-18, 3.8056E-18, 2.1500E-18])#in 
-#     eff = np.array([3.03, 2.64, 2.64, 2.45, 2.52, 2.45, 2.47, 2.46, 2.44, 2.46, 2.44])
+    UL = np.array([3.03, 2.64, 2.64, 2.45, 2.52, 2.45, 2.47, 2.46, 2.44, 2.46, 2.44])
     log_energy = np.log10(energies)
     step = np.diff(log_energy)[0]
     mean_fluxes = np.zeros(len(energies))
@@ -766,7 +766,7 @@ def count_neutrinos(flux, stations, years):
         log_e_range = np.linspace(log_e-step/2, log_e+step/2, 101)
         mean_fluxes[i] = np.trapz(flux(e_range), x=log_e_range) / step
 #         print(calculate_flux(energies, veffs, stations, years))
-    return stations*years*mean_fluxes*energies / ara_flux
+    return mean_fluxes*energies / ara_flux * UL
 #     return mean_fluxes / calculate_flux(energies, veffs, stations, years) * eff
 #     return flux(energies) / calculate_flux(energies, veffs, stations, years) * 2.44
 
