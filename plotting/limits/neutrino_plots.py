@@ -96,6 +96,10 @@ ahlers_1 = LimitFigure._read_data('sensitivities/ahlers_1.txt')
 def ahlers_1_flux(energies):
     return np.interp(energies, ahlers_1[0], ahlers_1[1]*ahlers_1[0]**(-1-ahlers_1[4]['energy_power']))
 
+ahlers_FermiLAT = LimitFigure._read_data('sensitivities/ahlers_FermiLAT.txt')
+def ahlers_FermiLAT_flux(energies):
+    return np.interp(energies, ahlers_FermiLAT[0], ahlers_FermiLAT[1]*ahlers_FermiLAT[0]**(-1-ahlers_FermiLAT[4]['energy_power']))
+
 heinze = LimitFigure._read_data('sensitivities/heinze_cr.txt')
 def heinze_flux(energies):
     return np.interp(energies, heinze[0], heinze[1]*heinze[0]**(-1-heinze[4]['energy_power']))
