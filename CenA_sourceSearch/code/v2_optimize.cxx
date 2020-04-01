@@ -199,8 +199,8 @@ int main(int argc, char **argv)
 			trees[2]->SetBranchAddress("short",&isShort);
 			trees[2]->SetBranchAddress("CW",&isCW);
 			trees[2]->SetBranchAddress("box",&isNewBox);
-			trees[2]->SetBranchAddress("surf_V",&isSurf[0]);
-			trees[2]->SetBranchAddress("surf_H",&isSurf[1]);
+			trees[2]->SetBranchAddress("surf_V_new",&isSurf[0]);
+			trees[2]->SetBranchAddress("surf_H_new",&isSurf[1]);
 			trees[2]->SetBranchAddress("bad",&isBadEvent);
 			trees[2]->SetBranchAddress("weight",&weight);
 			trees[2]->SetBranchAddress("surf_top_V",&isSurfEvent_top[0]);
@@ -801,8 +801,8 @@ int main(int argc, char **argv)
 			trees[2]->SetBranchAddress("short",&isShort);
 			trees[2]->SetBranchAddress("CW",&isCW);
 			trees[2]->SetBranchAddress("box",&isNewBox);
-			trees[2]->SetBranchAddress("surf_V",&isSurf[0]);
-			trees[2]->SetBranchAddress("surf_H",&isSurf[1]);
+			trees[2]->SetBranchAddress("surf_V_new",&isSurf[0]);
+			trees[2]->SetBranchAddress("surf_H_new",&isSurf[1]);
 			trees[2]->SetBranchAddress("bad",&isBadEvent);
 			trees[2]->SetBranchAddress("weight",&weight);
 			trees[2]->SetBranchAddress("surf_top_V",&isSurfEvent_top[0]);
