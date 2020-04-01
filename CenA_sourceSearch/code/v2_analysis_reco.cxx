@@ -71,6 +71,7 @@ int main(int argc, char **argv)
 	2: station num (2/3)
 	3: year/config
 	4: radius bin
+  4.5: seed
 	5: filter file dir
 	6: output directory
 	7: input file
@@ -80,7 +81,8 @@ int main(int argc, char **argv)
 	int station_num=atoi(argv[2]);
 	calpulserRunMode=0;
 	int yearConfig=atoi(argv[3]);
-	int radiusBin = atoi(argv[4]);
+  int radiusBin = atoi(argv[4]);
+  int seed = atoi(argv[5]);
 
 	int numRadiiScanned = 35;
 	int startingRadiusBin = radiusBin;
@@ -96,7 +98,7 @@ int main(int argc, char **argv)
 		titlesForGraphs.push_back(ss.str());
 	}
 
-	TFile *fp = TFile::Open(argv[7]);
+	TFile *fp = TFile::Open(argv[8]);
 	if(!fp) {
 		std::cout << "Can't open file\n";
 		return -1;
@@ -185,7 +187,7 @@ int main(int argc, char **argv)
 		eventTree->SetBranchAddress("UsefulAtriStationEvent", &realAtriEvPtr);
 		eventTree->SetBranchAddress("weight", &weight);
 		printf("Simulation; load useful event tree straight away \n");
-		runNum = getrunNum(argv[7]);
+		runNum = getrunNum(argv[8]);
 	}
 	else{
 		eventTree->SetBranchAddress("event",&rawAtriEvPtr);
@@ -213,7 +215,7 @@ int main(int argc, char **argv)
 	// and remember, because it's the users job to pass the location of the filter files
 	// this should work for simulated events just fine
 	char filter_file_name[400];
-	sprintf(filter_file_name,"%s/processed_station_%d_run_%d_filter.root",argv[5],station_num,runNum);
+	sprintf(filter_file_name,"%s/processed_station_%d_run_%d_filter.root",argv[6],station_num,runNum);
 	bool hasFilterFile = false;
 	TFile *filterFile = TFile::Open(filter_file_name);
 	TTree *filterTree;
@@ -234,9 +236,12 @@ int main(int argc, char **argv)
 	}
 
 	// prepare for output
-	string processedFilename = getProcessedFilename_recoRadius(station_num, argv[6], runNum, radii[radiusBin]);
-	TFile *OutputFile = TFile::Open(processedFilename.c_str(), "RECREATE");
-	TTree* OutputSettingsTree = new TTree("OutputSettingsTree", "OutputSettingsTree");
+  char processedFilename[70];
+  sprintf(processedFilename, "./reco/A%i_run%i_seed%i_recoRadiusBin_%i.root",station_num,runNum,seed,radiusBin);
+	// string processedFilename = getProcessedFilename_recoRadius(station_num, argv[7], runNum, radii[radiusBin]);
+	// TFile *OutputFile = TFile::Open(processedFilename.c_str(), "RECREATE");
+  TFile *OutputFile = TFile::Open(processedFilename, "RECREATE");
+  TTree* OutputSettingsTree = new TTree("OutputSettingsTree", "OutputSettingsTree");
 	OutputSettingsTree->Branch("detectorCenter", &detectorCenter, "detectorCenter[3]/D");
 	OutputSettingsTree->Branch("calpulserRunMode", &calpulserRunMode, "calpulserRunMode/I");
 	OutputSettingsTree->Branch("numFaces", &numFaces_save, "numFaces");
@@ -294,6 +299,7 @@ int main(int argc, char **argv)
 		if(event%starEvery==0) {
 			std::cout << "*";
 		}
+    // cout << event << endl;
 
 		eventTree->GetEntry(event);
 		if(hasFilterFile){
@@ -309,11 +315,19 @@ int main(int argc, char **argv)
 		}
 
 		if (isSimulation == true){
-			bool foundNextSimEvent = false;
+			// bool foundNextSimEvent = false;
 
-			while (foundNextSimEvent == false){
-				simTree->GetEntry(eventSim);
-				if (reportPtr->stations[0].Global_Pass > 0 ){
+			//while (foundNextSimEvent == false){
+				simTree->GetEntry(eventNumber);
+        // eventTree->GetEntry(eventNumber);
+        // cout << eventSim << endl;
+        // cout << "\033[1;31mHERE!!!\033[0m\n";
+
+        double Global_Pass = reportPtr->stations[0].Global_Pass;
+        if (reportPtr->stations[0].Global_Pass <= 0 ) continue;
+        cout << reportPtr->stations[0].Global_Pass << endl;
+
+				if (Global_Pass > 0 ){
 					flavor = eventPtr->nuflavorint;
 					nu_nubar = eventPtr->nu_nubar;
 					energy = eventPtr->pnu;
@@ -356,10 +370,11 @@ int main(int argc, char **argv)
 							viewAngleAvg[i] = viewAngleAvg[i]/(double)avgCounter[i];
 						}
 					}
-					foundNextSimEvent=true;
+					// foundNextSimEvent=true;
 				}
-				eventSim++;
-			}
+				// eventSim++;
+        // if(eventSim>numEntries) break;
+			//}
 		} else {
 			posnu[0] = -10000000;
 			posnu[1] = -10000000;
@@ -442,15 +457,14 @@ int main(int argc, char **argv)
 			// TH2D *map_V_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select(settings, detector, realAtriEvPtr, Vpol, isSimulation, chan_list_V);
 			// TH2D *map_H_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H);
 			int solNum = 0;
-      cout << "\033[1;31mHERE!!!\033[0m\n";
 			TH2D *map_V_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select_NewNormalization_SNRweighted(settings, detector, realAtriEvPtr, Vpol, isSimulation, chan_list_V, chan_SNRs, solNum);
 			TH2D *map_H_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select_NewNormalization_SNRweighted(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H, chan_SNRs, solNum);
 
 			getCorrMapPeak_wStats(map_V_raytrace, peakTheta_single[0], peakPhi_single[0], peakCorr_single[0], minCorr_single[0], meanCorr_single[0], rmsCorr_single[0], peakSigma_single[0]);
 			getCorrMapPeak_wStats(map_H_raytrace, peakTheta_single[1], peakPhi_single[1], peakCorr_single[1], minCorr_single[1], meanCorr_single[1], rmsCorr_single[1], peakSigma_single[1]);
 
-			//cout<<"For event "<<event<<" the v corr is "<<peakCorr_single[0]<<endl;
-			// cout<<"Event "<<event<<" software flag "<<isSoftTrigger<<" and cal flag "<<isCalpulser<<endl;
+			cout<<"For event "<<event<<" the v corr is "<<peakCorr_single[0]<<endl;
+			cout<<"Event "<<event<<" software flag "<<isSoftTrigger<<" and cal flag "<<isCalpulser<<endl;
 			bool print_maps = false;
 			if(print_maps){
 				gStyle->SetOptStat(0);
@@ -461,7 +475,7 @@ int main(int argc, char **argv)
 					cMaps->cd(2);
 					map_H_raytrace->Draw("colz");
 				char save_temp_title[400];
-				sprintf(save_temp_title,"/users/PAS0654/osu0673/A23_analysis_new2/results/trouble_events/%d.%d.%d_Run%d_Ev%d_Maps_FromRecoCode.png",year_now,month_now,day_now,runNum,event);
+				sprintf(save_temp_title,"./reco/fixed_files/%d.%d.%d_Run%d_Ev%d_Maps_FromRecoCode.png",year_now,month_now,day_now,runNum,event);
 				cMaps->SaveAs(save_temp_title);
 				delete cMaps;
 			}
