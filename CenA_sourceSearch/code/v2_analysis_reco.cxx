@@ -169,6 +169,7 @@ int main(int argc, char **argv)
 	for (int i = 0; i < numRadiiScanned; i++){
 		double radius_temp = radii[i+startingRadiusBin];
 		cout << "Setup RTCorr : " << radius_temp << endl;
+		cout << "--------" << radius_temp << endl;
     Int_t stationId = station_num;
 		theCorrelators[i] = new RayTraceCorrelator(stationId, radius_temp, settings, angularBinSize, RTTestMode);
 	}
@@ -225,14 +226,14 @@ int main(int argc, char **argv)
 		filterTree = (TTree*) filterFile->Get("OutputTree");
 		if(!filterTree) {
 			std::cout << "Can't find filterTree\n";
-			return -1;
+			// return -1;
 		}
 		filterTree->SetBranchAddress("VPeakOverRMS", &VPeakOverRMS);
 		filterFile->cd();
 	}
 	if(!filterFile){
 	  printf("There is no filter file! Running without a filter file is not allowed!");
-	  return -1;
+	  // return -1;
 	}
 
 	// prepare for output
@@ -297,7 +298,7 @@ int main(int argc, char **argv)
 	cerr<<"Run "<<runNum<<" has a starEvery of "<<starEvery<<" and "<<numEntries<<" total events"<<endl;
 	for(Long64_t event=0;event<numEntries;event++) {
 		if(event%starEvery==0) {
-			std::cout << "*";
+			// std::cout << "*";
 		}
     // cout << event << endl;
 
@@ -325,7 +326,7 @@ int main(int argc, char **argv)
 
         double Global_Pass = reportPtr->stations[0].Global_Pass;
         if (reportPtr->stations[0].Global_Pass <= 0 ) continue;
-        cout << reportPtr->stations[0].Global_Pass << endl;
+        // cout << reportPtr->stations[0].Global_Pass << endl;
 
 				if (Global_Pass > 0 ){
 					flavor = eventPtr->nuflavorint;
@@ -463,8 +464,10 @@ int main(int argc, char **argv)
 			getCorrMapPeak_wStats(map_V_raytrace, peakTheta_single[0], peakPhi_single[0], peakCorr_single[0], minCorr_single[0], meanCorr_single[0], rmsCorr_single[0], peakSigma_single[0]);
 			getCorrMapPeak_wStats(map_H_raytrace, peakTheta_single[1], peakPhi_single[1], peakCorr_single[1], minCorr_single[1], meanCorr_single[1], rmsCorr_single[1], peakSigma_single[1]);
 
-			cout<<"For event "<<event<<" the v corr is "<<peakCorr_single[0]<<endl;
-			cout<<"Event "<<event<<" software flag "<<isSoftTrigger<<" and cal flag "<<isCalpulser<<endl;
+			// cout<<"For event "<<event<<" the v corr is "<<peakCorr_single[0]<<endl;
+			// cout<<"For event "<<event<<" Reco V theta is "<<peakTheta_single[0]<<endl;
+
+			// cout<<"Event "<<event<<" software flag "<<isSoftTrigger<<" and cal flag "<<isCalpulser<<endl;
 			bool print_maps = false;
 			if(print_maps){
 				gStyle->SetOptStat(0);

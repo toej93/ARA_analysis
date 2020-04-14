@@ -404,7 +404,7 @@ class LimitFigure:
                 prot10, = self.ax.plot(energy, flux,
                                        color='gray', linestyle='--')#,
 #                                        label=r'$E^2\frac{dN}{dE}=10^{-9}$ [GeV$\,cm^{-2}\, s^{-1} \,sr^{-1}]$')
-                self.ax.annotate("$E^2dN/dE=10^{-9}$ [GeV$\,cm^{-2}\, s^{-1} \,sr^{-1}]$",(1e6,1e-15),rotation=-40, color="gray")
+                self.ax.annotate("$E^2dN/dE=10^{-9}$ [GeV$\,cm^{-2}\, s^{-1} \,sr^{-1}]$",(1e6,1e-15),rotation=-41, color="gray")
                 self.neutrino_models.append(prot10)
                 
         elif name=='kotera_FRII':#3.9
@@ -576,9 +576,13 @@ class LimitFigure:
                                  horizontalalignment='left', color='forestgreen', rotation=-58)
 
         elif name=='ara':
+            energy, flux, _, _ = self.get_data('sensitivities/ara_ming.txt')
+            self.ax.plot(energy, flux,
+                         color='#2288AA', linewidth=3, alpha=0.3)
+            
             energy, flux, _, _ = self.get_data('sensitivities/ara_2019.txt')
             self.ax.plot(energy, flux,
-                         color='#2288AA')
+                         color='black', linewidth=3, alpha=1)
 #             self.ax.fill_between(energy, flux, flux+0.1,
 #                          color='green', alpha=0.2, label ="Excluded by ARA")
             
@@ -586,25 +590,25 @@ class LimitFigure:
 #             self.ax.plot(energy, flux,
 #                          color='#2288AA', linestyle='--')
             if self.e_power==2:
-#                 self.ax.annotate('ARA (2x1yr)',
-#                                  xy=(3e8, 6e-7*self.e_bins), xycoords='data',
-#                                  horizontalalignment='left', color='#2288AA', rotation=-10)
+                self.ax.annotate('ARA (2x1yr, previous result)',
+                                 xy=(1e8, 6e-7*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='#2288AA', rotation=-10)
                 self.ax.annotate('ARA (2x4yr)',
-                                 xy=(3e8, 1.5e-7*self.e_bins), xycoords='data',
+                                 xy=(1e8, 1.5e-7*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='#2288AA', rotation=-10)
             if self.e_power==1:
-#                 self.ax.annotate('ARA (2x1yr)',
-#                                  xy=(3.5e8, 4e-15*self.e_bins), xycoords='data',
-#                                  horizontalalignment='left', color='#2288AA', rotation=-50)
-                self.ax.annotate('ARA (2x4yr)',
-                                 xy=(3.1e8, 9e-16*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='#2288AA', rotation=-50)
-#                 self.ax.annotate('Region excluded \n   by our work',
-#                                  xy=(7e9, 5e-15*self.e_bins), xycoords='data',
-#                                  horizontalalignment='left', color='red', rotation=-50, fontsize=12)
-#                 self.ax.annotate('ARA 2023 (SES)',
-#                                  xy=(5e7, 2e-16*self.e_bins), xycoords='data',
-#                                  horizontalalignment='left', color='black', rotation=-47)
+#                 self.ax.annotate('ARA (2x1yr, previous result)',
+#                                  xy=(1.3e8, 4e-15*self.e_bins), xycoords='data',
+#                                  horizontalalignment='left', color='#2288AA', rotation=-45)
+                self.ax.annotate('ARA (2x4yr, this work)',
+                                 xy=(2.1e8, 9e-16*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='black', rotation=-45, fontsize=13)
+#                 self.ax.annotate('Projected Data (2012-2022)',
+#                                  xy=(3e8, 1.5e-17*self.e_bins), xycoords='data',
+#                                  horizontalalignment='left', color='black', rotation=-42, fontsize=12)
+# #                 self.ax.annotate('Available Data (2012-2019)',
+#                                  xy=(3e8, 3.5e-17*self.e_bins), xycoords='data',
+#                                  horizontalalignment='left', color='black', rotation=-42, fontsize=13)
 
         elif name=='arianna':
             energy, flux, _, _ = self.get_data('sensitivities/arianna_2019.txt')

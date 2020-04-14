@@ -154,7 +154,7 @@ int main(int argc, char **argv)
         }//canvas loop
         char h4name[60];
         sprintf(h4name,"./plots/summedV2/summedV2_A%d_%d_event%d_run%d.png",station, year, event, runNum);
-        c4->SaveAs(h4name);
+        // c4->SaveAs(h4name);
         delete c4;
 
         float v2SNRArray[16];
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
           RMS_RFTrigger[i]=30.;
       	}
         vector<double> ThirdVpeakOverRms;
-        getThirdVPeakOverRMS_OSU(grWaveformsRaw, polarizations, antenna_numbers, chan_exclusion_list, RMS_SoftTrigger, RMS_RFTrigger, ThirdVpeakOverRms);
+        // getThirdVPeakOverRMS_OSU(grWaveformsRaw, polarizations, antenna_numbers, chan_exclusion_list, RMS_SoftTrigger, RMS_RFTrigger, ThirdVpeakOverRms);
         // cout << "\033[1;31mHERE!\033[0m\n";
 
         // TCanvas *c3 = new TCanvas("","",1550,1550);

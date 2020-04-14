@@ -198,7 +198,6 @@ int Optimize(int station, int config, int pol_select, double slope, int numBins_
 	dataVTree.Add(the_data);
 	dataHTree.Add(the_data);
 	dataAllTree.Add(the_data);
-	dataFilterTree.Add(the_data);
 	int numDataEvents = dataVTree.GetEntries();
 	printf(BLUE"Num of data entries is %d \n"RESET, numDataEvents);
 
