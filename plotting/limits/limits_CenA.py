@@ -577,7 +577,7 @@ class LimitFigure:
 
         elif name=='ara':
             energy, flux, _, _ = self.get_data('sensitivities/ara_2019.txt')
-            self.ax.plot(energy, flux*3.2E-3,#assume 1% of ideal FOV
+            self.ax.plot(energy, flux*3.2E-4,#assume 1% of ideal FOV
                          color='#2288AA')
 #             self.ax.fill_between(energy, flux, flux+0.1,
 #                          color='green', alpha=0.2, label ="Excluded by ARA")
@@ -591,14 +591,14 @@ class LimitFigure:
 #                                  horizontalalignment='left', color='#2288AA', rotation=-10)
                 self.ax.annotate('ARA (2x4yr)',
                                  xy=(3e8, 1.5e-7*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='#2288AA', rotation=-10)
+                                 horizontalalignment='left', color='#2288AA', rotation=-10, fontsize=13)
             if self.e_power==1:
 #                 self.ax.annotate('ARA (2x1yr)',
 #                                  xy=(3.5e8, 4e-15*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='#2288AA', rotation=-50)
-                self.ax.annotate('ARA (2x4yr), 1% FOV',
+                self.ax.annotate('ARA (2x4yr), 10% FOV',
                                  xy=(3.1e7, 1e-16*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='#2288AA', rotation=-60)
+                                 horizontalalignment='left', color='#2288AA', rotation=-62, fontsize=13)
 #                 self.ax.annotate('Region excluded \n   by our work',
 #                                  xy=(7e9, 5e-15*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='red', rotation=-50, fontsize=12)
