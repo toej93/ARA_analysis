@@ -274,6 +274,8 @@ int main(int argc, char **argv)
 	OutputTree->Branch("meanCorr_single", &meanCorr_single, "meanCorr_single[2]/D");
 	OutputTree->Branch("rmsCorr_single", &rmsCorr_single, "rmsCorr_single[2]/D");
 	OutputTree->Branch("peakSigma_single", &peakSigma_single, "peakSigma_single[2]/D");
+	// OutputTree->Branch("SNR_avg", &SNR_avg, "SNR_avg[2]/D");
+
 	OutputTree->Branch("run",&runNumOut, "run/I");
 	runNumOut=runNum;
 

@@ -15,7 +15,7 @@ class LimitFigure:
 
         self.ax.set_xscale('log')
         self.ax.set_yscale('log')
-
+        self.ax.grid()
         self.ax.set_xlabel(r'Neutrino Energy [GeV]')
         if e_power==2:
             self.ax.set_ylabel(r'$E^2\Phi$ [GeV cm$^{-2}$ s$^{-1}$]')
@@ -435,6 +435,13 @@ class LimitFigure:
                                        label=r'Cen A UHE-$\nu$ flux, Cuoco et. al.')
                 self.neutrino_models.append(prot10)
                 
+        elif name=='Kachelriess_CenA':
+                energy, flux, band_min, band_max = self.get_data('sensitivities/Kachelriess_CenA.txt')
+                prot10, = self.ax.plot(energy, flux, 
+                                       color='teal', linestyle='-',
+                                       label=r'Cen A UHE-$\nu$ flux, Kachelriess et. al.')
+                self.neutrino_models.append(prot10)        
+                
                 
 
         elif name=='murase_grb':
@@ -576,9 +583,9 @@ class LimitFigure:
                                  horizontalalignment='left', color='forestgreen', rotation=-58)
 
         elif name=='ara':
-            energy, flux, _, _ = self.get_data('sensitivities/ara_2019.txt')
-            self.ax.plot(energy, flux*3.2E-4,#assume 1% of ideal FOV
-                         color='#2288AA')
+            energy, flux, _, _ = self.get_data('sensitivities/ARA_a23_4y_systematics.txt')
+            self.ax.plot(energy, flux*(4*np.pi/3.2e-3),#assume 10% of ideal FOV
+                         color='black')
 #             self.ax.fill_between(energy, flux, flux+0.1,
 #                          color='green', alpha=0.2, label ="Excluded by ARA")
             
@@ -590,7 +597,7 @@ class LimitFigure:
 #                                  xy=(3e8, 6e-7*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='#2288AA', rotation=-10)
                 self.ax.annotate('ARA (2x4yr)',
-                                 xy=(3e8, 1.5e-7*self.e_bins), xycoords='data',
+                                 xy=(3e8, 1.5e-10*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='#2288AA', rotation=-10, fontsize=13)
             if self.e_power==1:
 #                 self.ax.annotate('ARA (2x1yr)',
