@@ -68,7 +68,7 @@ int main(int argc, char **argv){
 	6: input file
 	7: pedestal file
 	*/
-	bool debug=true;
+	bool debug=false;
 	isSimulation=atoi(argv[1]);
 	int station_num=atoi(argv[2]);
 	calpulserRunMode=0; //analyze all events
@@ -672,6 +672,14 @@ int main(int argc, char **argv){
 		getCorrMapPeak_wStats(map_V_raytrace_300, peakTheta_300m[0], peakPhi_300m[0], peakCorr_300m[0], minCorr_300m[0], meanCorr_300m[0], rmsCorr_300m[0], peakSigma_300m[0]);
 		getCorrMapPeak_wStats(map_H_raytrace_300, peakTheta_300m[1], peakPhi_300m[1], peakCorr_300m[1], minCorr_300m[1], meanCorr_300m[1], rmsCorr_300m[1], peakSigma_300m[1]);
 
+		delete map_V_raytrace_41;
+		delete map_V_raytrace_300;
+		delete map_H_raytrace_41;
+		delete map_H_raytrace_300;
+
+		deleteGraphVector(grIntPower);
+		deleteGraphVector(grWaveformsInt);
+		deleteGraphVector(grWaveformsRaw);
 		// now check for surface in the 300m interferometery with all channels
 		// this means surface (peakTheta_300m[0]>=17 || peakTheta_300m[1]>=17)
 		// being surface in either polarization is bad
@@ -729,6 +737,8 @@ int main(int argc, char **argv){
         bool failsTopH=false;
         if(PeakTheta_Recompute_300m_top_H>=37) failsTopH=true;
 
+				delete map_300m_top_H;
+				delete map_300m_top_V;
 
         // finally we do the 2D cut which needs the SNR and correlation values
         double selected_slopes[2];
@@ -753,17 +763,10 @@ int main(int argc, char **argv){
         	}
         }
 
-		delete map_V_raytrace_41;
-		delete map_V_raytrace_300;
-		delete map_H_raytrace_41;
-		delete map_H_raytrace_300;
 
-		deleteGraphVector(grIntPower);
-		deleteGraphVector(grWaveformsInt);
-		deleteGraphVector(grWaveformsRaw);
-		if (isSimulation == false) {
-			delete realAtriEvPtr;
-		}
+		// if (isSimulation == false) {
+		// delete realAtriEvPtr;
+		// }
 	}//end loop over events
 	cout << "\033[1;31mDONE!!!!!!!\033[0m\n";
 	for(int jj=0;jj<2;jj++) delete theCorrelators[jj];
