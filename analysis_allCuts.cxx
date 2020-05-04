@@ -68,7 +68,7 @@ int main(int argc, char **argv){
 	6: input file
 	7: pedestal file
 	*/
-
+	bool debug=true;
 	isSimulation=atoi(argv[1]);
 	int station_num=atoi(argv[2]);
 	calpulserRunMode=0; //analyze all events
@@ -335,7 +335,7 @@ int main(int argc, char **argv){
 	int eventSim = 0;
 	int start=0;
 
-	for(Long64_t event=start;event<numEntries;event++) {
+	for(Long64_t event=start;event<numEntries/*700*/;event++) {//Loop over events
 
 		if(event%starEvery==0) {
 			std::cout << "*";
@@ -352,11 +352,16 @@ int main(int argc, char **argv){
 
 
 		if (isSimulation == true){
+			simTree->GetEntry(event);
+			if (reportPtr->stations[0].Global_Pass <= 0 ) continue;
 			bool foundNextSimEvent = false;
+			cout << event << endl;
 
-			while (foundNextSimEvent == false){
-				simTree->GetEntry(eventSim);
-				if (reportPtr->stations[0].Global_Pass != 0 ){
+
+			// while (foundNextSimEvent == false){
+
+				simTree->GetEntry(event);
+				if (reportPtr->stations[0].Global_Pass > 0 ){
 					flavor = eventPtr->nuflavorint;
 					nu_nubar = eventPtr->nu_nubar;
 					energy = eventPtr->pnu;
@@ -401,10 +406,10 @@ int main(int argc, char **argv){
 							viewAngleAvg[i] = viewAngleAvg[i]/(double)avgCounter[i];
 						}
 					}
-					foundNextSimEvent=true;
+					// foundNextSimEvent=true;
 				}
 				eventSim++;
-			}
+			//}
 		} else {
 			posnu[0] = -10000000;
 			posnu[1] = -10000000;
@@ -451,7 +456,16 @@ int main(int argc, char **argv){
 
 		xLabel = "Time (ns)"; yLabel = "Voltage (mV)";
 		vector<TGraph*> grWaveformsInt = makeInterpolatedGraphs(grWaveformsRaw, interpolationTimeStep, xLabel, yLabel, titlesForGraphs);
-
+		if(debug){
+			TCanvas *c = new TCanvas("","",1100*8,850*8);
+			c->Divide(4,4);
+			for(int i = 0; i < 16; i++){
+				c->cd(i+1);
+				grWaveformsInt[i]->Draw("");
+			}
+			c->SaveAs("./debug_wf.png");
+			delete c;
+		}
 		vector<double> vVPeak;
 		vector<double> vVPeakTimes;
 
@@ -634,14 +648,29 @@ int main(int argc, char **argv){
 
 		TH2D *map_H_raytrace_41 = theCorrelators[0]->getInterferometricMap_RT_select_NewNormalization_SNRweighted(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H, chan_SNRs, solNum);
 		TH2D *map_H_raytrace_300 = theCorrelators[1]->getInterferometricMap_RT_select_NewNormalization_SNRweighted(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H, chan_SNRs, solNum);
+		if(debug){
+			TCanvas *c = new TCanvas("","",1100*2,850*2);
+			c->Divide(2,2);
+			c->cd(1);
+			map_V_raytrace_41->Draw("colz");
 
+			c->cd(2);
+			map_H_raytrace_41->Draw("colz");
+
+			c->cd(3);
+			map_V_raytrace_300->Draw("colz");
+
+			c->cd(4);
+			map_H_raytrace_300->Draw("colz");
+			c->SaveAs("./debug_recoMap.png");
+			delete c;
+		}
 		// a little clearer to see logic if we clsuter by polarization, isntead of by polarization....
 		getCorrMapPeak_wStats(map_V_raytrace_41, peakTheta_41m[0], peakPhi_41m[0], peakCorr_41m[0], minCorr_41m[0], meanCorr_41m[0], rmsCorr_41m[0], peakSigma_41m[0]);
 		getCorrMapPeak_wStats(map_H_raytrace_41, peakTheta_41m[1], peakPhi_41m[1], peakCorr_41m[1], minCorr_41m[1], meanCorr_41m[1], rmsCorr_41m[1], peakSigma_41m[1]);
 
 		getCorrMapPeak_wStats(map_V_raytrace_300, peakTheta_300m[0], peakPhi_300m[0], peakCorr_300m[0], minCorr_300m[0], meanCorr_300m[0], rmsCorr_300m[0], peakSigma_300m[0]);
 		getCorrMapPeak_wStats(map_H_raytrace_300, peakTheta_300m[1], peakPhi_300m[1], peakCorr_300m[1], minCorr_300m[1], meanCorr_300m[1], rmsCorr_300m[1], peakSigma_300m[1]);
-
 
 		// now check for surface in the 300m interferometery with all channels
 		// this means surface (peakTheta_300m[0]>=17 || peakTheta_300m[1]>=17)
@@ -736,6 +765,7 @@ int main(int argc, char **argv){
 			delete realAtriEvPtr;
 		}
 	}//end loop over events
+	cout << "\033[1;31mDONE!!!!!!!\033[0m\n";
 	for(int jj=0;jj<2;jj++) delete theCorrelators[jj];
   return 0;
 }
