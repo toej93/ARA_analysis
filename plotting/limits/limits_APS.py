@@ -580,9 +580,9 @@ class LimitFigure:
 #             self.ax.plot(energy, flux,
 #                          color='#2288AA', linewidth=3, alpha=0.3)
             
-            energy, flux, _, _ = self.get_data('sensitivities/ARA_a23_4y_systematics.txt')
-            self.ax.plot(energy, flux,
-                         color='black', linewidth=3, alpha=1)
+#             energy, flux, _, _ = self.get_data('sensitivities/ARA_a23_4y_systematics.txt')
+#             self.ax.plot(energy, flux,
+#                          color='black', linewidth=3, alpha=1)
 #             self.ax.fill_between(energy, flux, flux+0.1,
 #                          color='green', alpha=0.2, label ="Excluded by ARA")
             
@@ -596,19 +596,20 @@ class LimitFigure:
                 self.ax.annotate('ARA (2x4yr)',
                                  xy=(1e8, 1.5e-7*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='#2288AA', rotation=-10)
-            if self.e_power==1:
+#             if self.e_power==1:
 #                 self.ax.annotate('ARA (2x1yr, previous result)',
 #                                  xy=(1.3e8, 4e-15*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='#2288AA', rotation=-45)
-                self.ax.annotate('ARA (2x4yr, this work)',
-                                 xy=(2.1e8, 9e-16*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='black', rotation=-45, fontsize=13)
+#                 self.ax.annotate('ARA (2x4yr, this work)',
+#                                  xy=(2.1e8, 9e-16*self.e_bins), xycoords='data',
+#                                  horizontalalignment='left', color='black', rotation=-45, fontsize=13)
 #                 self.ax.annotate('Projected Data (2012-2022, TL SES)',
 #                                  xy=(3e8, 1.5e-17*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='black', rotation=-40, fontsize=12)
 #                     self.ax.annotate('Available Data (2012-2019, TL SES)',
 #                                  xy=(3e8, 3.5e-17*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='black', rotation=-40, fontsize=13)
+
 
         elif name=='arianna':
             energy, flux, _, _ = self.get_data('sensitivities/arianna_2019.txt')

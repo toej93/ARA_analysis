@@ -1,56 +1,40 @@
+//Includes
 #include <iostream>
-#include <fstream>
+#include <iomanip>
 #include <sstream>
-#include <math.h>
-#include <string>
-#include <stdio.h>
-#include <stdlib.h>
-#include <vector>
-#include <time.h>
-#include "TTreeIndex.h"
-#include "TChain.h"
-#include "TH1.h"
-#include "TF1.h"
-#include "TF2.h"
-#include "TFile.h"
-#include "TRandom.h"
-#include "TRandom2.h"
-#include "TRandom3.h"
-#include "TTree.h"
-#include "TLegend.h"
-#include "TLine.h"
-#include "TROOT.h"
-#include "TPostScript.h"
-#include "TCanvas.h"
-#include "TH2F.h"
-#include "TText.h"
-#include "TProfile.h"
-#include "TGraphErrors.h"
-#include "TStyle.h"
-#include "TMath.h"
-#include <unistd.h>
-#include "TVector3.h"
-#include "TRotation.h"
-#include "TSpline.h"
-#include "TPaveStats.h"
-//$(FFTWSYS) -llibRootFftwxWrapper
-//#include <fftw3.h>
 
-using namespace std;
-
+//AraRoot Includes
 #include "RawIcrrStationEvent.h"
-#include "UsefulIcrrStationEvent.h"
-#include "RawAraStationEvent.h"
 #include "RawAtriStationEvent.h"
+#include "UsefulAraStationEvent.h"
+#include "UsefulIcrrStationEvent.h"
 #include "UsefulAtriStationEvent.h"
-#include "AraEventCalibrator.h"
-//#include "FFTtools.h"
-//#include "PlottingFns.h"
-#include "Constants.h"
-#include "CalibUtil.h"
+
+//ROOT Includes
+#include "TTree.h"
+#include "TFile.h"
+#include "TGraph.h"
+
+#include "Event.h"
+#include "Detector.h"
+#include "Report.h"
+#include "Settings.h"
+
+#include "AraGeomTool.h"
+#include "AraQualCuts.h"
+#include "AraAntennaInfo.h"
+#include "RayTraceCorrelator.h"
+
+#include "tools_inputParameters.h"
+#include "tools_outputObjects.h"
+#include "tools_runSummaryObjects.h"
 #include "tools_WaveformFns.h"
-//#include "PlottingFns.h"
 #include "tools_PlottingFns.h"
+#include "tools_Constants.h"
+#include "tools_RecoFns.h"
+#include "tools_filterEvent.h"
+#include "tools_Cuts.h"
+#include "tools_CommandLine.h"
 
 class EarthModel; //class
 
@@ -64,125 +48,59 @@ UsefulAtriStationEvent *realAtriEvPtr;
 //int main() {
 int main(int argc, char **argv) {    // this is for manual power threshold value
 
+  TFile *fp = TFile::Open(argv[1],"read");
+	if(!fp) {
+		std::cout << "Can't open file\n";
+		return -1;
+	}
+	TTree *eventTree;
+	eventTree= (TTree*) fp->Get("eventTree");
+	if(!eventTree) {
+		std::cout << "Can't find eventTree\n";
+		return -1;
+	}
 
-  TChain chain("eventTree"); //this for the events for the exterior loop
-  for(int file=1; file<argc; file++){
-    // int runNum = eventTree.run;
-    TString fileKey(argv[file]); //a file key
-    //if (file.IsZombie()) continue;
-    chain.Add(fileKey); //add files to the chain
+	TTree *simTree;
+	TTree *simSettingsTree;
+	Event *eventPtr = 0;
+	Detector *detector = 0;
+	Report *reportPtr = 0;
+
+	simSettingsTree=(TTree*) fp->Get("AraTree");
+	if (!simSettingsTree) {
+		std::cout << "Can't find AraTree\n";
+		return -1;
+	}
+
+	simSettingsTree->SetBranchAddress("detector", &detector);
+	simSettingsTree->GetEntry(0);
+
+
+	simTree=(TTree*) fp->Get("AraTree2");
+	if (!simTree) {
+		std::cout << "Can't find AraTree2\n";
+		return -1;
+	}
+	simTree->SetBranchAddress("event", &eventPtr);
+	simTree->SetBranchAddress("report", &reportPtr);
+	simTree->GetEvent(0);
+  double weight;
+  eventTree->SetBranchAddress("UsefulAtriStationEvent", &realAtriEvPtr);
+  eventTree->SetBranchAddress("weight", &weight);
+  printf("Simulation; load useful event tree straight away \n");
+
+  Long64_t numEntries=simTree->GetEntries();
+  printf("Num entries is %d \n", numEntries);
+	Long64_t starEvery=numEntries/80;
+	if(starEvery==0) starEvery++;
+  for(Long64_t event=0;event<numEntries/*700*/;event++) {//Loop over events
+    eventTree->GetEntry(event);
+    simTree->GetEntry(event);
+    if (reportPtr->stations[0].Global_Pass <= 0 ) continue;
+    // cout << event << endl;
+    simTree->GetEntry(event);
+    double maxPeakVfromSim = reportPtr->stations[0].max_PeakV;
+    TGraph *gr_v = realAtriEvPtr->getGraphFromRFChan(0);
+    // cout << maxPeakVfromSim << endl;
   }
-  // double threshold = atof(argv[1]);
-  char name[50];
-
-  chain.SetBranchAddress("UsefulAtriStationEvent", &realAtriEvPtr);
-  chain.GetEvent(0);
-
-  int numEntries = chain.GetEntries();
-  cout << numEntries <<endl;
-  // double rms_diode_avg[16]={2.59176e-8,4.32818e-8,1.13644e-7,3.31724e-8,6.98278e-8,2.98466e-8,1.10119e-7,6.28753e-8,8.8548e-8,2.79944e-8,3.39428e-8,5.86829e-8,3.98562e-8,4.60079e-8,4.39133e-8,1.59158e-13};
-  /*
-  double rms_diode_sum[16];
-
-  for(Long64_t event=0;event<numEntries;event++) {
-    chain.GetEvent(event);
-    for(int channel = 0; channel<16; channel++){
-      TGraph *waveform = realAtriEvPtr->getGraphFromRFChan(channel);//channel.
-
-      TGraph *waveform_Interpolated = FFTtools::getInterpolatedGraph(waveform,0.5);
-      delete waveform;
-      TGraph *waveform_Padded = FFTtools::padWaveToLength(waveform_Interpolated, 1024);
-      delete waveform_Interpolated;
-      TGraph *diode_wf = doConvolve(waveform_Padded);
-      rms_diode_sum[channel] += getRMS(diode_wf, getBinsforRMS(diode_wf));
-      delete waveform_Padded;
-      delete diode_wf;
-    }
-
-  }
-
-  for(int i=0; i<16;i++){
-    rms_diode_avg[i]=rms_diode_sum[i]/numEntries;
-    cout << rms_diode_avg[i] << endl;
-  }
-  return 0;
-  */
-
-
-  for(Long64_t event=0;event<1;event++) {
-    chain.GetEvent(event);
-    TGraph *graphs[16];
-    TGraph *waveform_Interpolated[16];
-    TGraph *waveform_Padded[16];
-    TGraph *diode_wf[16];
-    double vsquared[16];
-    Int_t stationId=0;
-    // eventTree->GetEntry(0);
-    chain.GetEntry(0);
-    stationId = realAtriEvPtr->stationId;
-    int yada = realAtriEvPtr->stationId;
-    printf("StationID is: %i \n \n \n", yada);
-    for(int channel = 0; channel<16; channel++){
-      graphs[channel] = realAtriEvPtr->getGraphFromRFChan(channel);//channel 2.
-      //  cout<<graphs[channel]->GetN()<<endl;
-      // cout<<graphs[channel]->GetX()[1]-graphs[channel]->GetX()[0]<<endl;
-      // waveform_Interpolated[channel] = FFTtools::getInterpolatedGraph(graphs[channel],0.5);
-      // waveform_Padded[channel] = FFTtools::padWaveToLength(waveform_Interpolated[channel], 1024);
-      // diode_wf[channel] = doConvolve(waveform_Padded[channel]);
-      // //for(int kk=0;kk<diode_wf[channel]->GetN();kk++) sum+=diode_wf[channel]->GetY()[kk];
-      //mean[channel]=sum/getBinsforRMS(diode_wf);
-      // cout << sum<< endl;
-      // for(int samp=0; samp<diode_wf->GetN(); samp++) diode_wf->GetY()[samp]-=mean[channel];
-      //for(int kk=0;kk<diode_wf[channel]->GetN();kk++) sum2+=diode_wf[channel]->GetY()[kk];
-      // mean_new[channel]=sum2/getBinsforRMS(diode_wf);
-      //cout << mean_new[channel]<<endl;
-      //rms[channel] = getRMS(diode_wf[channel], getBinsforRMS(diode_wf[channel]));
-      // for(int samp=0; samp<diode_wf[channel]->GetN(); samp++) diode_wf[channel]->GetY()[samp]/= rms_diode_avg[channel];
-
-      // vsquared[channel] = getNegativePeak(diode_wf[channel]);
-      // cout<< "Peak is "  << vsquared[channel]<< ", channel " << channel << endl;
-    }//channel loop
-
-    TCanvas *c1 = new TCanvas("","",1550,1550);
-    c1->Divide(4,4);
-    for(int i=0; i<16; i++){//canvas loop
-      char ch_name[20];
-      sprintf(ch_name,"chan %d",i);
-      c1->cd(i+1);
-      graphs[i]->SetTitle(ch_name);
-      graphs[i]->GetYaxis()->SetRangeUser(-150.,150.);
-
-      graphs[i]->Draw("AL");
-      // gPad->SetLogy();
-    }//canvas loop
-    char h2name[60];
-    sprintf(h2name,"./wforms_AraSim/wf_AraSim_event%d.png",event);
-    c1->SaveAs(h2name);
-    delete c1;
-
-    /*
-    TLine *line = new TLine(-300,-threshold,300,-threshold);
-    TCanvas *c2 = new TCanvas("","",1550,1550);
-    c2->Divide(4,4);
-    for(int i=0; i<16; i++){//canvas loop
-      char ch_name[20];
-      sprintf(ch_name,"chan %d",i);
-      c2->cd(i+1);
-      diode_wf[i]->SetTitle(ch_name);
-      diode_wf[i]->GetYaxis()->SetRangeUser(-7.,7);
-      // diode_wf[i]->GetXaxis()->SetRangeUser(-10.,10.);
-
-      line->SetLineColor(kRed);
-      diode_wf[i]->Draw("AL");
-      line->Draw("SAME");
-      // gPad->SetLogy();
-    }//canvas loop
-    char h3name[60];
-    sprintf(h3name,"./wforms_AraSim/wf_AraSim_diode_event%d_thres%0.1f.png",event, threshold);
-    c2->SaveAs(h3name);
-    delete c2;
-      */
-      // delete [] graphs;
-  }
-
 }

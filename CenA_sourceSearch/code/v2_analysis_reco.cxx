@@ -238,7 +238,7 @@ int main(int argc, char **argv)
 
 	// prepare for output
   char processedFilename[70];
-  sprintf(processedFilename, "./reco/A%i_run%i_seed%i_recoRadiusBin_%i.root",station_num,runNum,seed,radiusBin);
+  sprintf(processedFilename, "./reco/A%i_run%i_seed%i_recoRadiusBin_%i_refSol.root",station_num,runNum,seed,radiusBin);
 	// string processedFilename = getProcessedFilename_recoRadius(station_num, argv[7], runNum, radii[radiusBin]);
 	// TFile *OutputFile = TFile::Open(processedFilename.c_str(), "RECREATE");
   TFile *OutputFile = TFile::Open(processedFilename, "RECREATE");
@@ -459,7 +459,7 @@ int main(int argc, char **argv)
 
 			// TH2D *map_V_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select(settings, detector, realAtriEvPtr, Vpol, isSimulation, chan_list_V);
 			// TH2D *map_H_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H);
-			int solNum = 0;
+			int solNum = 1;
 			TH2D *map_V_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select_NewNormalization_SNRweighted(settings, detector, realAtriEvPtr, Vpol, isSimulation, chan_list_V, chan_SNRs, solNum);
 			TH2D *map_H_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select_NewNormalization_SNRweighted(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H, chan_SNRs, solNum);
 
