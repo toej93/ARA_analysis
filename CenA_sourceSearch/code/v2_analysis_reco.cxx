@@ -238,7 +238,7 @@ int main(int argc, char **argv)
 
 	// prepare for output
   char processedFilename[70];
-  sprintf(processedFilename, "./reco/A%i_run%i_seed%i_recoRadiusBin_%i_refSol.root",station_num,runNum,seed,radiusBin);
+  sprintf(processedFilename, "./reco/A%i_run%i_seed%i_recoRadiusBin_%i.root",station_num,runNum,seed,radiusBin);
 	// string processedFilename = getProcessedFilename_recoRadius(station_num, argv[7], runNum, radii[radiusBin]);
 	// TFile *OutputFile = TFile::Open(processedFilename.c_str(), "RECREATE");
   TFile *OutputFile = TFile::Open(processedFilename, "RECREATE");
@@ -470,7 +470,7 @@ int main(int argc, char **argv)
 			// cout<<"For event "<<event<<" Reco V theta is "<<peakTheta_single[0]<<endl;
 
 			// cout<<"Event "<<event<<" software flag "<<isSoftTrigger<<" and cal flag "<<isCalpulser<<endl;
-			bool print_maps = false;
+			bool print_maps = true;
 			if(print_maps){
 				gStyle->SetOptStat(0);
 				TCanvas *cMaps = new TCanvas("","",2*1100,2*850);
@@ -480,7 +480,7 @@ int main(int argc, char **argv)
 					cMaps->cd(2);
 					map_H_raytrace->Draw("colz");
 				char save_temp_title[400];
-				sprintf(save_temp_title,"./reco/fixed_files/%d.%d.%d_Run%d_Ev%d_Maps_FromRecoCode.png",year_now,month_now,day_now,runNum,event);
+				sprintf(save_temp_title,"./reco/%d.%d.%d_Run%d_Ev%d_Maps_FromRecoCode.png",year_now,month_now,day_now,runNum,event);
 				cMaps->SaveAs(save_temp_title);
 				delete cMaps;
 			}

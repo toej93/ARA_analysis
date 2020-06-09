@@ -53,7 +53,7 @@ AraAntPol::AraAntPol_t Hpol = AraAntPol::kHorizontal;
 int main(int argc, char **argv){
 
 	if(argc<7) {
-		std::cout << "Usage\n" << argv[0] << " <simulation_flag> <station> <year/config> <run summary directory> <output directory> <input file> <pedestal file> \n";
+		std::cout << "Usage\n" << argv[0] << " <simulation_flag> <station> <config> <run summary directory> <output directory> <input file> <seed Number> \n";
 		return -1;
 	}
 
@@ -62,22 +62,51 @@ int main(int argc, char **argv){
 	0: exec
 	1: simulation (yes/no)
 	2: station num (2/3)
-	3: year/config
-	4: run number
+	3: config
+	4: run summary directory
 	5: output directory
 	6: input file
-	7: pedestal file
+	7: seed number
+	8: pedestal file
 	*/
+
 	bool debug=false;
 	isSimulation=atoi(argv[1]);
 	int station_num=atoi(argv[2]);
 	calpulserRunMode=0; //analyze all events
 	int yearConfig=atoi(argv[3]);
 	int runNum = getrunNum(argv[6]);
+	int seedNum = atoi(argv[7]);
 	if(isSimulation && yearConfig>5){
 		std:cout<<"Warning! You have called for simulation with a config larger than 5, which cannot be true. Are you sure you didnt' accidentally use year instead of config?"<<endl;
 		return -1;
 	}
+
+	char fileName[50];
+  sprintf(fileName, "./allCuts/data/allCuts_seed_%i_run_%i.root", seedNum, runNum);
+  TFile *hfile = new TFile(fileName,"RECREATE","allCuts");
+  char treeName[50];
+  sprintf(treeName, "allCuts",runNum);
+  TTree *tree = new TTree(treeName,treeName);
+  int trig_Evnum;
+  // Double_t SNR_intercept[2];
+	// Double_t corr_value[2];
+	double snr_val[2];
+	double corr_val[2];
+	int passed_Cut[2];
+	int failsRcut[2];
+	double this_y_val[2];
+	double weight;
+	double energy;
+
+
+	TBranch *corr_value_b = tree->Branch ("corr_val",&corr_val, "corr_val[2]/D");
+  TBranch *SNR_intercept_b = tree->Branch ("snr_val",&snr_val, "snr_val[2]/D");
+  TBranch *trig_Evnum_b = tree->Branch ("trig_Evnum",&trig_Evnum);
+	TBranch *failsRcut_b = tree->Branch ("failsRcut",&failsRcut, "failsRcut[2]/I");
+	TBranch *this_y_val_b = tree->Branch ("this_y_val",&this_y_val, "this_y_val[2]/D");
+	TBranch *weight_b = tree->Branch ("weight",&weight, "weight/D");
+	TBranch *energy_b = tree->Branch ("energy",&energy, "energy/D");
 
 	// get the wavefront RMS cut parameters
 
@@ -189,9 +218,9 @@ int main(int argc, char **argv){
 
 	AraEventCalibrator *calibrator = AraEventCalibrator::Instance();
 
-	if (argc==8){
+	if (argc==9){
 		cout << "Trying to load named pedestal" << endl;
-		calibrator->setAtriPedFile(argv[7], station_num);
+		calibrator->setAtriPedFile(argv[8], station_num);
 		cout << "Loaded named pedestal" << endl;
 	} else {
 		cout << "Trying to load blank pedestal" << endl;
@@ -200,7 +229,7 @@ int main(int argc, char **argv){
 	}
 
 	vector<vector<vector<vector<int> > > > Pairs = setupPairs(station_num); // face type, polarization, pair #, 2 antennas
-	double weight;
+	// double weight;
 	int unixTime;
 	int unixTimeUs;
 	int eventNumber;
@@ -747,19 +776,21 @@ int main(int argc, char **argv){
         getRCutValues(station_num, yearConfig, 1, selected_slopes[1], selected_intercepts[1]);
 
 
-        double snr_val[2];
-        double corr_val[2];
+        // double snr_val[2];
+        // double corr_val[2];
         snr_val[0] = thirdVPeakOverRMS[0];
         snr_val[1] = thirdVPeakOverRMS[1];
         corr_val[0] = peakCorr_300m[0];
         corr_val[1] = peakCorr_300m[1];
 
-        double this_y_val[2];
-        bool failsRcut[2]; // does it fail the rcut
+        // double this_y_val[2];
+        // bool failsRcut[2]; // does it fail the rcut
+				const char *ant_pol[2] = {"vpol", "hpol"};
         for(int pol=0; pol<2; pol++){
         	this_y_val[pol] = corr_val[pol]*selected_slopes[pol] + selected_intercepts[pol];
         	if(snr_val[pol]<this_y_val[pol]){
         		failsRcut[pol]=true;
+						printf("%s failed cut\n",ant_pol[pol] );
         	}
         }
 
@@ -767,7 +798,14 @@ int main(int argc, char **argv){
 		// if (isSimulation == false) {
 		// delete realAtriEvPtr;
 		// }
+	  // TBranch *trig_Evnum_b = tree->Branch ("trig_Evnum",&trig_Evnum);
+		// TBranch *passed_Cut_b = tree->Branch ("passed_Cut",&passed_Cut, "passed_Cut[2]/I");
+		// cout << event << endl;
+		weight = eventPtr->Nu_Interaction[0].weight;
+		trig_Evnum = event;
+		tree->Fill();
 	}//end loop over events
+	hfile->Write();
 	cout << "\033[1;31mDONE!!!!!!!\033[0m\n";
 	for(int jj=0;jj<2;jj++) delete theCorrelators[jj];
   return 0;
