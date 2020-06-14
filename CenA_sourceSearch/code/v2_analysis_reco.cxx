@@ -459,7 +459,7 @@ int main(int argc, char **argv)
 
 			// TH2D *map_V_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select(settings, detector, realAtriEvPtr, Vpol, isSimulation, chan_list_V);
 			// TH2D *map_H_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H);
-			int solNum = 1;
+			int solNum = 0;
 			TH2D *map_V_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select_NewNormalization_SNRweighted(settings, detector, realAtriEvPtr, Vpol, isSimulation, chan_list_V, chan_SNRs, solNum);
 			TH2D *map_H_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select_NewNormalization_SNRweighted(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H, chan_SNRs, solNum);
 
@@ -470,7 +470,7 @@ int main(int argc, char **argv)
 			// cout<<"For event "<<event<<" Reco V theta is "<<peakTheta_single[0]<<endl;
 
 			// cout<<"Event "<<event<<" software flag "<<isSoftTrigger<<" and cal flag "<<isCalpulser<<endl;
-			bool print_maps = true;
+			bool print_maps = false;
 			if(print_maps){
 				gStyle->SetOptStat(0);
 				TCanvas *cMaps = new TCanvas("","",2*1100,2*850);

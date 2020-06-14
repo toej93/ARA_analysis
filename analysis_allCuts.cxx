@@ -98,6 +98,9 @@ int main(int argc, char **argv){
 	double this_y_val[2];
 	double weight;
 	double energy;
+	bool isSurface;
+	int failsTopV;
+	int failsTopH;
 
 
 	TBranch *corr_value_b = tree->Branch ("corr_val",&corr_val, "corr_val[2]/D");
@@ -107,6 +110,12 @@ int main(int argc, char **argv){
 	TBranch *this_y_val_b = tree->Branch ("this_y_val",&this_y_val, "this_y_val[2]/D");
 	TBranch *weight_b = tree->Branch ("weight",&weight, "weight/D");
 	TBranch *energy_b = tree->Branch ("energy",&energy, "energy/D");
+	TBranch *peakTheta_300m_b = tree->Branch ("peakTheta_300m",&peakTheta_300m, "peakTheta_300m[2]/I");
+	TBranch *peakPhi_300m_b = tree->Branch ("peakPhi_300m",&peakPhi_300m, "peakPhi_300m[2]/I");
+	TBranch *failsTopV_b = tree->Branch ("failsTopV",&failsTopV, "failsTopV/I");
+	TBranch *failsTopH_b = tree->Branch ("failsTopH",&failsTopH, "failsTopH/I");
+	TBranch *isSurface_b = tree->Branch ("isSurface",&isSurface, "isSurface/O");
+
 
 	// get the wavefront RMS cut parameters
 
@@ -391,6 +400,7 @@ int main(int argc, char **argv){
 
 				simTree->GetEntry(event);
 				if (reportPtr->stations[0].Global_Pass > 0 ){
+					// cout << "Triggered" << endl;
 					flavor = eventPtr->nuflavorint;
 					nu_nubar = eventPtr->nu_nubar;
 					energy = eventPtr->pnu;
@@ -712,7 +722,8 @@ int main(int argc, char **argv){
 		// now check for surface in the 300m interferometery with all channels
 		// this means surface (peakTheta_300m[0]>=17 || peakTheta_300m[1]>=17)
 		// being surface in either polarization is bad
-		bool isSurface = (peakTheta_300m[0]>=17 || peakTheta_300m[1]>=17);
+		// bool
+		isSurface = (peakTheta_300m[0]>=17 || peakTheta_300m[1]>=17);
 
 		// then we check for if it's a cal pulser
 		bool isCP5;
@@ -761,10 +772,12 @@ int main(int argc, char **argv){
         getCorrMapPeak(map_300m_top_H,PeakTheta_Recompute_300m_top_H,PeakPhi_Recompute_300m_top_H,PeakCorr_Recompute_300m_top_H);
 
         // top face is polarization specific, and cut is at 37
-        bool failsTopV=false;
-        if(PeakTheta_Recompute_300m_top_V>=37) failsTopV=true;
-        bool failsTopH=false;
-        if(PeakTheta_Recompute_300m_top_H>=37) failsTopH=true;
+        // bool failsTopV=false;
+				failsTopV=0;
+        if(PeakTheta_Recompute_300m_top_V>=37) failsTopV=1;
+        // bool failsTopH=false;
+				failsTopH=0;
+        if(PeakTheta_Recompute_300m_top_H>=37) failsTopH=1;
 
 				delete map_300m_top_H;
 				delete map_300m_top_V;
@@ -774,7 +787,7 @@ int main(int argc, char **argv){
         double selected_intercepts[2];
         getRCutValues(station_num, yearConfig, 0, selected_slopes[0], selected_intercepts[0]);
         getRCutValues(station_num, yearConfig, 1, selected_slopes[1], selected_intercepts[1]);
-
+				selected_intercepts[0] = selected_intercepts[0] - 0.54; //The 0.54 comes from constraining CenA
 
         // double snr_val[2];
         // double corr_val[2];
@@ -789,9 +802,10 @@ int main(int argc, char **argv){
         for(int pol=0; pol<2; pol++){
         	this_y_val[pol] = corr_val[pol]*selected_slopes[pol] + selected_intercepts[pol];
         	if(snr_val[pol]<this_y_val[pol]){
-        		failsRcut[pol]=true;
+        		failsRcut[pol]=1;
 						printf("%s failed cut\n",ant_pol[pol] );
         	}
+					else failsRcut[pol]=0;
         }
 
 
