@@ -800,6 +800,7 @@ int main(int argc, char **argv){
         // bool failsRcut[2]; // does it fail the rcut
 				const char *ant_pol[2] = {"vpol", "hpol"};
         for(int pol=0; pol<2; pol++){
+					// printf("%s slope:%f, intercept:%f\n",ant_pol[pol] ,selected_slopes[pol], selected_intercepts[pol]);
         	this_y_val[pol] = corr_val[pol]*selected_slopes[pol] + selected_intercepts[pol];
         	if(snr_val[pol]<this_y_val[pol]){
         		failsRcut[pol]=1;
