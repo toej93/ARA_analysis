@@ -61,9 +61,9 @@ int main(int argc, char **argv)
 	double year_or_energy = double(atof(argv[3]));
 	double slope=double(atof(argv[4]));
 	int pol_select=atoi(argv[5]);
-	double intercept_in=double(atof(argv[6]));
-
-	printf("pol_select is %i \n", pol_select);
+	double seed=int(atoi(argv[6]));
+	// cout << "Seed is " << seed << endl;
+ 	printf("pol_select is %i \n", pol_select);
 
 	if(station!=2 && station!=3){
 		printf("No good! You asked for station %d, but this code only works for stations 2 and 3 \n",station);
@@ -73,21 +73,48 @@ int main(int argc, char **argv)
 	vector<int> BadRunList=BuildBadRunList(station);
 	// for(int j=0; j<BadRunList.size(); j++) cout << BadRunList[j] << endl;
 	bool version2=true;
-	gRandom = new TRandom3(0);
-	char filename[200];
+
+	// char filename[200];
+	// double intercept_scan[6] = {23, 22.5, 22, 21.5, 21, 20.5};
 	double intercept_scan[6] = {20, 19.5, 19, 18.5, 18, 17.5};
 	// double intercept_scan[6] = {19, 18.9, 18.8, 18.7, 18.6, 18.5};
-	sprintf(filename, "/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/files/source_optimization/bkg_random_SNR_scan_fine_config%i.csv", config);
-	FILE *fout = fopen(filename, "a+");//open file
+	// sprintf(filename, "/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/files/source_optimization/bkg_random_SNR_scan_config%i.csv", config);
+	// FILE *fout = fopen(filename, "a+");//open file
 	// fprintf(fout, "phi,theta,bkg\n");
+	char fileName[250];
+	int seed2 =  seed;
+	sprintf(fileName, "/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/files/source_optimization/c%i/bkg_random_SNR_scan_config%i_seed%i.root", config,config,seed2);
+	printf("Created file at %s\n", fileName);
+	TFile *hfile = new TFile(fileName,"RECREATE","");
+	char treeName[50];
+	sprintf(treeName, "SNR_scan_c%i", config);
+	TTree *tree = new TTree(treeName,treeName);
 
-	for(int loopNum = 0; loopNum<5; loopNum++){
-		int numPassAll[6]={0};
+	double phi;
+  double costheta;
+  float SNR_intercept[6] = {0};
+	int numPassAll[6] = {0};
+
+
+  tree->Branch("phi",&phi,"phi/D");
+  tree->Branch("costheta",&costheta,"costheta/D");
+	tree->Branch("numPassAll",&numPassAll,"numPassAll[6]/I");
+	tree->Branch("SNR_intercept",&SNR_intercept,"SNR_intercept[6]/F");
+
+	gRandom = new TRandom3(0);
+	TF1 *f1 = new TF1("f1","cos(x)",0,1.8675);
+
+	int loopNum = 0;
+	// bool isRandSurf;
+	while(loopNum<5){
+		// int numPassAll[6]={0};
 		printf(RED"Loop: %i\n"RESET, loopNum);
 		const double radToDeg = 180/M_PI;
-		Double_t thetaRnd = radToDeg*0.5*M_PI*gRandom->Uniform(-1,1);
+		Double_t costhetaRnd =  gRandom->Uniform(-0.29237,1);
 		Double_t phiRnd = radToDeg*M_PI*gRandom->Uniform(-1,1);
-		printf("%f, %f\n",phiRnd, thetaRnd );
+		phi = phiRnd;
+		costheta = costhetaRnd;
+		// printf("%f, %f\n",phiRnd, costhetaRnd);
 		if(version2){
 
 			/*
@@ -119,7 +146,7 @@ int main(int argc, char **argv)
 			double max=0.05;
 			TH2D *h2SNRvsCorr[2]; // SNR on Y axis, Corr on X axis, like in the TB
 			char thisTitle [50];
-			sprintf(thisTitle,"V Data, phi = %f, theta = %f", phiRnd, thetaRnd);
+			sprintf(thisTitle,"V Data, phi = %f, theta = %f", phiRnd, costhetaRnd);
 			h2SNRvsCorr[0]=new TH2D("",thisTitle,100,0,max,300,0,30);
 			h2SNRvsCorr[1]=new TH2D("","H Data",100,0,max,300,0,30);
 
@@ -218,8 +245,8 @@ int main(int argc, char **argv)
 				trees[2]->SetBranchAddress("short",&isShort);
 				trees[2]->SetBranchAddress("CW",&isCW);
 				trees[2]->SetBranchAddress("box",&isNewBox);
-				trees[2]->SetBranchAddress("surf_V_new",&isSurf[0]);
-				trees[2]->SetBranchAddress("surf_H_new",&isSurf[1]);
+				// trees[2]->SetBranchAddress("surf_V_new",&isSurf[0]);//oudated files
+				// trees[2]->SetBranchAddress("surf_H_new",&isSurf[1]);
 				trees[2]->SetBranchAddress("bad",&isBadEvent);
 				trees[2]->SetBranchAddress("weight",&weight);
 				trees[2]->SetBranchAddress("surf_top_V",&isSurfEvent_top[0]);
@@ -260,8 +287,13 @@ int main(int argc, char **argv)
 					snr_val[1] = snr_val_new[1];
 					WFRMS[0] = WFRMS_new[0];
 					WFRMS[1] = WFRMS_new[1];
+					isSurf[0] = false;
+					isSurf[1] = false;
+
 					bool inSource = false;
-					if ( (abs(thetaRnd-theta_300_new[0])<50) && (abs(phiRnd-phi_300_new[0])<50) ) inSource = true;
+					if ( (abs(costhetaRnd-cos((theta_300_new[0]+90)/radToDeg))<0.2) && (abs(phiRnd-phi_300_new[0])<50) ) inSource = true;
+					if(theta_300_new[0]>17) isSurf[0] = true;
+					if(theta_300_new[1]>17) isSurf[1] = true;
 					// cout << inSource << endl;
 					// printf("%i, %i\n",theta_300_new[0],phi_300_new[1]);
 
@@ -276,8 +308,9 @@ int main(int argc, char **argv)
 					}
 
 					for(int pol=0; pol<2; pol++){
-
+						// if(isSurf[0]) cout << "is surface event!!!!!" << endl;
 						if(!WFRMS[pol] && !isNewBox && !isSurf[0] && !isSurf[1] && !isSurfEvent_top[pol]){
+						// if(!WFRMS[pol] && !isNewBox){
 							// cout << "Good event" << endl;
 							bool failsCWPowerCut=false;
 							if(Refilt[pol] && !WFRMS[pol]){
@@ -305,6 +338,7 @@ int main(int argc, char **argv)
 									continue;
 								double this_y_val[6];
 								for(int k=0;k<6;k++){
+									SNR_intercept[k] = intercept_scan[k];
 									this_y_val[k] = (slope * corr_val[pol] ) + intercept_scan[k]; //calculated intercept
 									if(snr_val[pol]>=this_y_val[k]){ // does this event pass?
 										numPassAll[k]+=1;
@@ -1393,14 +1427,18 @@ int main(int argc, char **argv)
 		// 	char save_title[400];
 		// 	sprintf(save_title,"%s/optimize/A%d_config%d_Pol%d_Optimization_RCutSlope%.4f_%i.png",plotPath,station,config,pol_select,slope,loopNum);
 		// 	cRcut->SaveAs(save_title);
-			fprintf(fout,"%0.3f,%0.3f,",phiRnd,thetaRnd);
-			for(int k=0;k<6;k++){
-				cout << numPassAll[k] << endl;
-				if(k<5) fprintf(fout,"%i,",numPassAll[k]);
-				else fprintf(fout,"%i",numPassAll[k]);
-			}
-		fprintf(fout,"\n");
-		}
+		// 	fprintf(fout,"%0.3f,%0.3f,",phiRnd,thetaRnd);
+		// 	for(int k=0;k<6;k++){
+		// 		cout << numPassAll[k] << endl;
+		// 		if(k<5) fprintf(fout,"%i,",numPassAll[k]);
+		// 		else fprintf(fout,"%i",numPassAll[k]);
+		// 	}
+		// fprintf(fout,"\n");
+		tree->Fill();
+		for(int kk = 0; kk<6; kk++) numPassAll[kk]=0;
+		}//if mode 2
+	loopNum++;
 	}//Loop over random sources
-	fclose (fout);
+	// fclose (fout);
+	hfile->Write();
 }

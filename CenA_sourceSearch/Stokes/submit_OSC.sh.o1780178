@@ -1,0 +1,13 @@
+
+Lmod is automatically replacing "intel/19.0.5" with "gnu/4.8.5".
+
+
+The following have been reloaded with a version change:
+  1) mvapich2/2.3.3 => mvapich2/2.3.2
+
+***NOTE***: Opening default SQLite database for 2013-2017. Unixtime argument is 0. If you want the correct channel mappings for ARA03 & ARA01 for 2018 & after please specify either: 
+a) The right year when you call AraGeomTool::getStationInfo(3,2017) where 3 is stationID and 2017 is DB year
+OR
+b) Call UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib); ***BEFORE*** 
+AraGeomTool::getStationInfo(3,2017)
+Opening default 2013-2017 SQLite tables for all stations 

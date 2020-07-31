@@ -32,7 +32,7 @@ gSystem.Load('libAra.so') #load the simulation event library. You might get an e
 
 file_list=[]#Define an empty list
 for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/CenA_atzero/"):#Loop over desired directory
-    if filename.endswith(".root"): #extension, .root in this case
+    if filename.endswith("seed4.txt.run0.root"): #extension, .root in this case
         file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/CenA_atzero/", str(filename))) #add file name to the list
 
 
@@ -57,12 +57,13 @@ isTrue=False
 theta_reco = []
 theta_antenna = []
 for i in range(0,totalEvents):#loop over events
-    # if(isTrue):
-    #     break
+    if(isTrue):
+        break
     eventTree.GetEntry(i)
     SimTree.GetEntry(i)
     if(reportPtr.stations[0].Global_Pass <= 0):#making sure that the event did trigger, otherwise there won't be a waveform (this might not be needed if all waveforms are saved)
         continue
+    isTrue=True
     rec_angle = []
     for ch_ID in range(0,4):
         try:
@@ -84,11 +85,13 @@ for i in range(0,totalEvents):#loop over events
         for i in range(0,gr[ch].GetN()):
           t.append(gr[ch].GetX()[i])
           v.append(gr[ch].GetY()[i])
-        pyrex_array.append(pyrex.Signal(1E-9*np.array(t), 1E-3*np.array(v)))#Convert to seconds and volts
     isTrue=True
-    plotting = False
-    if(plotting == True):
-        fig, axs = plt.subplots(2, 4, figsize = (10,10))
+    original_df = pd.DataFrame({"time": np.array(t), "voltage": np.array(v)})
+    original_df.to_pickle("./wform_forDebug.pkl")
+
+    plotting = True
+    if(plotting == False):
+        fig, axs = plt.subplots(2, 4, figsize = (10,5))
         axs = axs.ravel()
         for ch in [0,4,1,5,2,6,3,7]:
             t = []
@@ -104,8 +107,3 @@ for i in range(0,totalEvents):#loop over events
         # plt.ylabel("Voltage [mV]")
         plt.tight_layout()
         plt.show()
-    vertex, corrValue = util.doReco(pyrex_array)
-    theta_reco.append(180-vertex[1])
-    # print(vertex[1])
-original_df = pd.DataFrame({"theta_reco": np.array(theta_reco), "theta_antenna": np.array(theta_antenna)})
-original_df.to_pickle("./angles.pkl")
