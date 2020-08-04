@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ROOT import gInterpreter, gSystem
 from ROOT import TChain, TSelector, TTree
+import scipy
 
 import deDisperse_util as util
 import pyrex

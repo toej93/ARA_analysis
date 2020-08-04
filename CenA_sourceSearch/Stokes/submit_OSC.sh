@@ -1,5 +1,5 @@
 #/bin/bash
-#PBS -l nodes=1:ppn=1
+#PBS -l nodes=1:ppn=3
 #PBS -j oe
 #PBS -A PCON0003
 #PBS -m e

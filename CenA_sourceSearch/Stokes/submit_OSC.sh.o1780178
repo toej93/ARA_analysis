@@ -11,3 +11,17 @@ OR
 b) Call UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib); ***BEFORE*** 
 AraGeomTool::getStationInfo(3,2017)
 Opening default 2013-2017 SQLite tables for all stations 
+/var/spool/torque/mom_priv/jobs/1780178.pitzer-batch.ten.osc.edu.SC: line 29: 50415 Killed                  python deDisperse.py
+****** p0141.ten.osc.edu: Excessive memory usage detected; job may have failed. ******
+
+-----------------------
+Resources requested:
+nodes=1:ppn=1
+mem=4556mb
+-----------------------
+Resources used:
+cput=05:33:20
+walltime=10:51:09
+mem=4.554GB
+vmem=5.829GB
+-----------------------

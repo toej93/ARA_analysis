@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ROOT import gInterpreter, gSystem
 from ROOT import TChain, TSelector, TTree
+import scipy
+
 
 import deDisperse_util as util
 import pyrex
@@ -32,7 +34,7 @@ gSystem.Load('libAra.so') #load the simulation event library. You might get an e
 
 file_list=[]#Define an empty list
 for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/CenA_atzero/"):#Loop over desired directory
-    if filename.endswith("seed4.txt.run0.root"): #extension, .root in this case
+    if filename.endswith("seed4.txt.run20.root"): #extension, .root in this case
         file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/CenA_atzero/", str(filename))) #add file name to the list
 
 

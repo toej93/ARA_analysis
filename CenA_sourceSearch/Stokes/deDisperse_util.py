@@ -5,6 +5,9 @@ from pyrex.internal_functions import (normalize, complex_bilinear_interp, comple
 import pyrex.custom.analysis as analysis
 import pyrex.custom.araroot as araroot
 import pyrex.custom.envelope_reco as reco
+import pyrex.custom.ara as ara
+from pyrex.internal_functions import (normalize, complex_bilinear_interp,
+                                      complex_interp)
 """
 Most of these functions were modified from PyREx
 """
@@ -190,3 +193,37 @@ def frequency_response(frequencies):
     heff[frequencies!=0] = np.sqrt((3e8/frequencies[frequencies!=0]/n)**2
                                    * n*50/377 /(4*np.pi))
     return heff
+
+def doInvFFT(spectrum):
+    fft_i_v= scipy.fft.irfft(fft_v)
+    return fft_i_v
+
+def doFFT(time, volts):
+    fft = scipy.fft.rfft(np.array(volts))
+    dT = abs(time[1]-wform["time"][0])
+    freq = 1000*scipy.fft.rfftfreq(n=len(time), d=dT)
+    return fft, freq, dT
+
+def interpolate_filter(frequencies):
+        """
+        From PyREx: https://github.com/bhokansonfasig/pyrex/blob/851c7135b93aff9e0314253a173aef51831a5920/pyrex/custom/ara/antenna.py#L853
+
+        Generate interpolated filter values for given frequencies.
+        Calculate the interpolated values of the antenna system's filter gain
+        data for some frequencies.
+        Parameters
+        ----------
+        frequencies : array_like
+            1D array of frequencies (Hz) at which to calculate gains.
+        Returns
+        -------
+        array_like
+            Complex filter gain in voltage for the given `frequencies`.
+        """
+        ARAfilter = ara.antenna.ALL_FILTERS_DATA
+        filt_response = ARAfilter[0]
+        filt_freqs = ARAfilter[1]
+        return complex_interp(
+            x=frequencies, xp=filt_freqs, fp=filt_response,
+            method='euler', outer=0
+        )
