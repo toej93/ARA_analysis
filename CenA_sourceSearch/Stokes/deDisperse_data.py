@@ -16,6 +16,7 @@ import pyrex.custom.analysis as analysis
 import pyrex.custom.araroot as araroot
 import pyrex.custom.envelope_reco as reco
 from ROOT import gInterpreter, gSystem
+import pandas as pd
 
 gInterpreter.ProcessLine('#include "FFTtools.h"')
 
@@ -94,7 +95,8 @@ for i in range(2000,2500):#loop over events
           v.append(gr[ch].GetY()[i])
         pyrex_array.append(pyrex.Signal(1E-9*np.array(t), 1E-3*np.array(v)))
         # print(len(np.array(t)))
-
+    original_df = pd.DataFrame({"time": np.array(t), "voltage": np.array(v)})
+    original_df.to_pickle("./wform_forDebug_calpulser.pkl")
     isTrue=True
     plotting = False
     if(plotting == True):

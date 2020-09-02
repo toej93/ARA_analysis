@@ -110,7 +110,29 @@ def doReco(antenna_waveforms, plot_map=False):
 
     return inter_vtx, inter_max
 
-def directional_response(theta, phi, polarization):
+def interpolate_filter(frequencies):
+        """
+        Generate interpolated filter values for given frequencies.
+        Calculate the interpolated values of the antenna system's filter gain
+        data for some frequencies.
+        Parameters
+        ----------
+        frequencies : array_like
+            1D array of frequencies (Hz) at which to calculate gains.
+        Returns
+        -------
+        array_like
+            Complex filter gain in voltage for the given `frequencies`.
+        """
+        ARAfilter = ara.antenna.ALL_FILTERS_DATA
+        filt_response = ARAfilter[0]
+        filt_freqs = ARAfilter[1]
+        return complex_interp(
+            x=frequencies, xp=filt_freqs, fp=filt_response,
+            method='euler', outer=0
+        )
+
+def directional_response(theta, phi, polarization=np.array([0,0,1])):
         """
         Generate the (complex) frequency-dependent directional response.
         For given angles and polarization direction, use the model of the
@@ -136,12 +158,14 @@ def directional_response(theta, phi, polarization):
         ARAAntenna.frequency_response : Calculate the (complex) frequency
                                         response of the antenna.
         """
-        e_theta = [np.cos(theta) * np.cos(phi),
-                   np.cos(theta) * np.sin(phi),
-                   -np.sin(theta)]
-        e_phi = [-np.sin(phi), np.cos(phi), 0]
-        theta_factor = np.dot(polarization, e_theta)
-        phi_factor = np.dot(polarization, e_phi)
+#         e_theta = [np.cos(theta) * np.cos(phi),
+#                    np.cos(theta) * np.sin(phi),
+#                    -np.sin(theta)]
+#         e_phi = [-np.sin(phi), np.cos(phi), 0]
+#         theta_factor = np.dot(polarization, e_theta)
+#         phi_factor = np.dot(polarization, e_phi)
+        theta_factor = 1
+        phi_factor = 1
         theta_gains = complex_bilinear_interp(
             x=np.degrees(theta), y=np.degrees(phi),
             xp=response_zens,
@@ -194,36 +218,125 @@ def frequency_response(frequencies):
                                    * n*50/377 /(4*np.pi))
     return heff
 
-def doInvFFT(spectrum):
-    fft_i_v= scipy.fft.irfft(fft_v)
-    return fft_i_v
-
 def doFFT(time, volts):
+    """
+    Calculate the Fast-Fourier transform (FFT) of a signal.
+    ----------
+    time : array_like
+        1D array of times (ns).
+    volts : array_like
+        1D array of amplitudes (mV).
+    Returns
+    -------
+    fft : array_like
+        Amplitude in f-domain.
+    freq : array_like
+        Frequencies in MHz
+    """
     fft = scipy.fft.rfft(np.array(volts))
-    dT = abs(time[1]-wform["time"][0])
+    dT = abs(time[1]-time[0])
     freq = 1000*scipy.fft.rfftfreq(n=len(time), d=dT)
     return fft, freq, dT
 
-def interpolate_filter(frequencies):
-        """
-        From PyREx: https://github.com/bhokansonfasig/pyrex/blob/851c7135b93aff9e0314253a173aef51831a5920/pyrex/custom/ara/antenna.py#L853
+def doInvFFT(spectrum):
+    """
+    Calculate the inverse Fast-Fourier transform (FFT) of a signal.
+    ----------
+    spectrum : array_like
+        1D array of amplitudes in f-domain
+    Returns
+    -------
+    fft_i_v : array_like
+        Amplitudes in mV.
+    """
+    fft_i_v= scipy.fft.irfft(spectrum)
+    return fft_i_v
 
-        Generate interpolated filter values for given frequencies.
-        Calculate the interpolated values of the antenna system's filter gain
-        data for some frequencies.
-        Parameters
-        ----------
-        frequencies : array_like
-            1D array of frequencies (Hz) at which to calculate gains.
-        Returns
-        -------
-        array_like
-            Complex filter gain in voltage for the given `frequencies`.
-        """
-        ARAfilter = ara.antenna.ALL_FILTERS_DATA
-        filt_response = ARAfilter[0]
-        filt_freqs = ARAfilter[1]
-        return complex_interp(
-            x=frequencies, xp=filt_freqs, fp=filt_response,
-            method='euler', outer=0
-        )
+def deDisperse_filter(time, voltage):
+    """
+    Apply inverse of ARA filter response phase (amplitudes remain the same)
+    ----------
+    time : array_like
+        1D array of times (ns)
+    voltage : array_like
+        1D array of amplitudes (mV).
+
+    Returns
+    -------
+    time : array_like
+        1D array of times (ns)
+    deDis_wf : array_like
+        1D array of amplitudes (mV) of de-dispersed waveform.
+    """
+    fft_v, fft_f, dT = doFFT(time,voltage)
+    response = np.array(interpolate_filter(fft_f*1E6))
+    response = np.divide(response,abs(response))
+    deDis_wf = np.divide(fft_v,response)
+    deDis_wf = np.nan_to_num(deDis_wf)
+    deDis_wf = doInvFFT(deDis_wf)
+    return time, deDis_wf
+
+    def deDisperse_antenna(time, voltage, theta, phi):
+    """
+    Apply inverse of ARA antenna response phase (amplitudes remain the same)
+    ----------
+    time : array_like
+        1D array of times (ns)
+    voltage : array_like
+        1D array of amplitudes (mV).
+    theta : double
+        Incoming signal theta direction
+    phi : double
+        Incoming signal phi direction
+
+    Returns
+    -------
+    time : array_like
+        1D array of times (ns)
+    deDis_wf : array_like
+        1D array of amplitudes (mV) of de-dispersed waveform.
+    """
+    fft_v, fft_f, dT = doFFT(time, voltage)
+    dir_res = directional_response(theta,phi)(fft_f*1E6)
+    heff = dir_res * frequency_response(fft_f*1E6)
+    response = dir_res*heff
+    response = np.divide(response,abs(response))
+    deDis_wf = np.divide(fft_v,response)
+    deDis_wf = np.nan_to_num(deDis_wf)
+    deDis_wf = doInvFFT(deDis_wf)
+    return time, deDis_wf
+
+def deDisperse(time, voltage, theta, phi):
+    """
+    Apply inverse of ARA antenna+filter response phase (amplitudes remain the same)
+    ----------
+    time : array_like
+        1D array of times (ns)
+    voltage : array_like
+        1D array of amplitudes (mV).
+    theta : double
+        Incoming signal theta direction
+    phi : double
+        Incoming signal phi direction
+
+    Returns
+    -------
+    time : array_like
+        1D array of times (ns)
+    deDis_wf : array_like
+        1D array of amplitudes (mV) of de-dispersed waveform.
+    """
+    sampRate = len(time)/(max(time)-min(time))
+    b,a = signal.bessel(4, [0.15,0.4], 'bandpass', analog=False, fs=sampRate)
+    voltage = signal.lfilter(b, a, voltage)
+    fft_v, fft_f, dT = doFFT(time,voltage)
+    response_filter = np.array(interpolate_filter(fft_f*1E6))
+    dir_res = directional_response(theta,phi)(fft_f*1E6)
+    heff = dir_res * frequency_response(fft_f*1E6)
+    response_antenna = dir_res*heff
+    response = response_filter + response_antenna
+    response = np.divide(response,abs(response))
+    deDis_wf = np.divide(fft_v,response)
+    deDis_wf = np.nan_to_num(deDis_wf)
+    deDis_wf = doInvFFT(deDis_wf)
+    return time, deDis_wf
