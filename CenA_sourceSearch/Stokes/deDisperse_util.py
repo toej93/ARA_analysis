@@ -1,16 +1,34 @@
+import os
 import pickle
 import numpy as np
 import scipy.signal
 from pyrex.internal_functions import (normalize, complex_bilinear_interp, complex_interp)
-import pyrex.custom.analysis as analysis
-import pyrex.custom.araroot as araroot
+# import pyrex.custom.analysis as analysis
+# import pyrex.custom.araroot as araroot
 import pyrex.custom.envelope_reco as reco
 import pyrex.custom.ara as ara
 from pyrex.internal_functions import (normalize, complex_bilinear_interp,
                                       complex_interp)
+
 """
 Most of these functions were modified from PyREx
 """
+
+VPOL_DATA_FILE = os.path.join(ara.antenna.ARA_DATA_DIR,
+                              "ARA_bicone6in_output_MY_fixed.txt")
+VPOL_THETA_RESPONSE_DATA = ara.antenna._read_arasim_antenna_data(VPOL_DATA_FILE)
+VPOL_RESPONSE_DATA = (
+    VPOL_THETA_RESPONSE_DATA[0],
+    np.zeros(VPOL_THETA_RESPONSE_DATA[0].shape),
+    *VPOL_THETA_RESPONSE_DATA[1:]
+)
+ara_antenna = VPOL_RESPONSE_DATA
+
+theta_response = ara_antenna[0]
+phi_response = ara_antenna[1]
+response_freqs = ara_antenna[2]
+response_zens = ara_antenna[3]
+response_azis = ara_antenna[4]
 
 def load_tof_grid_data(filename, antenna_positions=None):
     with np.load(filename) as f:
@@ -276,7 +294,7 @@ def deDisperse_filter(time, voltage):
     deDis_wf = doInvFFT(deDis_wf)
     return time, deDis_wf
 
-    def deDisperse_antenna(time, voltage, theta, phi):
+def deDisperse_antenna(time, voltage, theta, phi):
     """
     Apply inverse of ARA antenna response phase (amplitudes remain the same)
     ----------
@@ -340,3 +358,34 @@ def deDisperse(time, voltage, theta, phi):
     deDis_wf = np.nan_to_num(deDis_wf)
     deDis_wf = doInvFFT(deDis_wf)
     return time, deDis_wf
+
+def deConvolve_antenna(time, voltage, theta, phi, pol_ant):
+    import scipy.signal as signal
+    if(pol_ant == 0):
+        ant = ara.VpolAntenna(name="Dummy Vpol", position=(0, 0, 0), power_threshold=0)
+        polarization=np.array([0,0,1])
+    if(pol_ant == 1):
+        ant = ara.HpolAntenna(name="Dummy Hpol", position=(0, 0, 0), power_threshold=0)
+        polarization=[0,1,0]
+    sampRate = len(time)/(max(time)-min(time))
+    b,a = signal.bessel(4, [0.15,0.4], 'bandpass', analog=False, fs=sampRate)
+    fft_v, fft_f, dT = doFFT(time,voltage)
+    response_filter = np.array(interpolate_filter(fft_f*1E6))
+    dir_res = ant.antenna.directional_response(theta=theta, phi=phi, polarization=polarization)(fft_f*1E6)
+    heff = ant.antenna.frequency_response(fft_f*1E6)
+    response_antenna = dir_res*heff
+    response = response_antenna
+    deDis_wf = np.divide(fft_v,abs(response))
+    response = np.divide(response,abs(response))
+    deDis_wf = np.divide(deDis_wf,response)
+    deDis_wf = np.nan_to_num(deDis_wf)
+    revert = doInvFFT(deDis_wf)
+    deDis_wf = signal.lfilter(b, a, revert)
+    return time, deDis_wf
+    #vetted!
+
+def PolAngleStokes(Hpol,Vpol):
+    return np.degrees(0.5*np.arctan2(2*Hpol*Vpol,(Hpol**2-Vpol**2)))
+
+def PolRatio(Hpol,Vpol):
+    return np.degrees(np.arctan(Hpol/Vpol))
