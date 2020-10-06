@@ -59,6 +59,7 @@ print('total events:', totalEvents)
 isTrue=False
 theta_reco = []
 theta_antenna = []
+phi_reco = []
 polVec_x = []
 polVec_y = []
 polVec_z = []
@@ -123,6 +124,8 @@ for i in range(142,totalEvents):#loop over events
         plt.savefig("wf_debug.png", dpi=200)
     vertex, corrValue = util.doReco(pyrex_array)
     theta_reco.append(180-vertex[1])
+    phi_reco.append(vertex[2])
+
     # gr = [None]*2
     plt.figure()
     for ch in [0,8]:
@@ -134,14 +137,14 @@ for i in range(142,totalEvents):#loop over events
           v.append(gr.GetY()[k])
     # plt.title("An example of a triggered simulated event with Python")
         if(ch==0):
-            deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), 0, 0)
-            maxV = sum(deConv_v**2)
+            deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), np.deg2rad(vertex[2]), 0)
+            maxV = max(abs(deConv_v))
             if(plotting == True):
                 plt.plot(deConv_t,deConv_v,linewidth=0.5, label = "Ch %i"%ch)
 
         else:
-            deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), 0, 1)
-            maxH = sum(deConv_v**2)
+            deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), np.deg2rad(vertex[2]), 1)
+            maxH = max(abs(deConv_v))
             if(plotting == True):
                 plt.plot(deConv_t,deConv_v,linewidth=0.5, label = "Ch %i"%ch)
 
@@ -157,5 +160,5 @@ for i in range(142,totalEvents):#loop over events
 
 
     # print(vertex[1])
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco), "theta_antenna": np.array(theta_antenna), "pol_x":np.array(polVec_x), "pol_y":np.array(polVec_y), "pol_z":np.array(polVec_z), "AngStokes":np.array(angle_stokes),"AngRatio":np.array(angle_ratio)})
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco), "theta_antenna": np.array(theta_antenna), "phi_reco": np.array(phi_reco), "pol_x":np.array(polVec_x), "pol_y":np.array(polVec_y), "pol_z":np.array(polVec_z), "AngStokes":np.array(angle_stokes),"AngRatio":np.array(angle_ratio)})
 original_df.to_pickle("./pol_quant_debug.pkl")

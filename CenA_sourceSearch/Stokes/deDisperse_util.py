@@ -361,12 +361,14 @@ def deDisperse(time, voltage, theta, phi):
 
 def deConvolve_antenna(time, voltage, theta, phi, pol_ant):
     import scipy.signal as signal
+    polarization=np.array([-np.sin(phi),np.cos(phi),-1/np.sin(theta)])
     if(pol_ant == 0):
         ant = ara.VpolAntenna(name="Dummy Vpol", position=(0, 0, 0), power_threshold=0)
-        polarization=np.array([0,0,1])
-    if(pol_ant == 1):
+        # ant.set_orientation(z_axis=(0, 0, 1), x_axis=(1, 0, 0))#Adding to convert from global coordinates to local antenna coords.
+    elif(pol_ant == 1):
         ant = ara.HpolAntenna(name="Dummy Hpol", position=(0, 0, 0), power_threshold=0)
-        polarization=[0,1,0]
+        # ant.set_orientation(z_axis=(0, 0, 1), x_axis=(1, 0, 0))
+
     sampRate = len(time)/(max(time)-min(time))
     b,a = signal.bessel(4, [0.15,0.4], 'bandpass', analog=False, fs=sampRate)
     fft_v, fft_f, dT = doFFT(time,voltage)
