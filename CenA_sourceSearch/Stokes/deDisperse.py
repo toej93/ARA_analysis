@@ -35,7 +35,7 @@ gSystem.Load('libAra.so') #load the simulation event library. You might get an e
 
 file_list=[]#Define an empty list
 for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/default"):#Loop over desired directory
-    if filename.startswith("AraOut.default_A2_c1_E610.txt.run90"): #extension, .root in this case
+    if (filename.startswith("AraOut.default_A2_c1_E610.txt.run90") or filename.startswith("AraOut.default_A2_c1_E610.txt.run91") or filename.startswith("AraOut.default_A2_c1_E610.txt.run92")): #extension, .root in this case
         file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/default", str(filename))) #add file name to the list
 
 
@@ -66,7 +66,8 @@ polVec_z = []
 angle_stokes = []
 angle_ratio = []
 evt_num = []
-for i in range(142,totalEvents):#loop over events
+
+for i in range(0,totalEvents):#loop over events
     # if(isTrue):
     #     break
     eventTree.GetEntry(i)
@@ -83,7 +84,8 @@ for i in range(142,totalEvents):#loop over events
             continue
     # doing nothing on exception
     try:
-        theta_antenna.append(np.rad2deg(np.array(rec_angle).mean()))#180-rec_PyREx should be approx. equal to this avg
+        theta_antenna_ = np.rad2deg(np.array(rec_angle).mean())
+        theta_antenna.append(theta_antenna_)#180-rec_PyREx should be approx. equal to this avg
     except:
         continue
     # polVec = np.zeros(3)
@@ -138,12 +140,14 @@ for i in range(142,totalEvents):#loop over events
     # plt.title("An example of a triggered simulated event with Python")
         if(ch==0):
             deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), np.deg2rad(vertex[2]), 0)
+            # deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 0)
             maxV = max(abs(deConv_v))
             if(plotting == True):
                 plt.plot(deConv_t,deConv_v,linewidth=0.5, label = "Ch %i"%ch)
 
         else:
             deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), np.deg2rad(vertex[2]), 1)
+            # deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 1)
             maxH = max(abs(deConv_v))
             if(plotting == True):
                 plt.plot(deConv_t,deConv_v,linewidth=0.5, label = "Ch %i"%ch)
