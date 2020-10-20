@@ -1,0 +1,8 @@
+This is task 3
+***NOTE***: Opening default SQLite database for 2013-2017. Unixtime argument is 0. If you want the correct channel mappings for ARA03 & ARA01 for 2018 & after please specify either: 
+a) The right year when you call AraGeomTool::getStationInfo(3,2017) where 3 is stationID and 2017 is DB year
+OR
+b) Call UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib); ***BEFORE*** 
+AraGeomTool::getStationInfo(3,2017)
+Opening default 2013-2017 SQLite tables for all stations 
+slurmstepd: error: *** JOB 2029573 ON p0217 CANCELLED AT 2020-10-13T15:55:57 ***

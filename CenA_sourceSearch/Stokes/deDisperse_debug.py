@@ -34,9 +34,9 @@ gSystem.Load('libAra.so') #load the simulation event library. You might get an e
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/default/AraOut.default_A2_c1_E610.txt.run9.root")
 
 file_list=[]#Define an empty list
-for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel"):#Loop over desired directory
-        if(filename.startswith("AraOut.default_A2_c1_E590.txt.run%s"%(sys.argv[1]))): #extension, .root in this case
-            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel", str(filename))) #add file name to the list
+for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel_noiseless"):#Loop over desired directory
+        if (filename.startswith("AraOut.default_noiseless_A2_c1_E610.txt.run26")): #extension, .root in this case
+            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel_noiseless", str(filename))) #add file name to the list
 
 
 
@@ -66,17 +66,15 @@ polVec_z = []
 angle_stokes = []
 angle_ratio = []
 evt_num = []
-rmsV = []
-rmsH = []
+rms = []
 
 for i in range(0,totalEvents):#loop over events
-    # if(isTrue):
-    #     break
+    if(isTrue):
+        break
     eventTree.GetEntry(i)
     SimTree.GetEntry(i)
     if(reportPtr.stations[0].Global_Pass <= 0):#making sure that the event did trigger, otherwise there won't be a waveform (this might not be needed if all waveforms are saved)
         continue
-
     try:
         theta_antenna_ = reportPtr.stations[0].strings[0].antennas[0].rec_ang[0]
     except:
@@ -116,8 +114,10 @@ for i in range(0,totalEvents):#loop over events
           v.append(gr[ch].GetY()[k])
         pyrex_array.append(pyrex.Signal(1E-9*np.array(t), 1E-3*np.array(v)))#Convert to seconds and volts
     # isTrue=True
-    plotting = False
+    plotting = True
     if(plotting == True):
+        plt.figure()
+
         # fig, axs = plt.subplots(1, 2, figsize = (10,10))
         # axs = axs.ravel()
 
@@ -128,17 +128,43 @@ for i in range(0,totalEvents):#loop over events
             for k in range(0,graph.GetN()):
               t.append(graph.GetX()[k])
               v.append(graph.GetY()[k])
+            # if(ch>0):
             plt.plot(t,v,linewidth=0.5, label = "Ch %i"%ch)
             plt.legend()
+            if(ch==1):
+                waveform_df = pd.DataFrame({"time":np.array(t),"voltage": np.array(v)})
+                waveform_df.to_pickle("waveform_AraSim_noiseless.pkl")
         # plt.title("An example of a triggered simulated event with Python")
         plt.xlabel("Time [ns]")
         plt.ylabel("Voltage [mV]")
         plt.title("Digitized")
         plt.tight_layout()
-        plt.savefig("wf_debug.png", dpi=200)
+        plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_debug.png", dpi=100)
+
+        plt.figure()
+        for ch in [0,8]:
+            t = []
+            v = []
+            graph = rawEvent.getGraphFromRFChan(ch)#print waveform
+            for k in range(0,graph.GetN()):
+              t.append(graph.GetX()[k])
+              v.append(graph.GetY()[k])
+            fft, freq, dT = util.doFFT(t,v)
+            plt.plot(freq,abs(fft),linewidth=0.5, label = "Ch %i"%ch)
+            plt.xlim(0,1000)
+            plt.yscale("log")
+            plt.legend()
+        # plt.title("An example of a triggered simulated event with Python")
+        plt.xlabel("Freq [MHz]")
+        plt.ylabel("Amplitude")
+        plt.title("Spectra (Digitized waveform)")
+        plt.tight_layout()
+        plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/spectra_debug.png", dpi=100)
+
     vertex, corrValue = util.doReco(pyrex_array)
     theta_reco.append(180-vertex[1])
     phi_reco.append(vertex[2])
+
 
     # gr = [None]*2
     plt.figure()
@@ -151,36 +177,71 @@ for i in range(0,totalEvents):#loop over events
           v.append(gr.GetY()[k])
     # plt.title("An example of a triggered simulated event with Python")
         if(ch==0):
-            deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 0)
-            # deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 0)
-            maxV = max(abs(deConv_v))
+            # deConv_t_V,deConv_v_V = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), np.deg2rad(vertex[2]), 0)
+            deConv_t_V,deConv_v_V = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 0)
+            maxV = max(abs(deConv_v_V))
             rmsV_ = max(abs(np.array(v)))
+
             if(plotting == True):
-                plt.plot(deConv_t,deConv_v,linewidth=0.5, label = "Ch %i"%ch)
+                plt.plot(deConv_t_V,deConv_v_V,linewidth=0.5, label = "Ch %i"%ch)
 
         else:
-            deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 1)
-            # deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 1)
-            maxH = max(abs(deConv_v))
+            # deConv_t_H,deConv_v_H = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), np.deg2rad(vertex[2]), 1)
+            deConv_t_H,deConv_v_H = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 1)
+            maxH = max(abs(deConv_v_H))
             rmsH_ = max(abs(np.array(v)))
+
             if(plotting == True):
-                plt.plot(deConv_t,deConv_v,linewidth=0.5, label = "Ch %i"%ch)
+                plt.plot(deConv_t_H,deConv_v_H,linewidth=0.5, label = "Ch %i"%ch)
+                plt.legend()
+                plt.xlabel("Time [ns]")
+                plt.ylabel("Amplitude [mV/m]")
+                plt.title('Deconvolved')
+                plt.tight_layout()
+                plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_debug_DeConv.png", dpi=100)
+
+
+    plt.figure()
+    fft_V, freq_V, dT_V = util.doFFT(deConv_t_V,deConv_v_V)
+    fft_H, freq_H, dT_H = util.doFFT(deConv_t_H,deConv_v_H)
+    plt.plot(freq_V,abs(fft_V),linewidth=0.5, label = "Ch 0")
+    plt.plot(freq_H,abs(fft_H),linewidth=0.5, label = "Ch 8")
+
+    plt.legend()
+    plt.xlabel("Freq. [MHz]")
+    plt.ylabel("Amplitude")
+    plt.title('Spectra (Deconvolved)')
+    # plt.yscale("log")
+    plt.xlim(0,1000)
+    plt.tight_layout()
+    plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_debug_DeConv_spectrum.png", dpi=100)
 
     if(plotting == True):
-        plt.legend()
-        plt.xlabel("Time [ns]")
-        plt.ylabel("Voltage [mV]")
-        plt.title('Deconvolved')
+        gr = [None]*16
+        fig, axs = plt.subplots(4, 4, figsize = (12,10))
+        axs = axs.ravel()
+        for ch in range(0,16):
+            t = []
+            v = []
+            gr[ch] = rawEvent.getGraphFromRFChan(ch)#print waveform
+            for kk in range(0,gr[ch].GetN()):
+              t.append(gr[ch].GetX()[kk])
+              v.append(gr[ch].GetY()[kk])
+            axs[ch].plot(t,v,linewidth=0.5, label = "Ch %i"%ch)
+            axs[ch].legend()
+        # plt.title("An example of a triggered simulated event with Python")
+        # plt.xlabel("Time [ns]")
+        # plt.ylabel("Voltage [mV]")
         plt.tight_layout()
-        plt.savefig("wf_debug_DeConv.png", dpi=200)
+        plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_all.png", dpi=100)
+    if((util.PolAngleStokes(maxH,maxV)-np.degrees(np.arccos(abs(polVec_z_))))>30 and rmsV_>50 and rmsH_<1400 and rmsH_<1400 and rmsH_>50):
+        print("ThetaPol_reco:%0.2f"%util.PolAngleStokes(maxH,maxV))
+        print("ThetaPol_true:%0.2f"%np.degrees(np.arccos(abs(polVec_z_))))
+        print(i)
+        print(polVec_x_,polVec_y_,polVec_z_)
+        break
     angle_stokes.append(util.PolAngleStokes(maxV,maxH))
     angle_ratio.append(util.PolRatio(maxH, maxV))
-    # rms_ = max(rms1,rms2)
-    rmsV.append(rmsV_)
-    rmsH.append(rmsH_)
+    # rms.append(rms_)
 
-
-
-    # print(vertex[1])
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco), "phi_reco": np.array(phi_reco), "pol_x":np.array(polVec_x), "pol_y":np.array(polVec_y), "pol_z":np.array(polVec_z), "AngStokes":np.array(angle_stokes),"AngRatio":np.array(angle_ratio),"rmsV":np.array(rmsV),"rmsH":np.array(rmsH)})
-original_df.to_pickle("./pol_quant_noise_1E19_%s.pkl"%(sys.argv[1]))
+# original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco), "phi_reco": np.array(phi_reco), "thetaPol_reco":np.degrees(np.arccos(abs(np.array(polVec_z)))), "AngStokes":np.array(angle_stokes),"AngRatio":np.array(angle_ratio),"rms":np.array(rms)})

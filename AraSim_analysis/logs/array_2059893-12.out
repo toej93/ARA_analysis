@@ -1,0 +1,2149 @@
+***NOTE***: Opening default SQLite database for 2013-2017. Unixtime argument is 0. If you want the correct channel mappings for ARA03 & ARA01 for 2018 & after please specify either: 
+a) The right year when you call AraGeomTool::getStationInfo(3,2017) where 3 is stationID and 2017 is DB year
+OR
+b) Call UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib); ***BEFORE*** 
+AraGeomTool::getStationInfo(3,2017)
+Opening default 2013-2017 SQLite tables for all stations 
+***NOTE***: Opening default SQLite database for 2013-2017. Unixtime argument is 0. If you want the correct channel mappings for ARA03 & ARA01 for 2018 & after please specify either: 
+a) The right year when you call AraGeomTool::getStationInfo(3,2017) where 3 is stationID and 2017 is DB year
+OR
+b) Call UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib); ***BEFORE*** 
+AraGeomTool::getStationInfo(3,2017)
+Opening default 2013-2017 SQLite tables for all stations 
+***NOTE***: Opening default SQLite database for 2013-2017. Unixtime argument is 0. If you want the correct channel mappings for ARA03 & ARA01 for 2018 & after please specify either: 
+a) The right year when you call AraGeomTool::getStationInfo(3,2017) where 3 is stationID and 2017 is DB year
+OR
+b) Call UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib); ***BEFORE*** 
+AraGeomTool::getStationInfo(3,2017)
+Opening default 2013-2017 SQLite tables for all stations 
+***NOTE***: Opening default SQLite database for 2013-2017. Unixtime argument is 0. If you want the correct channel mappings for ARA03 & ARA01 for 2018 & after please specify either: 
+a) The right year when you call AraGeomTool::getStationInfo(3,2017) where 3 is stationID and 2017 is DB year
+OR
+b) Call UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib); ***BEFORE*** 
+AraGeomTool::getStationInfo(3,2017)
+Opening default 2013-2017 SQLite tables for all stations 
+***NOTE***: Opening default SQLite database for 2013-2017. Unixtime argument is 0. If you want the correct channel mappings for ARA03 & ARA01 for 2018 & after please specify either: 
+a) The right year when you call AraGeomTool::getStationInfo(3,2017) where 3 is stationID and 2017 is DB year
+OR
+b) Call UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib); ***BEFORE*** 
+AraGeomTool::getStationInfo(3,2017)
+Opening default 2013-2017 SQLite tables for all stations 
+TStreamerInfo::BuildCheck:0: RuntimeWarning: 
+   The StreamerInfo of class Settings read from file /fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel/AraOut.default_A2_c1_E590.txt.run12.root
+   has the same version (=1) as the active class but a different checksum.
+   You should update the version to ClassDef(Settings,2).
+   Do not try to write objects with the current class definition,
+   the files will not be readable.
+
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DETECTOR_STATION_LIVETIME_CONFIG; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int number_of_stations; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int INTERACTION_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POSNU_RADIUS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WHICHPARAMETERIZATION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SIMULATION_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int EVENT_TYPE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WAVE_TYPE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int LPM; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SECONDARIES; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TAUDECAY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double TIMESTEP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double PHASE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NFOUR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NOISE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ATMOSPHERE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_SCAN_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POWERTHRESHOLD; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double MAXT_DIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int IDELAYBEFOREPEAK_DIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int IWINDOW_DIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DATA_BIN_SIZE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NOISE_TEMP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_ANALYSIS_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double TRIG_TIMEOUT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double TRIG_WINDOW; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NOISE_EVENTS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DATA_SAVE_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int N_TRIG; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int RANDOM_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SEED; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int BORE_HOLE_ANTENNA_LAYOUT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DATA_LIKE_OUTPUT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double RAYSOL_RANGE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int CALPULSER_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TESTBED_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int READGEOM; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int V_MIMIC_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_INSTALLED_TRIGGER_SETTINGS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NUM_INSTALLED_STATIONS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int PICK_POSNU_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double MAX_POSNU_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NNU_THIS_THETA; //0, PI
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NNU_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NNU_D_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NNU_THIS_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NNU_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NNU_D_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double CALPUL_OFFCONE_ANGLE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double CALPUL_AMP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_ONLY_BH_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_THRES_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NOISE_CHANNEL_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double CONST_MEANDIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double CONST_RMSDIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_TESTBED_RFCM_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double RFCM_OFFSET; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_MANUAL_GAINOFFSET; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_CH_GAINOFFSET; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double MANUAL_GAINOFFSET_VALUE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NOISE_WAVEFORM_GENERATE_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int GETCHORD_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int taumodes; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int BH_ANT_SEP_DIST_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int N_TRIG_V; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int N_TRIG_H; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int FILL_TREE_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ONLY_PASSED_EVENTS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NNU_PASSED; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double PICKNEARUNBIASED_R; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SHOWER_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SHOWER_STEP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SHOWER_PARAM_MODEL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double OFFCONE_LIMIT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ALL_ANT_V_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int PHASE_SKIP_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DEBUG_MODE_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DEBUG_SKIP_EVT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double V_SATURATION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ADDITIONAL_DEPTH_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ADDITIONAL_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_ONLY_LOW_CH_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ACCUM_TRIG_SEARCH_BINS_STATION0; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int OUTPUT_TDR_GRAPH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NU_NUBAR_SELECT_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SELECT_FLAVOR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SELECT_CURRENT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int AVZ_NORM_FACTOR_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int RAY_TRACE_ICE_MODEL_PARAMS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WAVEFORM_LENGTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WAVEFORM_CENTER; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POSNU_R; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POSNU_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POSNU_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ARBITRARY_EVENT_ATTENUATION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double PICK_ABOVE_HEIGHT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int EVENT_GENERATION_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ANTENNA_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int APPLY_NOISE_FIGURE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int CUSTOM_ELECTRONICS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<int> EVID; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<int> NUFLAVORINT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<int> NUBAR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> PNU; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<int> CURRENTINT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_POSNU_R; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_POSNU_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_POSNU_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_NNU_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_NNU_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> ELAST; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int UNBIASED_SELECTION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WHICH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int CYLINDRICALSYMMETRY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SIGMA_FACTOR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SIGMAPARAM; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int YPARAM; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ELAST_Y; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SIGMA_SELECT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SIGNAL_FLUCT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIGGERSCHEME; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ZEROSIGNAL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int REMOVEPOLARIZATION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int EVENTSMAP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WHICHRAYS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int LCPRCP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int JUSTVPOL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NFOLD; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int CHMASKING; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int PHIMASKING; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NLAYERS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NANTENNAS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ONLYFINAL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int HIST_MAX_ENTRIES; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int HIST; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double BW; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DISCONES; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NDISCONES_PASS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int BORESIGHTS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SLAC; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLACSLOPE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLACICELENGTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLAC_HORIZDIST; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLAC_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLAC_HORIZ_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ROUGHNESS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int FIRN; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SLOPEY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLOPEYSIZE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   bool DEBUG; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   string outputdir; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double THERMALNOISE_FACTOR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double FREQ_LOW_SEAVEYS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double FREQ_HIGH_SEAVEYS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double BW_SEAVEYS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int FORSECKEL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ROUGHSIZE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USEPOSITIONWEIGHTS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WRITE_FILE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int MINRAY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int MAXRAY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_SIGNAL_CHAIN_LOWER_BOUND; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SC_EFFICIENCY_ERROR_V; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SC_EFFICIENCY_ERROR_H; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int horizontal_banana_points; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int vertical_banana_points; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SYSTEMATICS_IceAtten; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SYSTEMATICS_Askaryan; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SYSTEMATICS_nofz; //
+TStreamerInfo::BuildCheck:0: RuntimeWarning: 
+   The StreamerInfo of class Report read from file /fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel/AraOut.default_A2_c1_E590.txt.run12.root
+   has the same version (=1) as the active class but a different checksum.
+   You should update the version to ClassDef(Report,2).
+   Do not try to write objects with the current class definition,
+   the files will not be readable.
+
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Report' is missing from 
+the on-file layout version 1:
+   double triggerDelay; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Report' is missing from 
+the on-file layout version 1:
+   double mostDelay; //
+total events: 40000
+Destruct class Detector
+TStreamerInfo::BuildCheck:0: RuntimeWarning: 
+   The StreamerInfo of class Settings read from file /fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel/AraOut.default_A2_c1_E600.txt.run12.root
+   has the same version (=1) as the active class but a different checksum.
+   You should update the version to ClassDef(Settings,2).
+   Do not try to write objects with the current class definition,
+   the files will not be readable.
+
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DETECTOR_STATION_LIVETIME_CONFIG; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int number_of_stations; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int INTERACTION_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POSNU_RADIUS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WHICHPARAMETERIZATION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SIMULATION_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int EVENT_TYPE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WAVE_TYPE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int LPM; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SECONDARIES; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TAUDECAY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double TIMESTEP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double PHASE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NFOUR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NOISE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ATMOSPHERE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_SCAN_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POWERTHRESHOLD; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double MAXT_DIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int IDELAYBEFOREPEAK_DIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int IWINDOW_DIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DATA_BIN_SIZE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NOISE_TEMP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_ANALYSIS_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double TRIG_TIMEOUT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double TRIG_WINDOW; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NOISE_EVENTS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DATA_SAVE_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int N_TRIG; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int RANDOM_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SEED; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int BORE_HOLE_ANTENNA_LAYOUT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DATA_LIKE_OUTPUT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double RAYSOL_RANGE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int CALPULSER_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TESTBED_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int READGEOM; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int V_MIMIC_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_INSTALLED_TRIGGER_SETTINGS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NUM_INSTALLED_STATIONS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int PICK_POSNU_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double MAX_POSNU_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NNU_THIS_THETA; //0, PI
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NNU_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NNU_D_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NNU_THIS_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NNU_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NNU_D_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double CALPUL_OFFCONE_ANGLE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double CALPUL_AMP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_ONLY_BH_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_THRES_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NOISE_CHANNEL_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double CONST_MEANDIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double CONST_RMSDIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_TESTBED_RFCM_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double RFCM_OFFSET; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_MANUAL_GAINOFFSET; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_CH_GAINOFFSET; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double MANUAL_GAINOFFSET_VALUE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NOISE_WAVEFORM_GENERATE_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int GETCHORD_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int taumodes; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int BH_ANT_SEP_DIST_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int N_TRIG_V; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int N_TRIG_H; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int FILL_TREE_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ONLY_PASSED_EVENTS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NNU_PASSED; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double PICKNEARUNBIASED_R; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SHOWER_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SHOWER_STEP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SHOWER_PARAM_MODEL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double OFFCONE_LIMIT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ALL_ANT_V_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int PHASE_SKIP_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DEBUG_MODE_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DEBUG_SKIP_EVT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double V_SATURATION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ADDITIONAL_DEPTH_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ADDITIONAL_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_ONLY_LOW_CH_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ACCUM_TRIG_SEARCH_BINS_STATION0; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int OUTPUT_TDR_GRAPH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NU_NUBAR_SELECT_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SELECT_FLAVOR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SELECT_CURRENT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int AVZ_NORM_FACTOR_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int RAY_TRACE_ICE_MODEL_PARAMS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WAVEFORM_LENGTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WAVEFORM_CENTER; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POSNU_R; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POSNU_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POSNU_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ARBITRARY_EVENT_ATTENUATION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double PICK_ABOVE_HEIGHT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int EVENT_GENERATION_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ANTENNA_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int APPLY_NOISE_FIGURE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int CUSTOM_ELECTRONICS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<int> EVID; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<int> NUFLAVORINT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<int> NUBAR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> PNU; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<int> CURRENTINT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_POSNU_R; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_POSNU_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_POSNU_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_NNU_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_NNU_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> ELAST; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int UNBIASED_SELECTION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WHICH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int CYLINDRICALSYMMETRY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SIGMA_FACTOR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SIGMAPARAM; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int YPARAM; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ELAST_Y; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SIGMA_SELECT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SIGNAL_FLUCT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIGGERSCHEME; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ZEROSIGNAL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int REMOVEPOLARIZATION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int EVENTSMAP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WHICHRAYS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int LCPRCP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int JUSTVPOL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NFOLD; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int CHMASKING; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int PHIMASKING; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NLAYERS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NANTENNAS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ONLYFINAL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int HIST_MAX_ENTRIES; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int HIST; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double BW; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DISCONES; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NDISCONES_PASS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int BORESIGHTS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SLAC; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLACSLOPE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLACICELENGTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLAC_HORIZDIST; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLAC_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLAC_HORIZ_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ROUGHNESS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int FIRN; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SLOPEY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLOPEYSIZE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   bool DEBUG; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   string outputdir; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double THERMALNOISE_FACTOR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double FREQ_LOW_SEAVEYS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double FREQ_HIGH_SEAVEYS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double BW_SEAVEYS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int FORSECKEL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ROUGHSIZE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USEPOSITIONWEIGHTS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WRITE_FILE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int MINRAY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int MAXRAY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_SIGNAL_CHAIN_LOWER_BOUND; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SC_EFFICIENCY_ERROR_V; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SC_EFFICIENCY_ERROR_H; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int horizontal_banana_points; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int vertical_banana_points; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SYSTEMATICS_IceAtten; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SYSTEMATICS_Askaryan; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SYSTEMATICS_nofz; //
+TStreamerInfo::BuildCheck:0: RuntimeWarning: 
+   The StreamerInfo of class Report read from file /fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel/AraOut.default_A2_c1_E600.txt.run12.root
+   has the same version (=1) as the active class but a different checksum.
+   You should update the version to ClassDef(Report,2).
+   Do not try to write objects with the current class definition,
+   the files will not be readable.
+
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Report' is missing from 
+the on-file layout version 1:
+   double triggerDelay; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Report' is missing from 
+the on-file layout version 1:
+   double mostDelay; //
+total events: 40000
+Destruct class Detector
+TStreamerInfo::BuildCheck:0: RuntimeWarning: 
+   The StreamerInfo of class Settings read from file /fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel/AraOut.default_A2_c1_E610.txt.run12.root
+   has the same version (=1) as the active class but a different checksum.
+   You should update the version to ClassDef(Settings,2).
+   Do not try to write objects with the current class definition,
+   the files will not be readable.
+
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DETECTOR_STATION_LIVETIME_CONFIG; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int number_of_stations; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int INTERACTION_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POSNU_RADIUS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WHICHPARAMETERIZATION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SIMULATION_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int EVENT_TYPE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WAVE_TYPE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int LPM; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SECONDARIES; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TAUDECAY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double TIMESTEP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double PHASE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NFOUR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NOISE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ATMOSPHERE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_SCAN_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POWERTHRESHOLD; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double MAXT_DIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int IDELAYBEFOREPEAK_DIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int IWINDOW_DIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DATA_BIN_SIZE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NOISE_TEMP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_ANALYSIS_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double TRIG_TIMEOUT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double TRIG_WINDOW; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NOISE_EVENTS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DATA_SAVE_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int N_TRIG; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int RANDOM_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SEED; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int BORE_HOLE_ANTENNA_LAYOUT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DATA_LIKE_OUTPUT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double RAYSOL_RANGE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int CALPULSER_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TESTBED_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int READGEOM; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int V_MIMIC_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_INSTALLED_TRIGGER_SETTINGS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NUM_INSTALLED_STATIONS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int PICK_POSNU_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double MAX_POSNU_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NNU_THIS_THETA; //0, PI
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NNU_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NNU_D_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NNU_THIS_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NNU_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NNU_D_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double CALPUL_OFFCONE_ANGLE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double CALPUL_AMP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_ONLY_BH_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_THRES_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NOISE_CHANNEL_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double CONST_MEANDIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double CONST_RMSDIODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_TESTBED_RFCM_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double RFCM_OFFSET; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_MANUAL_GAINOFFSET; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_CH_GAINOFFSET; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double MANUAL_GAINOFFSET_VALUE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NOISE_WAVEFORM_GENERATE_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int GETCHORD_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int taumodes; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int BH_ANT_SEP_DIST_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int N_TRIG_V; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int N_TRIG_H; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int FILL_TREE_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ONLY_PASSED_EVENTS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NNU_PASSED; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double PICKNEARUNBIASED_R; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SHOWER_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SHOWER_STEP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SHOWER_PARAM_MODEL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double OFFCONE_LIMIT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ALL_ANT_V_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int PHASE_SKIP_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DEBUG_MODE_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DEBUG_SKIP_EVT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double V_SATURATION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ADDITIONAL_DEPTH_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ADDITIONAL_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIG_ONLY_LOW_CH_ON; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ACCUM_TRIG_SEARCH_BINS_STATION0; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int OUTPUT_TDR_GRAPH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NU_NUBAR_SELECT_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SELECT_FLAVOR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SELECT_CURRENT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int AVZ_NORM_FACTOR_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int RAY_TRACE_ICE_MODEL_PARAMS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WAVEFORM_LENGTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WAVEFORM_CENTER; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POSNU_R; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POSNU_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double POSNU_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ARBITRARY_EVENT_ATTENUATION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double PICK_ABOVE_HEIGHT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int EVENT_GENERATION_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ANTENNA_MODE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int APPLY_NOISE_FIGURE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int CUSTOM_ELECTRONICS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<int> EVID; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<int> NUFLAVORINT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<int> NUBAR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> PNU; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<int> CURRENTINT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_POSNU_R; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_POSNU_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_POSNU_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_NNU_THETA; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> IND_NNU_PHI; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   vector<double> ELAST; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int UNBIASED_SELECTION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WHICH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int CYLINDRICALSYMMETRY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SIGMA_FACTOR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SIGMAPARAM; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int YPARAM; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ELAST_Y; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SIGMA_SELECT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SIGNAL_FLUCT; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int TRIGGERSCHEME; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ZEROSIGNAL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int REMOVEPOLARIZATION; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int EVENTSMAP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WHICHRAYS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int LCPRCP; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int JUSTVPOL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NFOLD; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int CHMASKING; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int PHIMASKING; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NLAYERS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int NANTENNAS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ONLYFINAL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int HIST_MAX_ENTRIES; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int HIST; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double BW; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int DISCONES; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double NDISCONES_PASS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int BORESIGHTS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SLAC; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLACSLOPE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLACICELENGTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLAC_HORIZDIST; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLAC_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLAC_HORIZ_DEPTH; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int ROUGHNESS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int FIRN; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SLOPEY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SLOPEYSIZE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   bool DEBUG; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   string outputdir; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double THERMALNOISE_FACTOR; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double FREQ_LOW_SEAVEYS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double FREQ_HIGH_SEAVEYS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double BW_SEAVEYS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int FORSECKEL; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double ROUGHSIZE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USEPOSITIONWEIGHTS; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int WRITE_FILE; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int MINRAY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int MAXRAY; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int USE_SIGNAL_CHAIN_LOWER_BOUND; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SC_EFFICIENCY_ERROR_V; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   double SC_EFFICIENCY_ERROR_H; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int horizontal_banana_points; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int vertical_banana_points; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SYSTEMATICS_IceAtten; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SYSTEMATICS_Askaryan; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Settings' is missing from 
+the on-file layout version 1:
+   int SYSTEMATICS_nofz; //
+TStreamerInfo::BuildCheck:0: RuntimeWarning: 
+   The StreamerInfo of class Report read from file /fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel/AraOut.default_A2_c1_E610.txt.run12.root
+   has the same version (=1) as the active class but a different checksum.
+   You should update the version to ClassDef(Report,2).
+   Do not try to write objects with the current class definition,
+   the files will not be readable.
+
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Report' is missing from 
+the on-file layout version 1:
+   double triggerDelay; //
+TStreamerInfo::CompareContent:0: RuntimeWarning: The following data member of
+the in-memory layout version 1 of class 'Report' is missing from 
+the on-file layout version 1:
+   double mostDelay; //
+total events: 40000
+Destruct class Detector
+***NOTE***: Opening default SQLite database for 2013-2017. Unixtime argument is 0. If you want the correct channel mappings for ARA03 & ARA01 for 2018 & after please specify either: 
+a) The right year when you call AraGeomTool::getStationInfo(3,2017) where 3 is stationID and 2017 is DB year
+OR
+b) Call UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent(rawAtriEvPtr, AraCalType::kLatestCalib); ***BEFORE*** 
+AraGeomTool::getStationInfo(3,2017)
+Opening default 2013-2017 SQLite tables for all stations 
+slurmstepd: error: *** JOB 2059893 ON p0214 CANCELLED AT 2020-10-19T17:37:34 ***
