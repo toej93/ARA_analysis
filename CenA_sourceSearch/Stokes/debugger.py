@@ -59,7 +59,7 @@ isTrue=False
 theta_reco = []
 theta_antenna = []
 for i in range(0,totalEvents):#loop over events
-    if(isTrue):sd
+    if(isTrue):
         break
     eventTree.GetEntry(i)
     SimTree.GetEntry(i)
