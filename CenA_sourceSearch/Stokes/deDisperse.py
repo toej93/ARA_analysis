@@ -34,9 +34,9 @@ gSystem.Load('libAra.so') #load the simulation event library. You might get an e
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/default/AraOut.default_A2_c1_E610.txt.run9.root")
 
 file_list=[]#Define an empty list
-for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel"):#Loop over desired directory
-        if(filename.startswith("AraOut.default_A2_c1_E590.txt.run%s"%(sys.argv[1]))): #extension, .root in this case
-            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel", str(filename))) #add file name to the list
+for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel_new"):#Loop over desired directory
+        if filename.startswith("AraOut.default_A2_c1_E%s.txt.run%s"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
+            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel_new", str(filename))) #add file name to the list
 
 
 
@@ -183,4 +183,5 @@ for i in range(0,totalEvents):#loop over events
 
     # print(vertex[1])
 original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco), "phi_reco": np.array(phi_reco), "pol_x":np.array(polVec_x), "pol_y":np.array(polVec_y), "pol_z":np.array(polVec_z), "AngStokes":np.array(angle_stokes),"AngRatio":np.array(angle_ratio),"rmsV":np.array(rmsV),"rmsH":np.array(rmsH)})
-original_df.to_pickle("./pol_quant_noise_1E19_%s.pkl"%(sys.argv[1]))
+energy_=(int(sys.argv[1])-400)/10
+original_df.to_pickle("./pol_quant_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
