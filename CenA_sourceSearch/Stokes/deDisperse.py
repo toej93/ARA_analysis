@@ -34,9 +34,9 @@ gSystem.Load('libAra.so') #load the simulation event library. You might get an e
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/default/AraOut.default_A2_c1_E610.txt.run9.root")
 
 file_list=[]#Define an empty list
-for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel_new"):#Loop over desired directory
-        if filename.startswith("AraOut.default_A2_c1_E%s.txt.run%s"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
-            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel_new", str(filename))) #add file name to the list
+for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel_noiseless_new"):#Loop over desired directory
+        if filename.startswith("AraOut.default_noiseless_A2_c1_E%s.txt.run%s"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
+            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel_noiseless_new", str(filename))) #add file name to the list
 
 
 
@@ -58,7 +58,7 @@ totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
 isTrue=False
 theta_reco = []
-# theta_antenna = []
+theta_antenna = []
 phi_reco = []
 polVec_x = []
 polVec_y = []
@@ -151,7 +151,7 @@ for i in range(0,totalEvents):#loop over events
           v.append(gr.GetY()[k])
     # plt.title("An example of a triggered simulated event with Python")
         if(ch==0):
-            deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 0)
+            deConv_t,deConv_v = util.deConvolve_antenna(t, v,theta_antenna_, np.deg2rad(vertex[2]), 0)
             # deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 0)
             maxV = max(abs(deConv_v))
             rmsV_ = max(abs(np.array(v)))
@@ -159,7 +159,7 @@ for i in range(0,totalEvents):#loop over events
                 plt.plot(deConv_t,deConv_v,linewidth=0.5, label = "Ch %i"%ch)
 
         else:
-            deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 1)
+            deConv_t,deConv_v = util.deConvolve_antenna(t, v,theta_antenna_, np.deg2rad(vertex[2]), 1)
             # deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 1)
             maxH = max(abs(deConv_v))
             rmsH_ = max(abs(np.array(v)))
@@ -178,10 +178,11 @@ for i in range(0,totalEvents):#loop over events
     # rms_ = max(rms1,rms2)
     rmsV.append(rmsV_)
     rmsH.append(rmsH_)
+    theta_antenna.append(theta_antenna_)
 
 
 
     # print(vertex[1])
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco), "phi_reco": np.array(phi_reco), "pol_x":np.array(polVec_x), "pol_y":np.array(polVec_y), "pol_z":np.array(polVec_z), "AngStokes":np.array(angle_stokes),"AngRatio":np.array(angle_ratio),"rmsV":np.array(rmsV),"rmsH":np.array(rmsH)})
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_antenna), "phi_reco": np.array(phi_reco), "pol_x":np.array(polVec_x), "pol_y":np.array(polVec_y), "pol_z":np.array(polVec_z), "AngStokes":np.array(angle_stokes),"AngRatio":np.array(angle_ratio),"rmsV":np.array(rmsV),"rmsH":np.array(rmsH)})
 energy_=(int(sys.argv[1])-400)/10
-original_df.to_pickle("./pol_quant_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
+original_df.to_pickle("./pol_quant_noiseless_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
