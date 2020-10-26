@@ -390,3 +390,13 @@ def PolAngleStokes(Hpol,Vpol):
     return np.degrees(0.5*np.arctan2(2*Hpol*Vpol,(Vpol**2-Hpol**2)))
 def PolRatio(Hpol,Vpol):
     return np.degrees(np.arctan2(Hpol,Vpol))
+
+def getRFChannel(string, channel):
+    if(channel%2==0):
+        RFChannel = string + 2*channel
+    else:
+        if(channel==1):
+            RFChannel = 8 + string*channel
+        if(channel==3):
+            RFChannel = 12 + string
+    return int(RFChannel)
