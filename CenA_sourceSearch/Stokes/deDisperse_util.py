@@ -400,3 +400,12 @@ def getRFChannel(string, channel):
         if(channel==3):
             RFChannel = 12 + string
     return int(RFChannel)
+
+def PolVectorReco(Peak_V, Peak_H, theta, phi):
+    R = Peak_H/Peak_V
+    denom = np.sqrt(1+R**2)
+    Px = (np.cos(theta)*np.cos(phi)-R*np.sin(phi))/denom
+    Py = (R*np.cos(phi)+np.cos(theta)*np.sin(phi))/denom
+    Pz = -np.sin(theta)/denom
+    np.set_printoptions(suppress=True)
+    return np.array([Px,Py,Pz])
