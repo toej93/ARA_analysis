@@ -360,6 +360,23 @@ def deDisperse(time, voltage, theta, phi):
     return time, deDis_wf
 
 def deConvolve_antenna(time, voltage, theta, phi, pol_ant):
+    """
+    Apply inverse of ARA antenna response
+    ----------
+    time : array_like
+        1D array of times (ns)
+    voltage : array_like
+        1D array of amplitudes (mV).
+
+    theta, phi, pol_ant: floats
+    theta_antenna (radians), phi_antenna (radians), pol_antenna [0:vpol, 1:hpol]
+    Returns
+    -------
+    time : array_like
+        1D array of times (ns)
+    deDis_wf : array_like
+        1D array of amplitudes (mV) of de-convolved waveform.
+    """
     import scipy.signal as signal
     polarization=np.array([-np.sin(phi),np.cos(phi),-1/np.sin(theta)])
     if(pol_ant == 0):
@@ -382,7 +399,8 @@ def deConvolve_antenna(time, voltage, theta, phi, pol_ant):
     deDis_wf = np.divide(deDis_wf,response)
     deDis_wf = np.nan_to_num(deDis_wf)
     revert = doInvFFT(deDis_wf)
-    deDis_wf = signal.lfilter(b, a, revert)
+    # deDis_wf = signal.lfilter(b, a, revert)
+    deDis_wf = revert
     return time, deDis_wf
     #vetted!
 
@@ -402,10 +420,21 @@ def getRFChannel(string, channel):
     return int(RFChannel)
 
 def PolVectorReco(Peak_V, Peak_H, theta, phi):
-    R = Peak_H/Peak_V
+    R = abs(Peak_H/Peak_V)
     denom = np.sqrt(1+R**2)
-    Px = (np.cos(theta)*np.cos(phi)-R*np.sin(phi))/denom
-    Py = (R*np.cos(phi)+np.cos(theta)*np.sin(phi))/denom
-    Pz = -np.sin(theta)/denom
+    Px = -(np.cos(theta)*np.cos(phi)-R*np.sin(phi))/denom
+    Py = -(R*np.cos(phi)+np.cos(theta)*np.sin(phi))/denom
+    Pz = np.sin(theta)/denom
     np.set_printoptions(suppress=True)
+    # if Peak_V>0:
+    #     Px = -Px
+    #     Py = -Py
+    #     Pz = -Pz
     return np.array([Px,Py,Pz])
+
+def findMaxSign(s1):
+    if(abs(max(s1))>=abs(min(s1))):
+        value = max(s1)
+    else:
+        value = min(s1)
+    return value
