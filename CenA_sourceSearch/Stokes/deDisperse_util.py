@@ -440,6 +440,25 @@ def findMaxSign(s1):
     return value
 
 def getResponseAraSim(theta, phi, freq, pol):
+    """
+    Get antenna response from AraSim
+    ----------
+    theta : double
+        Arriving angle at antenna (radians)
+    phi : double
+        Arriving angle at antenna (radians)
+    freq : array_like
+        1D array of frequencies (MHz)
+    pol : integer
+        0: Vpol, 1: Hpol
+
+    Returns
+    -------
+    freq : array_like
+        1D array of input frequencies (Hz) WHY???
+    heffs : array_like
+        1D array of complex effective heights
+    """
     from ROOT import TCanvas, TGraph
     from ROOT import gROOT
     import ROOT
@@ -531,6 +550,6 @@ def deConvolve_antennaAraSim(time, voltage, theta, phi, pol_ant):
     deDis_wf = np.divide(deDis_wf,response)
     deDis_wf = np.nan_to_num(deDis_wf)
     revert = doInvFFT(deDis_wf)
-    deDis_wf = signal.lfilter(b, a, revert)
-    # deDis_wf = revert
+    # deDis_wf = signal.lfilter(b, a, revert)
+    deDis_wf = revert
     return time, deDis_wf
