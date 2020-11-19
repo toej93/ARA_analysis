@@ -438,3 +438,99 @@ def findMaxSign(s1):
     else:
         value = min(s1)
     return value
+
+def getResponseAraSim(theta, phi, freq, pol):
+    from ROOT import TCanvas, TGraph
+    from ROOT import gROOT
+    import ROOT
+    import os
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from ROOT import gInterpreter, gSystem
+    from ROOT import TChain, TSelector, TTree
+    import cmath
+
+    gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Position.h"')
+    gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Report.h"')
+    gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Detector.h"')
+    gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Settings.h"')
+
+    gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
+
+
+    file_list = []
+    file_list.append("/users/PAS0654/osu8354/AraSim/outputs/AraOut.default_A2_c1_E610_readIn.txt.runAraSim_comparison_input_test_1E19_2.txt.root")
+
+    simSettingsTree = TChain("AraTree")
+    simTree = TChain("AraTree2")
+
+    for line in file_list:
+        simTree.AddFile(line)
+        simSettingsTree.AddFile(line)
+
+    reportPtr = ROOT.Report()
+    detectorPtr = ROOT.Detector()
+
+    simTree.SetBranchAddress("report", ROOT.AddressOf(reportPtr))
+    simSettingsTree.SetBranchAddress("detector", ROOT.AddressOf(detectorPtr))
+    numEvents = simTree.GetEntries()
+
+
+    simTree.GetEntry(0)
+    simSettingsTree.GetEntry(0)
+
+    theta = np.degrees(theta)
+    phi = np.degrees(phi)
+    freq = freq*1E6
+
+    # dt = 0.3125e-9 # seconds
+    # ff = np.fft.rfftfreq(int(1280/2), dt)
+    gains = []
+    heffs = []
+    # phases = []
+    for f in freq:
+        gain = detectorPtr.GetGain_1D_OutZero(f/1e6, theta, phi, pol, 0)
+        heff = reportPtr.GaintoHeight(gain, f, 1.79)
+        if(np.isnan(heff)):
+            heff = 0
+        phase = detectorPtr.GetAntPhase_1D(f/1e6, theta, phi, pol)
+        gains.append(gain)
+        heffs.append(heff*complex(np.cos(np.radians(phase)),np.sin(np.radians(phase))))
+        # phases.append(phase)
+    return np.array(freq),np.array(heffs)
+
+
+def deConvolve_antennaAraSim(time, voltage, theta, phi, pol_ant):
+    """
+    Apply inverse of ARA antenna response
+    ----------
+    time : array_like
+        1D array of times (ns)
+    voltage : array_like
+        1D array of amplitudes (mV).
+
+    theta, phi, pol_ant: floats
+    theta_antenna (radians), phi_antenna (radians), pol_antenna [0:vpol, 1:hpol]
+    Returns
+    -------
+    time : array_like
+        1D array of times (ns)
+    deDis_wf : array_like
+        1D array of amplitudes (mV) of de-convolved waveform.
+    """
+    import scipy.signal as signal
+
+    sampRate = len(time)/(max(time)-min(time))
+    b,a = signal.bessel(4, [0.15,0.4], 'bandpass', analog=False, fs=sampRate)
+    fft_v, fft_f, dT = doFFT(time,voltage)
+    ff, heffs = getResponseAraSim(theta,phi,fft_f,pol_ant)
+    response = heffs
+    deDis_wf = np.divide(fft_v,abs(response))
+    response = np.divide(response,abs(response))
+    deDis_wf = np.divide(deDis_wf,response)
+    deDis_wf = np.nan_to_num(deDis_wf)
+    revert = doInvFFT(deDis_wf)
+    deDis_wf = signal.lfilter(b, a, revert)
+    # deDis_wf = revert
+    return time, deDis_wf
