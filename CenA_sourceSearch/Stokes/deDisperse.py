@@ -22,21 +22,21 @@ import warnings
 warnings.filterwarnings("ignore")
 
 #add headers from AraSim. Not sure if all of them are needed, and I'm lazy to check that. MAK SURE to change the location of the headers
-gInterpreter.ProcessLine('#include "/users/PCON0003/cond0068/ARA/AraSim/Position.h"')
-gInterpreter.ProcessLine('#include "/users/PCON0003/cond0068/ARA/AraSim/Report.h"')
-gInterpreter.ProcessLine('#include "/users/PCON0003/cond0068/ARA/AraSim/Detector.h"')
-gInterpreter.ProcessLine('#include "/users/PCON0003/cond0068/ARA/AraSim/Settings.h"')
+gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Position.h"')
+gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Report.h"')
+gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Detector.h"')
+gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Settings.h"')
 
-gSystem.Load('libAra.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
+gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
 
 
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/CenA_atzero/AraOut.CenA_fixed_source_seed4.txt.run0.root")#directory where the simulation files are
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/default/AraOut.default_A2_c1_E610.txt.run9.root")
 
 file_list=[]#Define an empty list
-for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel_noiseless_new"):#Loop over desired directory
+for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/bug_fixed_noiseless"):#Loop over desired directory
         if filename.startswith("AraOut.default_noiseless_A2_c1_E%s.txt.run%s"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
-            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/Chiba_antModel_noiseless_new", str(filename))) #add file name to the list
+            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/bug_fixed_noiseless", str(filename))) #add file name to the list
 
 
 
@@ -59,6 +59,8 @@ print('total events:', totalEvents)
 isTrue=False
 theta_reco = []
 theta_antenna = []
+phi_antenna = []
+
 phi_reco = []
 polVec_x = []
 polVec_y = []
@@ -68,6 +70,13 @@ angle_ratio = []
 evt_num = []
 rmsV = []
 rmsH = []
+maxV_array = []
+maxH_array = []
+PolVecReco_array = []
+PolVecTrue_array = []
+powerVArr = []
+powerHArr = []
+
 
 for i in range(0,totalEvents):#loop over events
     # if(isTrue):
@@ -78,29 +87,22 @@ for i in range(0,totalEvents):#loop over events
         continue
 
     try:
-        theta_antenna_ = reportPtr.stations[0].strings[0].antennas[0].rec_ang[0]
+        whichSol = reportPtr.stations[0].strings[0].antennas[0].Likely_Sol #0: direct, #1: reflected/refracted
+        if(whichSol<0):#If it can't pick what solution triggered, AraSim returns -1
+            continue
+        theta_antenna_ = reportPtr.stations[0].strings[0].antennas[0].rec_ang[whichSol]
+        phi_ant = reportPtr.stations[0].strings[0].antennas[0].phi_rec[whichSol]
+
     except:
         continue
-    # isTrue=True
-    # rec_angle = []
-    # for ch_ID in range(0,1):
-    #     try:
-    #         rec_angle.append(reportPtr.stations[0].strings[0].antennas[ch_ID].rec_ang[0])
-    #     except:
-    #         continue
-    # # doing nothing on exception
-    # try:
-    #     theta_antenna_ = np.rad2deg(np.array(rec_angle).mean())
-    #     theta_antenna.append(theta_antenna_)#180-rec_PyREx should be approx. equal to this avg
-    # except:
-    #     continue
-    # polVec = np.zeros(3)
+
     try:
-        polVec_x_ = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[0].GetX()
-        polVec_y_ = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[0].GetY()
-        polVec_z_ = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[0].GetZ()
+        polVec_x_ = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[whichSol].GetX()
+        polVec_y_ = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[whichSol].GetY()
+        polVec_z_ = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[whichSol].GetZ()
     except:
         continue
+
     gr = [None]*8
     pyrex_array = []
     evt_num.append(i)
@@ -151,18 +153,26 @@ for i in range(0,totalEvents):#loop over events
           v.append(gr.GetY()[k])
     # plt.title("An example of a triggered simulated event with Python")
         if(ch==0):
-            deConv_t,deConv_v = util.deConvolve_antenna(t, v,theta_antenna_, np.deg2rad(vertex[2]), 0)
-            # deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 0)
-            maxV = max(abs(deConv_v))
+            deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,theta_antenna_, phi_ant, 0)
+
+            # deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 0)
+            # maxV = max(abs(deConv_v))
+            maxV = util.findMaxSign(np.array(deConv_v))
             rmsV_ = max(abs(np.array(v)))
+            dTV = deConv_t[1]-deConv_t[0]
+            powerV = np.sum(deConv_v**2)*dTV
             if(plotting == True):
                 plt.plot(deConv_t,deConv_v,linewidth=0.5, label = "Ch %i"%ch)
 
         else:
-            deConv_t,deConv_v = util.deConvolve_antenna(t, v,theta_antenna_, np.deg2rad(vertex[2]), 1)
-            # deConv_t,deConv_v = util.deConvolve_antenna(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 1)
-            maxH = max(abs(deConv_v))
+            deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,theta_antenna_, phi_ant, 1)
+            # deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 1)
+            # maxH = max(abs(deConv_v))
+            maxH = util.findMaxSign(np.array(deConv_v))
             rmsH_ = max(abs(np.array(v)))
+            dTH = deConv_t[1]-deConv_t[0]
+            powerH = np.sum(deConv_v**2)*dTH
+
             if(plotting == True):
                 plt.plot(deConv_t,deConv_v,linewidth=0.5, label = "Ch %i"%ch)
 
@@ -173,16 +183,23 @@ for i in range(0,totalEvents):#loop over events
         plt.title('Deconvolved')
         plt.tight_layout()
         plt.savefig("wf_debug_DeConv.png", dpi=200)
-    angle_stokes.append(util.PolAngleStokes(maxV,maxH))
-    angle_ratio.append(util.PolRatio(maxH, maxV))
+    # angle_stokes.append(util.PolAngleStokes(maxV,maxH))
+    # angle_ratio.append(util.PolRatio(maxH, maxV))
     # rms_ = max(rms1,rms2)
     rmsV.append(rmsV_)
     rmsH.append(rmsH_)
+    maxV_array.append(maxV)
+    maxH_array.append(maxH)
+    powerVArr.append(powerV)
+    powerHArr.append(powerH)
     theta_antenna.append(theta_antenna_)
-
+    phi_antenna.append(phi_ant)
+    PolVecReco = util.PolVectorRecoPower(powerV,powerH,theta_antenna_, phi_ant)
+    PolVecReco_array.append(PolVecReco)
+    PolVecTrue_array.append(np.array([polVec_x_,polVec_y_,polVec_z_]))
 
 
     # print(vertex[1])
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_antenna), "phi_reco": np.array(phi_reco), "pol_x":np.array(polVec_x), "pol_y":np.array(polVec_y), "pol_z":np.array(polVec_z), "AngStokes":np.array(angle_stokes),"AngRatio":np.array(angle_ratio),"rmsV":np.array(rmsV),"rmsH":np.array(rmsH)})
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_antenna), "phi_reco": np.array(phi_antenna), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr)})
 energy_=(int(sys.argv[1])-400)/10
-original_df.to_pickle("./pol_quant_noiseless_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
+original_df.to_pickle("./Bessel/pol_quant_noiseless_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))

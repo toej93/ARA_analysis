@@ -19,15 +19,17 @@ import sys
 import deDisperse_util as util
 import pyrex
 import warnings
+import itertools
 warnings.filterwarnings("ignore")
-
+ntrig=0
+nbad=0
 #add headers from AraSim. Not sure if all of them are needed, and I'm lazy to check that. MAK SURE to change the location of the headers
-gInterpreter.ProcessLine('#include "/users/PCON0003/cond0068/ARA/AraSim/Position.h"')
-gInterpreter.ProcessLine('#include "/users/PCON0003/cond0068/ARA/AraSim/Report.h"')
-gInterpreter.ProcessLine('#include "/users/PCON0003/cond0068/ARA/AraSim/Detector.h"')
-gInterpreter.ProcessLine('#include "/users/PCON0003/cond0068/ARA/AraSim/Settings.h"')
+gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Position.h"')
+gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Report.h"')
+gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Detector.h"')
+gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Settings.h"')
 
-gSystem.Load('libAra.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
+gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
 
 
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/CenA_atzero/AraOut.CenA_fixed_source_seed4.txt.run0.root")#directory where the simulation files are
@@ -35,7 +37,7 @@ gSystem.Load('libAra.so') #load the simulation event library. You might get an e
 
 file_list=[]#Define an empty list
 for filename in os.listdir("/users/PAS0654/osu8354/AraSim/outputs"):#Loop over desired directory
-		if (filename.startswith("AraOut.root")): #extension, .root in this case
+		if (filename.startswith("AraOut.default_A2_c1_E610.txt.run7.root")): #extension, .root in this case
 			file_list.append(os.path.join("/users/PAS0654/osu8354/AraSim/outputs", str(filename))) #add file name to the list
 
 
@@ -60,7 +62,7 @@ SimTree.SetBranchAddress("event", ROOT.AddressOf(eventPtr))
 
 totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
-isTrue=False
+isTrue=True
 theta_reco = []
 # theta_antenna = []
 phi_reco = []
@@ -71,21 +73,35 @@ angle_stokes = []
 angle_ratio = []
 evt_num = []
 rms = []
+rmsH = []
+PolVecReco_array = []
+PolVecTrue_array = []
 
-for i in range(0,totalEvents):#loop over events
-	if(isTrue):
-		break
+for i in range(3022,totalEvents):#loop over events
+	# if(isTrue):
+	# 	break
 	eventTree.GetEntry(i)
 	SimTree.GetEntry(i)
 	if(reportPtr.stations[0].Global_Pass <= 0):#making sure that the event did trigger, otherwise there won't be a waveform (this might not be needed if all waveforms are saved)
 		continue
+
+	# print("Rec. angle:%0.2f"%np.deg2rad(theta_antenna_))
 	try:
 		theta_antenna_ = reportPtr.stations[0].strings[0].antennas[0].rec_ang[0]
+		wfLength = int(reportPtr.stations[0].strings[0].antennas[0].Vm_zoom[0].size())
 	except:
 		continue
-	# print("Rec. angle:%0.2f"%np.rad2deg(theta_antenna_))
-	# print("Rec. angle:%0.2f"%np.deg2rad(theta_antenna_))
+	v_D = []
+	v_R = []
+	for sample in range(wfLength):
+		try:
+		    v_D.append(reportPtr.stations[0].strings[0].antennas[0].Vm_zoom[0][sample])
+		    v_R.append(reportPtr.stations[0].strings[0].antennas[0].Vm_zoom[1][sample])
+		except:
+			continue
 
+	# if(max(abs(np.array(v_D)))>max(abs(np.array(v_R)))):
+	    # continue
 
 	# isTrue=True
 	# rec_angle = []
@@ -101,12 +117,16 @@ for i in range(0,totalEvents):#loop over events
 	# except:
 	#     continue
 	# polVec = np.zeros(3)
-	try:
-		polVec_x_ = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[0].GetX()
-		polVec_y_ = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[0].GetY()
-		polVec_z_ = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[0].GetZ()
-	except:
-		continue
+	# print(reportPtr.stations[0].strings[0].antennas[0].Pol_vector[0].GetX())
+	# try:
+	polVec_x_ = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[0].GetX()
+	polVec_y_ = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[0].GetY()
+	polVec_z_ = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[0].GetZ()
+	phi_ant = reportPtr.stations[0].strings[0].antennas[0].phi_rec[0]
+
+		# polVec_z_r = reportPtr.stations[0].strings[0].antennas[0].Pol_vector[1].GetZ()
+	# except:
+		# continue
 	gr = [None]*8
 	pyrex_array = []
 	evt_num.append(i)
@@ -146,6 +166,7 @@ for i in range(0,totalEvents):#loop over events
 		plt.xlabel("Time [ns]")
 		plt.ylabel("Voltage [mV]")
 		plt.title("Digitized")
+		plt.grid(which="both")
 		plt.tight_layout()
 		plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_debug.png", dpi=100)
 
@@ -160,12 +181,14 @@ for i in range(0,totalEvents):#loop over events
 			fft, freq, dT = util.doFFT(t,v)
 			plt.plot(freq,abs(fft),linewidth=0.5, label = "Ch %i"%ch)
 			plt.xlim(0,1000)
+			plt.ylim(10,1E5)
 			plt.yscale("log")
 			plt.legend()
 		# plt.title("An example of a triggered simulated event with Python")
 		plt.xlabel("Freq [MHz]")
 		plt.ylabel("Amplitude")
 		plt.title("Spectra (Digitized waveform)")
+		plt.grid(which="both")
 		plt.tight_layout()
 		plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/spectra_debug.png", dpi=100)
 
@@ -184,15 +207,102 @@ for i in range(0,totalEvents):#loop over events
 		t = []
 		v = []
 		for sample in range(wfLength):
-			t.append(reportPtr.stations[0].strings[0].antennas[0].Vm_zoom_T[ray][sample])
-			v.append(reportPtr.stations[0].strings[0].antennas[0].Vm_zoom[ray][sample])
+			try:
+				t.append(reportPtr.stations[0].strings[0].antennas[0].Vm_zoom_T[ray][sample])
+				v.append(reportPtr.stations[0].strings[0].antennas[0].Vm_zoom[ray][sample])
+			except:
+				continue
 		plt.plot(t,v, label=solNum[ray])
+		# print(np.array(v))
+
 		plt.xlabel("Time [ns]")
 		plt.ylabel("Amplitude [mV/m]")
 		plt.title('Before antenna')
 		plt.legend()
+		plt.grid(which="both")
 		plt.tight_layout()
 		plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_debug_before.png", dpi=100)
+
+	plt.figure()
+	antNum = 0 #antenna number, AraSim numbering
+	# ray = 0 #0: reflected, 1:refracted
+	solNum = ["direct","reflected"]
+
+	wfLength = int(reportPtr.stations[0].strings[0].antennas[antNum].Vm_zoom[0].size())
+	for ray in range(0,1):
+		t = []
+		v = []
+		for sample in range(wfLength):
+			try:
+				t.append(reportPtr.stations[0].strings[0].antennas[0].Vm_zoom_T[ray][sample])
+				v.append(reportPtr.stations[0].strings[0].antennas[0].Vm_zoom[ray][sample])
+			except:
+				continue
+
+		t2 = []
+		v2 = []
+		for sample in range(wfLength):
+			try:
+				t2.append(reportPtr.stations[0].strings[0].antennas[1].Vm_zoom_T[ray][sample])
+				v2.append(reportPtr.stations[0].strings[0].antennas[1].Vm_zoom[ray][sample])
+			except:
+				continue
+		# Pol_factorH = reportPtr.stations[0].strings[0].antennas[0].Pol_factorH[0]
+		# Pol_factorV = reportPtr.stations[0].strings[0].antennas[0].Pol_factorV[0]
+		# fft_V, freq_V, dT_V = util.doFFT(t,np.array(v))
+		# fft_H, freq_H, dT_H = util.doFFT(t2,np.array(v2))
+		# plt.plot(freq_V,abs(fft_V),linewidth=0.5, label = "Vpol (Ch 0)")
+		# plt.plot(freq_H,abs(fft_H),linewidth=0.5, label = "Hpol (Ch 8)")
+		# plt.legend()
+		# plt.xlabel("Freq. [MHz]")
+		# plt.ylabel("Amplitude")
+		# plt.title('Spectra (E-fields, Ch. 0 and Ch. 8), %s'%solNum[ray])
+		# plt.yscale("log")
+		# plt.ylim(1E-4,1)
+		# plt.xlim(0,1000)
+		# plt.grid(which="both")
+		# plt.tight_layout()
+		# plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/spectra_debug_before.png", dpi=150)
+		# original_df = pd.DataFrame({"timeH":np.array(t2),"EFieldH":np.array(v2),"timeV":np.array(t),"EFieldV":np.array(v)})
+		# original_df.to_pickle("./EFields_AraSim.pkl")
+
+	plt.figure()
+	gr = [None]*16
+	fig, axs = plt.subplots(4, 4, figsize = (12,10))
+	axs = axs.ravel()
+	for string, ch in itertools.product(range(4), range(4)):
+		for ray in range(0,2):
+			t = []
+			v = []
+
+			try:
+
+				Pol_factor = reportPtr.stations[0].strings[string].antennas[ch].Pol_factor[ray]
+				Pol_factorH = reportPtr.stations[0].strings[string].antennas[ch].Pol_factorH[ray]
+				Pol_factorV = reportPtr.stations[0].strings[string].antennas[ch].Pol_factorV[ray]
+				# print("Pol_factorV:%0.2f"%Pol_factorV)
+				# print("Pol_factorH:%0.2f"%Pol_factorH)
+
+			except:
+			    continue
+			for sample in range(wfLength):
+				t.append(reportPtr.stations[0].strings[string].antennas[ch].Vm_zoom_T[ray][sample])
+				v.append(reportPtr.stations[0].strings[string].antennas[ch].Vm_zoom[ray][sample])
+			chan = util.getRFChannel(string,ch)
+			axs[chan].plot(t,np.array(v)*Pol_factorV,linewidth=1, label="Vpol,%s [pol_factor = %0.3e]"%(solNum[ray],Pol_factorV))
+			axs[chan].plot(t,np.array(v)*Pol_factorH,"--",linewidth=1, label="Hpol,%s [pol_factor = %0.2f]"%(solNum[ray],Pol_factorH))
+			axs[chan].legend(title="Ch %i"%chan, fontsize=6)
+			# if(chan ==0):
+			# 	print("----Ch0----")
+			# 	print(util.findMaxSign(np.array(v)*Pol_factorV))
+			# if(chan ==8):
+			# 	print("----Ch8----")
+			# 	print(util.findMaxSign(np.array(v)*Pol_factorH))
+			# print(np.array(v))
+			# axs[chan].set_ylim(-0.004,0.004)
+	plt.tight_layout()
+	plt.grid(which="both")
+	plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_all_beforeAntenna.png", dpi=100)
 
 	# gr = [None]*2
 	plt.figure()
@@ -205,35 +315,50 @@ for i in range(0,totalEvents):#loop over events
 		  v.append(gr.GetY()[k])
 	# plt.title("An example of a triggered simulated event with Python")
 		if(ch==0):
-			# deConv_t_V,deConv_v_V = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), np.deg2rad(vertex[2]), 0)
-			deConv_t_V,deConv_v_V = util.deConvolve_antenna(t, v,theta_antenna_, np.deg2rad(vertex[2]), 0)
-			maxV = max(abs(deConv_v_V))
+			# deConv_t_V,deConv_v_V = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), np.deg2rad(vertex[2]), 0)\
+			traceV = np.array(v)
+			try:
+				deConv_t_V,deConv_v_V = util.deConvolve_antennaAraSim(t, v,theta_antenna_, phi_ant, 0)
+			except:
+				continue
+			maxV = util.findMaxSign(deConv_v_V)
 			rmsV_ = max(abs(np.array(v)))
+			dTV = deConv_t_V[1]-deConv_t_V[0]
+			powerV = np.sum(deConv_v_V**2)*dTV
 
 			if(plotting == True):
-				plt.plot(deConv_t_V,deConv_v_V,linewidth=0.5, label = "VPol")
+				plt.plot(deConv_t_V,deConv_v_V,linewidth=0.5, label = "Vpol [$A_{max} = %0.3f$]"%maxV)
 
 		else:
 			# deConv_t_H,deConv_v_H = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), np.deg2rad(vertex[2]), 1)
-			deConv_t_H,deConv_v_H = util.deConvolve_antenna(t, v,theta_antenna_, np.deg2rad(vertex[2]), 1)
-			maxH = max(abs(deConv_v_H))
+			traceH = np.array(v)
+			try:
+				deConv_t_H,deConv_v_H = util.deConvolve_antennaAraSim(t, v,theta_antenna_, phi_ant, 1)
+			except:
+				continue
+			dTH = deConv_t_H[1]-deConv_t_H[0]
+			powerH = np.sum(deConv_v_H**2)*dTH
+			maxH = util.findMaxSign(deConv_v_H)
 			rmsH_ = max(abs(np.array(v)))
 
 			if(plotting == True):
-				plt.plot(deConv_t_H,deConv_v_H,linewidth=0.5, label = "Hpol")
+				plt.plot(deConv_t_H,deConv_v_H,linewidth=0.5, label = "Hpol [$A_{max} = %0.3f$]"%maxH)
 				plt.legend()
 				plt.xlabel("Time [ns]")
 				plt.ylabel("Amplitude [mV/m]")
 				plt.title('Deconvolved')
+				plt.grid(which="both")
 				plt.tight_layout()
-				plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_debug_DeConv.png", dpi=100)
+				plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_debug_DeConv.png", dpi=150)
 
+	# original_df = pd.DataFrame({"time":np.array(t),"traceH":traceH,"traceV":traceV})
+	# original_df.to_pickle("./Traces.pkl")
 
 	plt.figure()
 	fft_V, freq_V, dT_V = util.doFFT(deConv_t_V,deConv_v_V)
 	fft_H, freq_H, dT_H = util.doFFT(deConv_t_H,deConv_v_H)
-	plt.plot(freq_V,abs(fft_V),linewidth=0.5, label = "Vpol")
-	plt.plot(freq_H,abs(fft_H),linewidth=0.5, label = "Hpol")
+	plt.plot(freq_V,abs(fft_V),linewidth=0.5, label = "Vpol (Ch 0)")
+	plt.plot(freq_H,abs(fft_H),linewidth=0.5, label = "Hpol (Ch 8)")
 
 	plt.legend()
 	plt.xlabel("Freq. [MHz]")
@@ -241,6 +366,8 @@ for i in range(0,totalEvents):#loop over events
 	plt.title('Spectra (Deconvolved)')
 	plt.yscale("log")
 	plt.xlim(0,1000)
+	plt.ylim(10,1E5)
+	plt.grid(which="both")
 	plt.tight_layout()
 	plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_debug_DeConv_spectrum.png", dpi=100)
 
@@ -257,61 +384,121 @@ for i in range(0,totalEvents):#loop over events
 			  v.append(gr[ch].GetY()[kk])
 			axs[ch].plot(t,v,linewidth=0.5, label = "Ch %i"%ch)
 			axs[ch].legend()
-
+			plt.grid(which="both")
+			axs[ch].set_ylim(-500,500)
 		plt.tight_layout()
 		plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_all.png", dpi=100)
-	# if((util.PolRatio(maxH, maxV)-np.degrees(np.arccos(abs(polVec_z_))))<-10 and rmsV_>50 and rmsH_<1400 and rmsH_<1400 and rmsH_>50):
-	if(1==1):
-		Pol_factor = reportPtr.stations[0].strings[0].antennas[0].Pol_factor[0]
-		print("Pol_factor:%0.3f"%Pol_factor)
-	# if((util.PolRatio(maxH, maxV)-np.degrees(np.arccos(abs(polVec_z_))))<-10):
-		print("ThetaPol_reco:%0.2f"%util.PolAngleStokes(maxH,maxV))
-		print("ThetaPol_true:%0.2f"%np.degrees(np.arccos(abs(polVec_z_))))
+
+	# angle_stokes.append(util.PolAngleStokes(maxV,maxH))
+	# angle_ratio.append(util.PolRatio(maxH, maxV))
+	rms.append(rmsV_)
+	rmsH.append(rmsH_)
+
+	# break
+	# nbad+=1
+	# print(theta_antenna_)
+	# v_V = []
+	# v_H = []
+	# for sample in range(wfLength):
+	# 	v_V.append(reportPtr.stations[0].strings[0].antennas[0].Vm_zoom[0][sample])
+	# 	v_H.append(reportPtr.stations[0].strings[0].antennas[1].Vm_zoom[0][sample])
+	#
+	# maxV = util.findMaxSign(np.array(v_V)*reportPtr.stations[0].strings[0].antennas[0].Pol_factor[0])
+	# maxH = util.findMaxSign(np.array(v_H)*reportPtr.stations[0].strings[0].antennas[1].Pol_factor[0])
+
+	theta = theta_antenna_
+	phi = phi_ant
+	pol_ev = np.array([polVec_x_,polVec_y_,polVec_z_])
+	thetaHat = np.array([np.cos(theta)*np.cos(phi), np.cos(theta)*np.sin(phi), -np.sin(theta)])
+	phiHat = np.array([-np.sin(phi), np.cos(phi),0])
+	dirProp = np.array([np.sin(theta)*np.cos(phi),np.sin(theta)*np.sin(phi),np.cos(theta)])
+	R_true = np.dot(pol_ev,phiHat)/(np.dot(pol_ev,thetaHat))
+	# dirProp = np.array([np.sin(theta)*np.cos(phi),np.sin(theta)*np.sin(phi),np.cos(theta)])
+
+	# Reco = util.PolVectorReco(np.dot(thetaHat,pol_ev),np.dot(phiHat,pol_ev),theta,phi)
+	# PolVecReco = util.PolVectorReco(maxV,maxH,theta_antenna_,phi_ant)
+	# PolVecReco = util.PolVectorRecoPower_debug(powerV,powerH,theta_antenna_,phi_ant,np.sign(R_true))
+	PolVecReco = util.PolVectorRecoPower(powerV,powerH,theta_antenna_,phi_ant)
+
+
+	# print("Reco: %s"%PolVecReco)
+	# print("True: %s"%pol_ev)
+
+	thetaPol_true = np.degrees(np.arccos(abs(polVec_z_)))
+	thetaPol_reco = np.degrees(np.arccos(abs(PolVecReco[2])))
+	phiPol_true = np.degrees(np.arctan(polVec_y_/polVec_x_))
+	phiPol_reco = np.degrees(np.arctan(abs(PolVecReco[1]/PolVecReco[0])))
+	# # print(thetaPol_true-thetaPol_reco)
+	# if(1==1):
+	# # if(abs((util.PolRatio(maxH, maxV)-np.degrees(np.arccos(abs(polVec_z_)))))>15 and rmsV_>50 and rmsV_<1400 and rmsH_<1400 and rmsH_>50):
+	if(rmsV_>50 and rmsV_<1400 and rmsH_<1400 and rmsH_>50 and abs(thetaPol_reco-thetaPol_true)>8):
+		print(thetaPol_reco-thetaPol_true)
 		print(i)
-		print(polVec_x_,polVec_y_,polVec_z_)
-		print("Rec. angle:%0.2f"%np.rad2deg(theta_antenna_))
-		posnu = []
-		nnu = []
-		weight = -1
-		current = -1
-		inelasticity = -1
-		emfrac = -1
-		hadfrac = -1
-		flavor = -1
-		nu_nubar = -1
-		energy = -1
-
-		posnu.append(eventPtr.Nu_Interaction[0].posnu.GetX())
-		posnu.append(eventPtr.Nu_Interaction[0].posnu.GetY())
-		posnu.append(eventPtr.Nu_Interaction[0].posnu.GetZ())
-		nnu.append(eventPtr.Nu_Interaction[0].nnu.GetX())
-		nnu.append(eventPtr.Nu_Interaction[0].nnu.GetY())
-		nnu.append(eventPtr.Nu_Interaction[0].nnu.GetZ())
-		weight = eventPtr.Nu_Interaction[0].weight
-		current = eventPtr.Nu_Interaction[0].currentint
-		inelast = eventPtr.Nu_Interaction[0].elast_y
-		emfrac = eventPtr.Nu_Interaction[0].emfrac
-		hadfrac = eventPtr.Nu_Interaction[0].hadfrac
-		flavor = eventPtr.nuflavorint
-		nu_nubar = eventPtr.nu_nubar
-		energy = eventPtr.pnu
-		print("posnu:%s"%posnu)
-		print("nnu:%s"%nnu)
-		print("weight:%f"%weight)
-		print("current:%f"%current)
-		print("inelast:%f"%inelast)
-		print("emfrac:%f"%emfrac)
-		print("hadfrac:%f"%hadfrac)
-		print("flavor:%f"%flavor)
-		print("nu_nubar:%f"%nu_nubar)
-		print("energy:%e"%energy)
-
-
-
-
+	# 	# print(polVec_x_,polVec_y_,polVec_z_)
+	# 	# print("Rec. angle:%0.2f"%np.rad2deg(theta_antenna_))
+	# 	# posnu = []
+	# 	# nnu = []
+	# 	# weight = -1
+	# 	# current = -1
+	# 	# inelasticity = -1
+	# 	# emfrac = -1
+	# 	# hadfrac = -1
+	# 	# flavor = -1
+	# 	# nu_nubar = -1
+	# 	# energy = -1
+	# 	#
+	# 	# posnu.append(eventPtr.Nu_Interaction[0].posnu.GetX())
+	# 	# posnu.append(eventPtr.Nu_Interaction[0].posnu.GetY())
+	# 	# posnu.append(eventPtr.Nu_Interaction[0].posnu.GetZ())
+	# 	# nnu.append(eventPtr.Nu_Interaction[0].nnu.GetX())
+	# 	# nnu.append(eventPtr.Nu_Interaction[0].nnu.GetY())
+	# 	# nnu.append(eventPtr.Nu_Interaction[0].nnu.GetZ())
+	# 	# weight = eventPtr.Nu_Interaction[0].weight
+	# 	# current = eventPtr.Nu_Interaction[0].currentint
+	# 	# inelast = eventPtr.Nu_Interaction[0].elast_y
+	# 	# emfrac = eventPtr.Nu_Interaction[0].emfrac
+	# 	# hadfrac = eventPtr.Nu_Interaction[0].hadfrac
+	# 	# flavor = eventPtr.nuflavorint
+	# 	# nu_nubar = eventPtr.nu_nubar
+	# 	# energy = eventPtr.pnu
+	# 	# print("posnu:%s"%posnu)
+	# 	# print("nnu:%s"%nnu)
+	# 	# print("weight:%f"%weight)
+	# 	# print("current:%f"%current)
+	# 	# print("inelast:%f"%inelast)
+	# 	# print("emfrac:%f"%emfrac)
+	# 	# print("hadfrac:%f"%hadfrac)
+	# 	# print("flavor:%f"%flavor)
+	# 	# print("nu_nubar:%f"%nu_nubar)
+	# 	# print("energy:%e"%energy)
+	#
+	# PolVecReco_array.append(PolVecReco)
+	# PolVecTrue_array.append(pol_ev)
+	#
+		print("pol True: (%0.6f,%0.6f,%0.6f)"%(polVec_x_,polVec_y_,polVec_z_))
+		print("pol reco: (%0.3f,%0.3f,%0.3f)"%(PolVecReco[0],PolVecReco[1],PolVecReco[2]))
+		print("omega_true:%0.3f, omega_reco:%0.3f"%(thetaPol_true,thetaPol_reco))
+		print("psi_true:%0.3f, psi_reco:%0.3f"%(phiPol_true,phiPol_reco))
+		print("Theta_antenna:%0.2f"%np.degrees(theta_antenna_))
+		print("phi_antenna:%0.2f"%np.degrees(phi_ant))
+		print("Dot product")
+		print(np.dot(dirProp,pol_ev))
+	#
+	# 	print("Pol_factorH: %0.3f"%Pol_factorH)
+	# 	print("Pol_factorV: %0.3f"%Pol_factorV)
+	# 	print("Likely solution: %i"%reportPtr.stations[0].strings[0].antennas[0].Likely_Sol)
+	# 	print("-------Next event-------")
+	# 	ff, heffsH, filter_gains = util.getResponseAraSim(theta_antenna_,phi_ant,freq_V,1)
+	# 	ff, heffsV, filter_gains = util.getResponseAraSim(theta_antenna_,phi_ant,freq_V,0)
+	# 	print(maxV,maxH)
 		break
-	angle_stokes.append(util.PolAngleStokes(maxV,maxH))
-	angle_ratio.append(util.PolRatio(maxH, maxV))
-	# rms.append(rms_)
+		# print(np.linalg.norm(PolVecReco))
 
-# original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco), "phi_reco": np.array(phi_reco), "thetaPol_reco":np.degrees(np.arccos(abs(np.array(polVec_z)))), "AngStokes":np.array(angle_stokes),"AngRatio":np.array(angle_ratio),"rms":np.array(rms)})
+# print("ratios\n")
+# print(np.sum(deConv_v_H**2))
+# print(np.sum(deConv_v_V**2))
+
+# original_df = pd.DataFrame({"PolVecReco_array":PolVecReco_array,"PolVecTrue_array":PolVecTrue_array, "rmsV":rms, "rmsH":rmsH})
+
+# original_df = pd.DataFrame({"Freqs":ff,"heffsH":heffsH,"heffsV":heffsV, "filter_gains":filter_gains})
+# original_df.to_pickle("./polReco_debug_deConv.pkl")

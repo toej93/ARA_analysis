@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #SBATCH --job-name=polReco
-#SBATCH --nodes=1 --ntasks-per-node=2
-#SBATCH --account=PCON0003
+#SBATCH --nodes=1 --ntasks-per-node=4
+#SBATCH --account=PAS0654
 #SBATCH --mail-type=END,FAIL
 #SBATCH --time=01:00:00
-#SBATCH --array=1-9
+#SBATCH --array=1-4
 #SBATCH --output=logs/array_%A-%a.out    # Standard output and error log
 eval 'source /users/PCON0003/cond0068/.bash_profile_pitzer_cvmfs'
 module load python/3.6-conda5.2
@@ -18,4 +18,9 @@ cd /users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/ARA_analysis/CenA_so
 # Print the task and run range
 echo This is task $SLURM_ARRAY_TASK_ID
 
-python deDisperse.py $SLURM_ARRAY_TASK_ID
+
+for i in $(seq 580 5 610)
+  do
+    python deDisperse.py $i $SLURM_ARRAY_TASK_ID &
+  done
+wait

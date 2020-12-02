@@ -399,8 +399,8 @@ def deConvolve_antenna(time, voltage, theta, phi, pol_ant):
     deDis_wf = np.divide(deDis_wf,response)
     deDis_wf = np.nan_to_num(deDis_wf)
     revert = doInvFFT(deDis_wf)
-    # deDis_wf = signal.lfilter(b, a, revert)
-    deDis_wf = revert
+    deDis_wf = signal.lfilter(b, a, revert)
+    # deDis_wf = revert
     return time, deDis_wf
     #vetted!
 
@@ -420,7 +420,7 @@ def getRFChannel(string, channel):
     return int(RFChannel)
 
 def PolVectorReco(Peak_V, Peak_H, theta, phi):
-    R = abs(Peak_H/Peak_V)
+    R = (Peak_H/Peak_V)
     denom = np.sqrt(1+R**2)
     Px = -(np.cos(theta)*np.cos(phi)-R*np.sin(phi))/denom
     Py = -(R*np.cos(phi)+np.cos(theta)*np.sin(phi))/denom
@@ -507,17 +507,21 @@ def getResponseAraSim(theta, phi, freq, pol):
     # ff = np.fft.rfftfreq(int(1280/2), dt)
     gains = []
     heffs = []
+    filter_gains = []
     # phases = []
     for f in freq:
         gain = detectorPtr.GetGain_1D_OutZero(f/1e6, theta, phi, pol, 0)
         heff = reportPtr.GaintoHeight(gain, f, 1.79)
+        filter_gain = detectorPtr.GetElectGain_1D_OutZero(f/1e6)
+        filter_phase = detectorPtr.GetElectPhase_1D(f/1e6)
         if(np.isnan(heff)):
             heff = 0
         phase = detectorPtr.GetAntPhase_1D(f/1e6, theta, phi, pol)
         gains.append(gain)
         heffs.append(heff*complex(np.cos(np.radians(phase)),np.sin(np.radians(phase))))
+        filter_gains.append(filter_gain*complex(np.cos(np.radians(filter_phase)),np.sin(np.radians(filter_phase))))
         # phases.append(phase)
-    return np.array(freq),np.array(heffs)
+    return np.array(freq),np.array(heffs),np.array(filter_gains)
 
 
 def deConvolve_antennaAraSim(time, voltage, theta, phi, pol_ant):
@@ -543,7 +547,7 @@ def deConvolve_antennaAraSim(time, voltage, theta, phi, pol_ant):
     sampRate = len(time)/(max(time)-min(time))
     b,a = signal.bessel(4, [0.15,0.4], 'bandpass', analog=False, fs=sampRate)
     fft_v, fft_f, dT = doFFT(time,voltage)
-    ff, heffs = getResponseAraSim(theta,phi,fft_f,pol_ant)
+    ff, heffs, filter_gains = getResponseAraSim(theta,phi,fft_f,pol_ant)
     response = heffs
     deDis_wf = np.divide(fft_v,abs(response))
     response = np.divide(response,abs(response))
@@ -553,3 +557,31 @@ def deConvolve_antennaAraSim(time, voltage, theta, phi, pol_ant):
     # deDis_wf = signal.lfilter(b, a, revert)
     deDis_wf = revert
     return time, deDis_wf
+
+def PolVectorRecoPower(powerV, powerH, theta, phi):
+
+    R = np.sqrt(powerH/powerV)
+    denom = np.sqrt(1+R**2)
+    Px = -(np.cos(theta)*np.cos(phi)-R*np.sin(phi))/denom
+    Py = -(R*np.cos(phi)+np.cos(theta)*np.sin(phi))/denom
+    Pz = np.sin(theta)/denom
+    np.set_printoptions(suppress=True)
+    # if Peak_V>0:
+    #     Px = -Px
+    #     Py = -Py
+    #     Pz = -Pz
+    return np.array([Px,Py,Pz])
+
+def PolVectorRecoPower_debug(powerV, powerH, theta, phi, signR):
+
+    R = np.sqrt(powerH/powerV)*signR
+    denom = np.sqrt(1+R**2)
+    Px = -(np.cos(theta)*np.cos(phi)-R*np.sin(phi))/denom
+    Py = -(R*np.cos(phi)+np.cos(theta)*np.sin(phi))/denom
+    Pz = np.sin(theta)/denom
+    np.set_printoptions(suppress=True)
+    # if Peak_V>0:
+    #     Px = -Px
+    #     Py = -Py
+    #     Pz = -Pz
+    return np.array([Px,Py,Pz])
