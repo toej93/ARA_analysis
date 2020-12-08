@@ -42,6 +42,7 @@ for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/bug_fixed_nois
 
 eventTree = TChain("eventTree") #Define chain and tree that needs to be read. "VTree" in this case.
 SimTree = TChain("AraTree2")
+energy_=(int(sys.argv[1])-400)/10
 
 for line in file_list:
     eventTree.AddFile(line)
@@ -76,6 +77,8 @@ PolVecReco_array = []
 PolVecTrue_array = []
 powerVArr = []
 powerHArr = []
+energyArr = []
+batch = []
 
 
 for i in range(0,totalEvents):#loop over events
@@ -87,10 +90,13 @@ for i in range(0,totalEvents):#loop over events
         continue
 
     try:
+        numSols = reportPtr.stations[0].strings[0].antennas[0].rec_ang.size()
+        # if(numSols>1):
+        #     continue
         whichSol = reportPtr.stations[0].strings[0].antennas[0].Likely_Sol #0: direct, #1: reflected/refracted
-        if(whichSol<0):#If it can't pick what solution triggered, AraSim returns -1
+        if(whichSol!=0):#If it can't pick what solution triggered, AraSim returns -1
             continue
-        theta_antenna_ = reportPtr.stations[0].strings[0].antennas[0].rec_ang[whichSol]
+        theta_antenna_ = reportPtr.stations[0].strings[0].antennas[0].theta_rec[whichSol]
         phi_ant = reportPtr.stations[0].strings[0].antennas[0].phi_rec[whichSol]
 
     except:
@@ -123,7 +129,7 @@ for i in range(0,totalEvents):#loop over events
         # fig, axs = plt.subplots(1, 2, figsize = (10,10))
         # axs = axs.ravel()
 
-        for ch in [0,8]:
+        for ch in [5,13]:
             t = []
             v = []
             graph = rawEvent.getGraphFromRFChan(ch)#print waveform
@@ -144,7 +150,7 @@ for i in range(0,totalEvents):#loop over events
 
     # gr = [None]*2
     plt.figure()
-    for ch in [0,8]:
+    for ch in [5,13]:
         t = []
         v = []
         gr = rawEvent.getGraphFromRFChan(ch)
@@ -152,7 +158,7 @@ for i in range(0,totalEvents):#loop over events
           t.append(gr.GetX()[k])
           v.append(gr.GetY()[k])
     # plt.title("An example of a triggered simulated event with Python")
-        if(ch==0):
+        if(ch==5):
             deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,theta_antenna_, phi_ant, 0)
 
             # deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 0)
@@ -197,9 +203,9 @@ for i in range(0,totalEvents):#loop over events
     PolVecReco = util.PolVectorRecoPower(powerV,powerH,theta_antenna_, phi_ant)
     PolVecReco_array.append(PolVecReco)
     PolVecTrue_array.append(np.array([polVec_x_,polVec_y_,polVec_z_]))
-
+    energyArr.append(energy_)
+    batch.append(sys.argv[2])
 
     # print(vertex[1])
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_antenna), "phi_reco": np.array(phi_antenna), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr)})
-energy_=(int(sys.argv[1])-400)/10
-original_df.to_pickle("./Bessel/pol_quant_noiseless_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_antenna), "phi_reco": np.array(phi_antenna), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr),"energyArr":np.array(energyArr),"batch":np.array(batch)})
+original_df.to_pickle("./pol_quant_noiseless_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
