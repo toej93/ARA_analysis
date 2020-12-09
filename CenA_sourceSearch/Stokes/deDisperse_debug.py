@@ -37,7 +37,7 @@ gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation eve
 
 file_list=[]#Define an empty list
 for filename in os.listdir("/users/PAS0654/osu8354/AraSim/outputs"):#Loop over desired directory
-        if (filename.startswith("AraOut.default_A2_c1_E610_readIn.txt.runAraSim_input_event4463.txt.root")): #extension, .root in this case
+        if (filename.startswith("AraOut.default_A2_c1_E610_readIn.txt.runAraSim_comparison_input_test_1E19_2.txt.root")): #extension, .root in this case
             file_list.append(os.path.join("/users/PAS0654/osu8354/AraSim/outputs", str(filename))) #add file name to the list
 
 
@@ -84,7 +84,15 @@ for i in range(0,totalEvents):#loop over events
     SimTree.GetEntry(i)
     if(reportPtr.stations[0].Global_Pass <= 0):#making sure that the event did trigger, otherwise there won't be a waveform (this might not be needed if all waveforms are saved)
         continue
-
+    # t = []
+    # v = []
+    # gr = rawEvent.getGraphFromRFChan(0)
+    # for k in range(0,gr.GetN()):
+    #   t.append(gr.GetX()[k])
+    #   v.append(gr.GetY()[k])
+    # if(max(v)<5):
+    #     print("Empty ch0")
+    #     continue
     try:
         whichSol = reportPtr.stations[0].strings[0].antennas[0].Likely_Sol #0: direct, #1: reflected/refracted
         if(whichSol<0):#If it can't pick what solution triggered, AraSim returns -1
@@ -495,8 +503,10 @@ for i in range(0,totalEvents):#loop over events
     #     ff, heffsH, filter_gains = util.getResponseAraSim(theta_antenna_,phi_ant,freq_V,1)
     #     ff, heffsV, filter_gains = util.getResponseAraSim(theta_antenna_,phi_ant,freq_V,0)
     #     print(maxV,maxH)
-        print("Size")
-        print(reportPtr.stations[0].strings[0].antennas[0].rec_ang.size())
+        print("V")
+        print(reportPtr.stations[0].strings[0].antennas[0].V[0].size())
+        print(len(deConv_t_V))
+
         break
         # print(np.linalg.norm(PolVecReco))
 

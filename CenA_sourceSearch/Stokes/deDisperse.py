@@ -34,9 +34,9 @@ gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation eve
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/default/AraOut.default_A2_c1_E610.txt.run9.root")
 
 file_list=[]#Define an empty list
-for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/bug_fixed_noiseless"):#Loop over desired directory
+for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/AraSim_latest_clean"):#Loop over desired directory
         if filename.startswith("AraOut.default_noiseless_A2_c1_E%s.txt.run%s"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
-            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/bug_fixed_noiseless", str(filename))) #add file name to the list
+            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/AraSim_latest_clean", str(filename))) #add file name to the list
 
 
 
@@ -88,13 +88,22 @@ for i in range(0,totalEvents):#loop over events
     SimTree.GetEntry(i)
     if(reportPtr.stations[0].Global_Pass <= 0):#making sure that the event did trigger, otherwise there won't be a waveform (this might not be needed if all waveforms are saved)
         continue
+    # for ch in [0]:
+    t = []
+    v = []
+    gr = rawEvent.getGraphFromRFChan(0)
+    for k in range(0,gr.GetN()):
+      t.append(gr.GetX()[k])
+      v.append(gr.GetY()[k])
+    if(max(v)<5):
+        continue
 
     try:
         numSols = reportPtr.stations[0].strings[0].antennas[0].rec_ang.size()
         # if(numSols>1):
         #     continue
         whichSol = reportPtr.stations[0].strings[0].antennas[0].Likely_Sol #0: direct, #1: reflected/refracted
-        if(whichSol!=0):#If it can't pick what solution triggered, AraSim returns -1
+        if(whichSol<0):#If it can't pick what solution triggered, AraSim returns -1
             continue
         theta_antenna_ = reportPtr.stations[0].strings[0].antennas[0].theta_rec[whichSol]
         phi_ant = reportPtr.stations[0].strings[0].antennas[0].phi_rec[whichSol]
