@@ -403,6 +403,7 @@ def deConvolve_antenna(time, voltage, theta, phi, pol_ant):
     # deDis_wf = revert
     return time, deDis_wf
     #vetted!
+    
 
 def PolAngleStokes(Hpol,Vpol):
     return np.degrees(0.5*np.arctan2(2*Hpol*Vpol,(Vpol**2-Hpol**2)))
@@ -554,8 +555,52 @@ def deConvolve_antennaAraSim(time, voltage, theta, phi, pol_ant):
     deDis_wf = np.divide(deDis_wf,response)
     deDis_wf = np.nan_to_num(deDis_wf)
     revert = doInvFFT(deDis_wf)
-    # deDis_wf = signal.lfilter(b, a, revert)
-    deDis_wf = revert
+    deDis_wf = signal.lfilter(b, a, revert)
+    # deDis_wf = revert
+    return time, deDis_wf
+    
+def deConvolve(time, voltage, theta, phi, pol_ant):
+    """
+    Apply inverse of ARA antenna response
+    ----------
+    time : array_like
+        1D array of times (ns)
+    voltage : array_like
+        1D array of amplitudes (mV).
+
+    theta, phi, pol_ant: floats
+    theta_antenna (radians), phi_antenna (radians), pol_antenna [0:vpol, 1:hpol]
+    Returns
+    -------
+    time : array_like
+        1D array of times (ns)
+    deDis_wf : array_like
+        1D array of amplitudes (mV) of de-convolved waveform.
+    """
+    import scipy.signal as signal
+    polarization=np.array([-np.sin(phi),np.cos(phi),-1/np.sin(theta)])
+    if(pol_ant == 0):
+        ant = ara.VpolAntenna(name="Dummy Vpol", position=(0, 0, 0), power_threshold=0)
+        # ant.set_orientation(z_axis=(0, 0, 1), x_axis=(1, 0, 0))#Adding to convert from global coordinates to local antenna coords.
+    elif(pol_ant == 1):
+        ant = ara.HpolAntenna(name="Dummy Hpol", position=(0, 0, 0), power_threshold=0)
+        # ant.set_orientation(z_axis=(0, 0, 1), x_axis=(1, 0, 0))
+
+    sampRate = len(time)/(max(time)-min(time))
+    b,a = signal.bessel(4, [0.15,0.4], 'bandpass', analog=False, fs=sampRate)
+    fft_v, fft_f, dT = doFFT(time,voltage)
+    response_filter = np.array(ant.interpolate_filter(fft_f*1E6))
+    dir_res = ant.antenna.directional_response(theta=theta, phi=phi, polarization=polarization)(fft_f*1E6)
+    heff = ant.antenna.frequency_response(fft_f*1E6)
+    response_antenna = dir_res*heff
+    response = response_filter
+    # deDis_wf = np.divide(fft_v,abs(response))
+    response = np.divide(response,abs(response))
+    deDis_wf = np.divide(fft_v,response)
+    deDis_wf = np.nan_to_num(deDis_wf)
+    revert = doInvFFT(deDis_wf)
+    deDis_wf = signal.lfilter(b, a, revert)
+    # deDis_wf = revert
     return time, deDis_wf
 
 def PolVectorRecoPower(powerV, powerH, theta, phi):
