@@ -37,10 +37,8 @@ gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation eve
 
 file_list=[]#Define an empty list
 for filename in os.listdir("/users/PAS0654/osu8354/AraSim/outputs"):#Loop over desired directory
-        if (filename.startswith("AraOut.default_A2_c1_E610_readIn.txt.runAraSim_comparison_input_test_1E19_2.txt.root")): #extension, .root in this case
+        if (filename.startswith("AraOut.default_A2_c1_E610_readIn.txt.runAraSim_input_event53086.")): #extension, .root in this case
             file_list.append(os.path.join("/users/PAS0654/osu8354/AraSim/outputs", str(filename))) #add file name to the list
-
-
 
 eventTree = TChain("eventTree") #Define chain and tree that needs to be read. "VTree" in this case.
 SimTree = TChain("AraTree2")
@@ -82,6 +80,7 @@ for i in range(0,totalEvents):#loop over events
     #     break
     eventTree.GetEntry(i)
     SimTree.GetEntry(i)
+
     if(reportPtr.stations[0].Global_Pass <= 0):#making sure that the event did trigger, otherwise there won't be a waveform (this might not be needed if all waveforms are saved)
         continue
     # t = []
@@ -95,6 +94,7 @@ for i in range(0,totalEvents):#loop over events
     #     continue
     try:
         whichSol = reportPtr.stations[0].strings[0].antennas[0].Likely_Sol #0: direct, #1: reflected/refracted
+        # whichSol = 1
         if(whichSol<0):#If it can't pick what solution triggered, AraSim returns -1
             continue
         theta_antenna_ = reportPtr.stations[0].strings[0].antennas[0].theta_rec[whichSol]
@@ -309,6 +309,8 @@ for i in range(0,totalEvents):#loop over events
             dTV = deConv_t_V[1]-deConv_t_V[0]
             powerV = np.sum(deConv_v_V**2)*dTV
             print("powerV: %0.5f"%powerV)
+            print("rmsV_: %0.5f"%rmsV_)
+
             if(plotting == True):
                 plt.plot(deConv_t_V,deConv_v_V,linewidth=0.5, label = "Vpol [$A_{max} = %0.3f$]"%maxV)
 
@@ -324,6 +326,8 @@ for i in range(0,totalEvents):#loop over events
             maxH = util.findMaxSign(deConv_v_H)
             rmsH_ = max(abs(np.array(v)))
             print("powerH: %0.5f"%powerH)
+            print("rmsH_: %0.5f"%rmsH_)
+
 
 
             if(plotting == True):
@@ -446,31 +450,31 @@ for i in range(0,totalEvents):#loop over events
         print(i)
     #     # print(polVec_x_,polVec_y_,polVec_z_)
     #     # print("Rec. angle:%0.2f"%np.rad2deg(theta_antenna_))
-        # posnu = []
-        # nnu = []
-        # weight = -1
-        # current = -1
-        # inelasticity = -1
-        # emfrac = -1
-        # hadfrac = -1
-        # flavor = -1
-        # nu_nubar = -1
-        # energy = -1
-        #
-        # posnu.append(eventPtr.Nu_Interaction[0].posnu.GetX())
-        # posnu.append(eventPtr.Nu_Interaction[0].posnu.GetY())
-        # posnu.append(eventPtr.Nu_Interaction[0].posnu.GetZ())
-        # nnu.append(eventPtr.Nu_Interaction[0].nnu.GetX())
-        # nnu.append(eventPtr.Nu_Interaction[0].nnu.GetY())
-        # nnu.append(eventPtr.Nu_Interaction[0].nnu.GetZ())
-        # weight = eventPtr.Nu_Interaction[0].weight
-        # current = eventPtr.Nu_Interaction[0].currentint
-        # inelast = eventPtr.Nu_Interaction[0].elast_y
-        # emfrac = eventPtr.Nu_Interaction[0].emfrac
-        # hadfrac = eventPtr.Nu_Interaction[0].hadfrac
-        # flavor = eventPtr.nuflavorint
-        # nu_nubar = eventPtr.nu_nubar
-        # energy = eventPtr.pnu
+        posnu = []
+        nnu = []
+        weight = -1
+        current = -1
+        inelasticity = -1
+        emfrac = -1
+        hadfrac = -1
+        flavor = -1
+        nu_nubar = -1
+        energy = -1
+        
+        posnu.append(eventPtr.Nu_Interaction[0].posnu.GetX())
+        posnu.append(eventPtr.Nu_Interaction[0].posnu.GetY())
+        posnu.append(eventPtr.Nu_Interaction[0].posnu.GetZ())
+        nnu.append(eventPtr.Nu_Interaction[0].nnu.GetX())
+        nnu.append(eventPtr.Nu_Interaction[0].nnu.GetY())
+        nnu.append(eventPtr.Nu_Interaction[0].nnu.GetZ())
+        weight = eventPtr.Nu_Interaction[0].weight
+        current = eventPtr.Nu_Interaction[0].currentint
+        inelast = eventPtr.Nu_Interaction[0].elast_y
+        emfrac = eventPtr.Nu_Interaction[0].emfrac
+        hadfrac = eventPtr.Nu_Interaction[0].hadfrac
+        flavor = eventPtr.nuflavorint
+        nu_nubar = eventPtr.nu_nubar
+        energy = eventPtr.pnu
         # print("posnu:%s"%posnu)
         # print("nnu:%s"%nnu)
         # print("weight:%f"%weight)
@@ -495,17 +499,19 @@ for i in range(0,totalEvents):#loop over events
         print(np.dot(dirProp,pol_ev))
         print("R_true: %0.4f"%R_true)
         print("R_reco: %0.4f"%R_reco)
-    #
-    #     print("Pol_factorH: %0.3f"%Pol_factorH)
-    #     print("Pol_factorV: %0.3f"%Pol_factorV)
+        Pol_factorH = reportPtr.stations[0].strings[0].antennas[0].Pol_factorH[whichSol]
+        Pol_factorV = reportPtr.stations[0].strings[0].antennas[0].Pol_factorV[whichSol]
+        print("Pol_factorH: %0.4f"%Pol_factorH)
+        print("Pol_factorV: %0.4f"%Pol_factorV)
     #     print("Likely solution: %i"%reportPtr.stations[0].strings[0].antennas[0].Likely_Sol)
     #     print("-------Next event-------")
     #     ff, heffsH, filter_gains = util.getResponseAraSim(theta_antenna_,phi_ant,freq_V,1)
     #     ff, heffsV, filter_gains = util.getResponseAraSim(theta_antenna_,phi_ant,freq_V,0)
     #     print(maxV,maxH)
-        print("V")
-        print(reportPtr.stations[0].strings[0].antennas[0].V[0].size())
-        print(len(deConv_t_V))
+        print("whichSol")
+        # print(reportPtr.stations[0].strings[0].antennas[0].V[0].size())
+        print(whichSol)
+        
 
         break
         # print(np.linalg.norm(PolVecReco))

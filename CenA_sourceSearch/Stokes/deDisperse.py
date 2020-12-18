@@ -34,9 +34,9 @@ gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation eve
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/default/AraOut.default_A2_c1_E610.txt.run9.root")
 
 file_list=[]#Define an empty list
-for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/AraSim_latest_clean"):#Loop over desired directory
+for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/noMag"):#Loop over desired directory
         if filename.startswith("AraOut.default_noiseless_A2_c1_E%s.txt.run%s"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
-            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/AraSim_latest_clean", str(filename))) #add file name to the list
+            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/noMag", str(filename))) #add file name to the list
 
 
 
@@ -49,11 +49,14 @@ for line in file_list:
     SimTree.AddFile(line)
 
 reportPtr = ROOT.Report()#report pointer
+eventPtr = ROOT.Event()
+
 # eventTree = test.Get("eventTree")#eventTree, from AraSim output files
 # SimTree = test.Get("AraTree2") #AraTree2, from AraSim output files
 rawEvent = ROOT.UsefulAtriStationEvent()
 eventTree.SetBranchAddress("UsefulAtriStationEvent",ROOT.AddressOf(rawEvent))
 SimTree.SetBranchAddress("report",ROOT.AddressOf(reportPtr))
+SimTree.SetBranchAddress("event", ROOT.AddressOf(eventPtr))
 
 totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
@@ -79,6 +82,8 @@ powerVArr = []
 powerHArr = []
 energyArr = []
 batch = []
+weight_arr = []
+view_ang = []
 
 
 for i in range(0,totalEvents):#loop over events
@@ -88,7 +93,7 @@ for i in range(0,totalEvents):#loop over events
     SimTree.GetEntry(i)
     if(reportPtr.stations[0].Global_Pass <= 0):#making sure that the event did trigger, otherwise there won't be a waveform (this might not be needed if all waveforms are saved)
         continue
-    # for ch in [0]:
+    # Check if any of the top antennas has no signal. Reject those events
     t = []
     v = []
     gr = rawEvent.getGraphFromRFChan(0)
@@ -99,10 +104,8 @@ for i in range(0,totalEvents):#loop over events
         continue
 
     try:
-        numSols = reportPtr.stations[0].strings[0].antennas[0].rec_ang.size()
-        # if(numSols>1):
-        #     continue
         whichSol = reportPtr.stations[0].strings[0].antennas[0].Likely_Sol #0: direct, #1: reflected/refracted
+        # whichSol = 0
         if(whichSol<0):#If it can't pick what solution triggered, AraSim returns -1
             continue
         theta_antenna_ = reportPtr.stations[0].strings[0].antennas[0].theta_rec[whichSol]
@@ -214,7 +217,10 @@ for i in range(0,totalEvents):#loop over events
     PolVecTrue_array.append(np.array([polVec_x_,polVec_y_,polVec_z_]))
     energyArr.append(energy_)
     batch.append(sys.argv[2])
+    weight = eventPtr.Nu_Interaction[0].weight
+    weight_arr.append(weight)
+    view_ang.append(reportPtr.stations[0].strings[0].antennas[0].view_ang[0])
 
     # print(vertex[1])
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_antenna), "phi_reco": np.array(phi_antenna), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr),"energyArr":np.array(energyArr),"batch":np.array(batch)})
-original_df.to_pickle("./pol_quant_noiseless_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_antenna), "phi_reco": np.array(phi_antenna), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr),"energyArr":np.array(energyArr),"batch":np.array(batch),"weight":np.array(weight_arr),"view_ang":np.array(view_ang)})
+original_df.to_pickle("./noMag/pol_quant_noiseless_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
