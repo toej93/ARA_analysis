@@ -555,9 +555,12 @@ def deConvolve_antennaAraSim(time, voltage, theta, phi, pol_ant):
     deDis_wf = np.divide(deDis_wf,response)
     deDis_wf = np.nan_to_num(deDis_wf)
     revert = doInvFFT(deDis_wf)
-    deDis_wf = signal.lfilter(b, a, revert)
-    # deDis_wf = revert
+    # deDis_wf = signal.lfilter(b, a, revert)
+    deDis_wf = revert
     return time, deDis_wf
+    
+def weird_division(n, d):
+    return n / d if d else 0
     
 def deConvolve(time, voltage, theta, phi, pol_ant):
     """
@@ -620,6 +623,53 @@ def PolVectorRecoPower(powerV, powerH, theta, phi):
 def PolVectorRecoPower_debug(powerV, powerH, theta, phi, signR):
 
     R = np.sqrt(powerH/powerV)*signR
+    denom = np.sqrt(1+R**2)
+    Px = -(np.cos(theta)*np.cos(phi)-R*np.sin(phi))/denom
+    Py = -(R*np.cos(phi)+np.cos(theta)*np.sin(phi))/denom
+    Pz = np.sin(theta)/denom
+    np.set_printoptions(suppress=True)
+    # if Peak_V>0:
+    #     Px = -Px
+    #     Py = -Py
+    #     Pz = -Pz
+    return np.array([Px,Py,Pz])
+    
+def findHighestPeakBin(values):
+    if abs(max(values))>=abs(min(values)):
+        peakBin = np.argmax(values)
+    else:
+        peakBin = np.argmin(values)
+    return peakBin
+    
+def integratePowerWindow(times, values):
+    times = np.array(times)
+    values = np.array(values)
+    dT = times[1]-times[0]
+    leftNumBins = int(20/dT)#Number of bins in 20 ns
+    rightNumBins = int(60/dT)#Number of bins in 60 ns
+
+    peakBin = findHighestPeakBin(values)#Find bin where peak happens
+    lowerEdgeBin = peakBin-leftNumBins
+    upperEdgeBin = peakBin+rightNumBins
+    if((lowerEdgeBin<0) or (upperEdgeBin<0)):
+        return -1
+    cutWform = values[lowerEdgeBin:upperEdgeBin]
+    cutTimes = times[lowerEdgeBin:upperEdgeBin]
+    power = np.sum(cutWform**2)*dT
+    return power
+
+def integratePowerNoise(times, values):
+    times = np.array(times)
+    values = np.array(values)
+    dT = times[1]-times[0]
+    #need to integrate first 80 ns of the waveform
+    numBins = int(80/dT)
+    cutWform = values[0:numBins]
+    power = np.sum(cutWform**2)*dT
+    return power
+    
+def PolVectorReco_debug(Peak_V, Peak_H, theta, phi, sign):
+    R = abs(Peak_H/Peak_V)*sign
     denom = np.sqrt(1+R**2)
     Px = -(np.cos(theta)*np.cos(phi)-R*np.sin(phi))/denom
     Py = -(R*np.cos(phi)+np.cos(theta)*np.sin(phi))/denom
