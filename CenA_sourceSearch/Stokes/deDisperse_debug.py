@@ -36,10 +36,10 @@ gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation eve
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/default/AraOut.default_A2_c1_E610.txt.run9.root")
 
 file_list=[]#Define an empty list
-for filename in os.listdir("/users/PAS0654/osu8354/AraSim/outputs"):#Loop over desired directory
-        if (filename.startswith("AraOut.default_A2_c1_E610_readIn.txt.runAraSim_input_event53086.")): #extension, .root in this case
-            file_list.append(os.path.join("/users/PAS0654/osu8354/AraSim/outputs", str(filename))) #add file name to the list
-
+# for filename in os.listdir("/users/PAS0654/osu8354/AraSim/outputs"):#Loop over desired directory
+#         if (filename.startswith("AraOut.default_A2_c1_E610_readIn_noise.txt.runAraSim_input_event35936")): #extension, .root in this case
+#             file_list.append(os.path.join("/users/PAS0654/osu8354/AraSim/outputs", str(filename))) #add file name to the list
+file_list.append("/users/PAS0654/osu8354/AraSim/outputs/AraOut.default_A2_c1_E610_readIn_noise.txt.runAraSim_input_event93324.txt.root")
 eventTree = TChain("eventTree") #Define chain and tree that needs to be read. "VTree" in this case.
 SimTree = TChain("AraTree2")
 
@@ -93,10 +93,10 @@ for i in range(0,totalEvents):#loop over events
     #     print("Empty ch0")
     #     continue
     try:
-        whichSol = reportPtr.stations[0].strings[0].antennas[0].Likely_Sol #0: direct, #1: reflected/refracted
-        # whichSol = 1
-        if(whichSol<0):#If it can't pick what solution triggered, AraSim returns -1
-            continue
+        # whichSol = reportPtr.stations[0].strings[0].antennas[0].Likely_Sol #0: direct, #1: reflected/refracted
+        whichSol = 0
+        # if(whichSol<0):#If it can't pick what solution triggered, AraSim returns -1
+            # continue
         theta_antenna_ = reportPtr.stations[0].strings[0].antennas[0].theta_rec[whichSol]
         phi_ant = reportPtr.stations[0].strings[0].antennas[0].phi_rec[whichSol]
 
@@ -300,6 +300,7 @@ for i in range(0,totalEvents):#loop over events
         if(ch==5):
             # deConv_t_V,deConv_v_V = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), np.deg2rad(vertex[2]), 0)\
             traceV = np.array(v)
+            print(len(traceV))
             try:
                 deConv_t_V,deConv_v_V = util.deConvolve_antennaAraSim(t, v,theta_antenna_, phi_ant, 0)
             except:
@@ -307,7 +308,7 @@ for i in range(0,totalEvents):#loop over events
             maxV = util.findMaxSign(deConv_v_V)
             rmsV_ = max(abs(np.array(v)))
             dTV = deConv_t_V[1]-deConv_t_V[0]
-            powerV = np.sum(deConv_v_V**2)*dTV
+            powerV = powerH = util.integratePowerWindow(deConv_t_V,deConv_v_V)-util.integratePowerNoise(deConv_t_V,deConv_v_V)
             print("powerV: %0.5f"%powerV)
             print("rmsV_: %0.5f"%rmsV_)
 
@@ -317,12 +318,16 @@ for i in range(0,totalEvents):#loop over events
         else:
             # deConv_t_H,deConv_v_H = util.deConvolve_antenna(t, v,np.deg2rad(180-vertex[1]), np.deg2rad(vertex[2]), 1)
             traceH = np.array(v)
+            print(len(traceH))
+
             try:
                 deConv_t_H,deConv_v_H = util.deConvolve_antennaAraSim(t, v,theta_antenna_, phi_ant, 1)
             except:
                 continue
             dTH = deConv_t_H[1]-deConv_t_H[0]
             powerH = np.sum(deConv_v_H**2)*dTH
+            powerH = util.integratePowerWindow(deConv_t_H,deConv_v_H)-util.integratePowerNoise(deConv_t_H,deConv_v_H)
+
             maxH = util.findMaxSign(deConv_v_H)
             rmsH_ = max(abs(np.array(v)))
             print("powerH: %0.5f"%powerH)
@@ -340,8 +345,8 @@ for i in range(0,totalEvents):#loop over events
                 plt.tight_layout()
                 plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_debug_DeConv.png", dpi=150)
 
-    # original_df = pd.DataFrame({"time":np.array(t),"traceH":traceH,"traceV":traceV})
-    # original_df.to_pickle("./Traces.pkl")
+    original_df = pd.DataFrame({"time":np.array(t),"traceH":traceH,"traceV":traceV})
+    original_df.to_pickle("./Traces.pkl")
 
     plt.figure()
     fft_V, freq_V, dT_V = util.doFFT(deConv_t_V,deConv_v_V)
@@ -476,7 +481,7 @@ for i in range(0,totalEvents):#loop over events
         nu_nubar = eventPtr.nu_nubar
         energy = eventPtr.pnu
         # print("posnu:%s"%posnu)
-        # print("nnu:%s"%nnu)
+        print("nnu:%s"%nnu)
         # print("weight:%f"%weight)
         # print("current:%f"%current)
         # print("inelast:%f"%inelast)
@@ -490,28 +495,29 @@ for i in range(0,totalEvents):#loop over events
     # PolVecTrue_array.append(pol_ev)
     #
         print("pol True: (%0.6f,%0.6f,%0.6f)"%(polVec_x_,polVec_y_,polVec_z_))
-        print("pol reco: (%0.3f,%0.3f,%0.3f)"%(PolVecReco[0],PolVecReco[1],PolVecReco[2]))
-        print("omega_true:%0.3f, omega_reco:%0.3f"%(thetaPol_true,thetaPol_reco))
-        print("psi_true:%0.3f, psi_reco:%0.3f"%(phiPol_true,phiPol_reco))
-        print("Theta_antenna:%0.2f"%np.degrees(theta_antenna_))
-        print("phi_antenna:%0.2f"%np.degrees(phi_ant))
-        print("Dot product")
-        print(np.dot(dirProp,pol_ev))
-        print("R_true: %0.4f"%R_true)
-        print("R_reco: %0.4f"%R_reco)
-        Pol_factorH = reportPtr.stations[0].strings[0].antennas[0].Pol_factorH[whichSol]
-        Pol_factorV = reportPtr.stations[0].strings[0].antennas[0].Pol_factorV[whichSol]
-        print("Pol_factorH: %0.4f"%Pol_factorH)
-        print("Pol_factorV: %0.4f"%Pol_factorV)
+        print(dirProp)
+        # print("pol reco: (%0.3f,%0.3f,%0.3f)"%(PolVecReco[0],PolVecReco[1],PolVecReco[2]))
+        # print("omega_true:%0.3f, omega_reco:%0.3f"%(thetaPol_true,thetaPol_reco))
+        # print("psi_true:%0.3f, psi_reco:%0.3f"%(phiPol_true,phiPol_reco))
+        # print("Theta_antenna:%0.2f"%np.degrees(theta_antenna_))
+        # print("phi_antenna:%0.2f"%np.degrees(phi_ant))
+        # print("Dot product")
+        # print(np.dot(dirProp,pol_ev))
+        # print("R_true: %0.4f"%R_true)
+        # print("R_reco: %0.4f"%R_reco)
+        # Pol_factorH = reportPtr.stations[0].strings[0].antennas[0].Pol_factorH[whichSol]
+        # Pol_factorV = reportPtr.stations[0].strings[0].antennas[0].Pol_factorV[whichSol]
+        # print("Pol_factorH: %0.4f"%Pol_factorH)
+        # print("Pol_factorV: %0.4f"%Pol_factorV)
     #     print("Likely solution: %i"%reportPtr.stations[0].strings[0].antennas[0].Likely_Sol)
     #     print("-------Next event-------")
     #     ff, heffsH, filter_gains = util.getResponseAraSim(theta_antenna_,phi_ant,freq_V,1)
     #     ff, heffsV, filter_gains = util.getResponseAraSim(theta_antenna_,phi_ant,freq_V,0)
     #     print(maxV,maxH)
-        print("whichSol")
+        # print("whichSol")
         # print(reportPtr.stations[0].strings[0].antennas[0].V[0].size())
-        print(whichSol)
-        
+        # print(whichSol)
+        print(reportPtr.stations[0].strings[0].antennas[0].view_ang[whichSol])
 
         break
         # print(np.linalg.norm(PolVecReco))

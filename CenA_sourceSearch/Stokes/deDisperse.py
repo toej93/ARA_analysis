@@ -34,12 +34,12 @@ gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation eve
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/default/AraOut.default_A2_c1_E610.txt.run9.root")
 
 file_list=[]#Define an empty list
-for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/noMag"):#Loop over desired directory
-        if filename.startswith("AraOut.default_noiseless_A2_c1_E%s.txt.run%s"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
-            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/noMag", str(filename))) #add file name to the list
+for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/noiseOn"):#Loop over desired directory
+        if filename.startswith("AraOut.default_A2_c1_E%s.txt.run%s"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
+            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/noiseOn", str(filename))) #add file name to the list
 
 
-
+noise=True
 eventTree = TChain("eventTree") #Define chain and tree that needs to be read. "VTree" in this case.
 SimTree = TChain("AraTree2")
 energy_=(int(sys.argv[1])-400)/10
@@ -84,6 +84,9 @@ energyArr = []
 batch = []
 weight_arr = []
 view_ang = []
+R_recoSign = []
+Peak_V = []
+Peak_H = []
 
 
 for i in range(0,totalEvents):#loop over events
@@ -96,18 +99,18 @@ for i in range(0,totalEvents):#loop over events
     # Check if any of the top antennas has no signal. Reject those events
     t = []
     v = []
-    gr = rawEvent.getGraphFromRFChan(0)
+    gr = rawEvent.getGraphFromRFChan(13)
     for k in range(0,gr.GetN()):
       t.append(gr.GetX()[k])
       v.append(gr.GetY()[k])
-    if(max(v)<5):
+    if(np.array(v).std()<55):
         continue
 
     try:
-        whichSol = reportPtr.stations[0].strings[0].antennas[0].Likely_Sol #0: direct, #1: reflected/refracted
-        # whichSol = 0
-        if(whichSol<0):#If it can't pick what solution triggered, AraSim returns -1
-            continue
+        # whichSol = reportPtr.stations[0].strings[0].antennas[0].Likely_Sol #0: direct, #1: reflected/refracted
+        whichSol = 0
+        # if(whichSol!=0):#If it can't pick what solution triggered, AraSim returns -1
+        #     continue
         theta_antenna_ = reportPtr.stations[0].strings[0].antennas[0].theta_rec[whichSol]
         phi_ant = reportPtr.stations[0].strings[0].antennas[0].phi_rec[whichSol]
 
@@ -175,10 +178,17 @@ for i in range(0,totalEvents):#loop over events
 
             # deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 0)
             # maxV = max(abs(deConv_v))
-            maxV = util.findMaxSign(np.array(deConv_v))
-            rmsV_ = max(abs(np.array(v)))
-            dTV = deConv_t[1]-deConv_t[0]
-            powerV = np.sum(deConv_v**2)*dTV
+            if(noise == False):
+                maxV = util.findMaxSign(np.array(deConv_v))
+                rmsV_ = max(abs(np.array(v)))
+            else:
+                maxV = util.findMaxSign(np.array(v))
+                rmsV_ = np.array(v[0:60]).std()
+                
+            # dTV = deConv_t[1]-deConv_t[0]
+            # powerV = np.sum(deConv_v**2)*dTV
+            powerV = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
+            PeakV = util.findMaxSign(np.array(deConv_v))
             if(plotting == True):
                 plt.plot(deConv_t,deConv_v,linewidth=0.5, label = "Ch %i"%ch)
 
@@ -186,10 +196,17 @@ for i in range(0,totalEvents):#loop over events
             deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,theta_antenna_, phi_ant, 1)
             # deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 1)
             # maxH = max(abs(deConv_v))
-            maxH = util.findMaxSign(np.array(deConv_v))
-            rmsH_ = max(abs(np.array(v)))
-            dTH = deConv_t[1]-deConv_t[0]
-            powerH = np.sum(deConv_v**2)*dTH
+            if(noise == False):
+                maxH = util.findMaxSign(np.array(deConv_v))
+                rmsH_ = max(abs(np.array(v)))
+            else:
+                maxH = util.findMaxSign(np.array(v))
+                rmsH_ = np.array(v[0:60]).std()
+            
+            # dTH = deConv_t[1]-deConv_t[0]
+            # powerH = np.sum(deConv_v**2)*dTH
+            powerH = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
+            PeakH = util.findMaxSign(np.array(deConv_v))
 
             if(plotting == True):
                 plt.plot(deConv_t,deConv_v,linewidth=0.5, label = "Ch %i"%ch)
@@ -212,7 +229,7 @@ for i in range(0,totalEvents):#loop over events
     powerHArr.append(powerH)
     theta_antenna.append(theta_antenna_)
     phi_antenna.append(phi_ant)
-    PolVecReco = util.PolVectorRecoPower(powerV,powerH,theta_antenna_, phi_ant)
+    PolVecReco = util.PolVectorReco(PeakV,PeakH,theta_antenna_, phi_ant)
     PolVecReco_array.append(PolVecReco)
     PolVecTrue_array.append(np.array([polVec_x_,polVec_y_,polVec_z_]))
     energyArr.append(energy_)
@@ -220,7 +237,10 @@ for i in range(0,totalEvents):#loop over events
     weight = eventPtr.Nu_Interaction[0].weight
     weight_arr.append(weight)
     view_ang.append(reportPtr.stations[0].strings[0].antennas[0].view_ang[0])
-
+    R_recoSign.append(np.sign(PeakH/PeakV))
+    Peak_V.append(PeakV)
+    Peak_H.append(PeakH)
+    
     # print(vertex[1])
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_antenna), "phi_reco": np.array(phi_antenna), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr),"energyArr":np.array(energyArr),"batch":np.array(batch),"weight":np.array(weight_arr),"view_ang":np.array(view_ang)})
-original_df.to_pickle("./noMag/pol_quant_noiseless_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_antenna), "phi_reco": np.array(phi_antenna), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr),"energyArr":np.array(energyArr),"batch":np.array(batch),"weight":np.array(weight_arr),"view_ang":np.array(view_ang),"R_recoSign":np.array(R_recoSign),"peak_V":np.array(Peak_V),"peak_H":np.array(Peak_H)})
+original_df.to_pickle("./noiseOn/window_Sol0/pol_quant_noise_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
