@@ -39,7 +39,7 @@ file_list=[]#Define an empty list
 # for filename in os.listdir("/users/PAS0654/osu8354/AraSim/outputs"):#Loop over desired directory
 #         if (filename.startswith("AraOut.default_A2_c1_E610_readIn_noise.txt.runAraSim_input_event35936")): #extension, .root in this case
 #             file_list.append(os.path.join("/users/PAS0654/osu8354/AraSim/outputs", str(filename))) #add file name to the list
-file_list.append("/users/PAS0654/osu8354/AraSim/outputs/AraOut.default_A2_c1_E610_readIn_noise.txt.runAraSim_input_event93324.txt.root")
+file_list.append("/users/PAS0654/osu8354/AraSim/outputs/AraOut.default_A2_c1_E610_readIn_noise.txt.runAraSim_input_event982.txt.root")
 eventTree = TChain("eventTree") #Define chain and tree that needs to be read. "VTree" in this case.
 SimTree = TChain("AraTree2")
 
@@ -451,8 +451,8 @@ for i in range(0,totalEvents):#loop over events
         plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_vmimic.png", dpi=100)
     # # if(abs((util.PolRatio(maxH, maxV)-np.degrees(np.arccos(abs(polVec_z_)))))>15 and rmsV_>50 and rmsV_<1400 and rmsH_<1400 and rmsH_>50):
     # if(rmsV_>50 and rmsV_<1400 and rmsH_<1400 and rmsH_>50 and abs(thetaPol_reco-thetaPol_true)>8):
-        print(thetaPol_reco-thetaPol_true)
-        print(i)
+        # print(thetaPol_reco-thetaPol_true)
+        # print(i)
     #     # print(polVec_x_,polVec_y_,polVec_z_)
     #     # print("Rec. angle:%0.2f"%np.rad2deg(theta_antenna_))
         posnu = []

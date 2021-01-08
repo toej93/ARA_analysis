@@ -1,5 +1,5 @@
 """
-#####deDisperse.py#####
+#####deDisperse_fixedSrc.py#####
 
 Get de-dispersed waveform from AraSim events with Python
 Author: Jorge Torres
@@ -34,15 +34,14 @@ gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation eve
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/default/AraOut.default_A2_c1_E610.txt.run9.root")
 
 file_list=[]#Define an empty list
-for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/noiseOn"):#Loop over desired directory
-        if filename.startswith("AraOut.default_A2_c1_E%s.txt.run%s"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
-            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/noiseOn", str(filename))) #add file name to the list
+for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/KoteraFixedNnu"):#Loop over desired directory
+        if filename.startswith("AraOut.fixed_A2_Kotera_Max.txt.run%s.root"%(sys.argv[1])): #extension, .root in this case
+            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/KoteraFixedNnu", str(filename))) #add file name to the list
 
 
 noise=True
 eventTree = TChain("eventTree") #Define chain and tree that needs to be read. "VTree" in this case.
 SimTree = TChain("AraTree2")
-energy_=(int(sys.argv[1])-400)/10
 
 for line in file_list:
     eventTree.AddFile(line)
@@ -81,7 +80,6 @@ PolVecTrue_array = []
 powerVArr = []
 powerHArr = []
 energyArr = []
-batch = []
 weight_arr = []
 view_ang = []
 R_recoSign = []
@@ -237,8 +235,8 @@ for i in range(0,totalEvents):#loop over events
     PolVecReco = util.PolVectorReco(PeakV,PeakH,theta_antenna_, phi_ant)
     PolVecReco_array.append(PolVecReco)
     PolVecTrue_array.append(np.array([polVec_x_,polVec_y_,polVec_z_]))
+    energy_ = eventPtr.pnu
     energyArr.append(energy_)
-    batch.append(sys.argv[2])
     weight = eventPtr.Nu_Interaction[0].weight
     weight_arr.append(weight)
     view_ang.append(reportPtr.stations[0].strings[0].antennas[0].view_ang[0])
@@ -247,7 +245,7 @@ for i in range(0,totalEvents):#loop over events
     Peak_H.append(PeakH)
     
     nnu.append(np.array([eventPtr.Nu_Interaction[0].nnu.GetX(),eventPtr.Nu_Interaction[0].nnu.GetY(),eventPtr.Nu_Interaction[0].nnu.GetZ()]))
-    
+    # print(phi_reco)
     # print(vertex[1])
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco), "phi_reco": np.array(phi_reco), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr),"energyArr":np.array(energyArr),"batch":np.array(batch),"weight":np.array(weight_arr),"view_ang":np.array(view_ang),"R_recoSign":np.array(R_recoSign),"peak_V":np.array(Peak_V),"peak_H":np.array(Peak_H),"dirProp":dirProp,"nnu":nnu})
-original_df.to_pickle("./KoteraFixed/pol_quant_noise_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco), "phi_reco": np.array(phi_reco), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr),"energyArr":np.array(energyArr),"weight":np.array(weight_arr),"view_ang":np.array(view_ang),"R_recoSign":np.array(R_recoSign),"peak_V":np.array(Peak_V),"peak_H":np.array(Peak_H),"dirProp":dirProp,"nnu":nnu})
+original_df.to_pickle("./KoteraFixed/KoteraFixed_%s.pkl"%(int(sys.argv[1])))
