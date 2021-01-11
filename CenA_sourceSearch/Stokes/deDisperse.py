@@ -35,7 +35,7 @@ gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation eve
 
 file_list=[]#Define an empty list
 for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/noiseOn"):#Loop over desired directory
-        if filename.startswith("AraOut.default_A2_c1_E%s.txt.run%s"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
+        if filename.startswith("AraOut.default_A2_c1_E%s.txt.run%s.root"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
             file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/noiseOn", str(filename))) #add file name to the list
 
 
@@ -89,6 +89,7 @@ Peak_V = []
 Peak_H = []
 dirProp = []
 nnu = []
+launch_ang = []
 
 
 for i in range(0,totalEvents):#loop over events
@@ -112,7 +113,7 @@ for i in range(0,totalEvents):#loop over events
         # whichSol = reportPtr.stations[0].strings[0].antennas[0].Likely_Sol #0: direct, #1: reflected/refracted
         whichSol = 0
         # if(whichSol!=0):#If it can't pick what solution triggered, AraSim returns -1
-        #     continue
+            # continue
         theta_antenna_ = reportPtr.stations[0].strings[0].antennas[0].theta_rec[whichSol]
         phi_ant = reportPtr.stations[0].strings[0].antennas[0].phi_rec[whichSol]
 
@@ -225,7 +226,7 @@ for i in range(0,totalEvents):#loop over events
     # rms_ = max(rms1,rms2)
     dirProp.append(np.array([np.sin(theta_antenna_)*np.cos(phi_ant),np.sin(theta_antenna_)*np.sin(phi_ant),np.cos(theta_antenna_)]))
     
-    
+    print(theta_antenna_)
     rmsV.append(rmsV_)
     rmsH.append(rmsH_)
     maxV_array.append(maxV)
@@ -238,16 +239,17 @@ for i in range(0,totalEvents):#loop over events
     PolVecReco_array.append(PolVecReco)
     PolVecTrue_array.append(np.array([polVec_x_,polVec_y_,polVec_z_]))
     energyArr.append(energy_)
-    batch.append(sys.argv[2])
+    batch.append(int(sys.argv[2]))
     weight = eventPtr.Nu_Interaction[0].weight
     weight_arr.append(weight)
-    view_ang.append(reportPtr.stations[0].strings[0].antennas[0].view_ang[0])
+    view_ang.append(reportPtr.stations[0].strings[0].antennas[0].view_ang[whichSol])
     R_recoSign.append(np.sign(PeakH/PeakV))
     Peak_V.append(PeakV)
     Peak_H.append(PeakH)
-    
+    launch_ang.append(reportPtr.stations[0].strings[0].antennas[0].launch_ang[whichSol])
+
     nnu.append(np.array([eventPtr.Nu_Interaction[0].nnu.GetX(),eventPtr.Nu_Interaction[0].nnu.GetY(),eventPtr.Nu_Interaction[0].nnu.GetZ()]))
     
     # print(vertex[1])
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco), "phi_reco": np.array(phi_reco), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr),"energyArr":np.array(energyArr),"batch":np.array(batch),"weight":np.array(weight_arr),"view_ang":np.array(view_ang),"R_recoSign":np.array(R_recoSign),"peak_V":np.array(Peak_V),"peak_H":np.array(Peak_H),"dirProp":dirProp,"nnu":nnu})
-original_df.to_pickle("./KoteraFixed/pol_quant_noise_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_antenna), "phi_reco": np.array(phi_antenna), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr),"energyArr":np.array(energyArr),"batch":np.array(batch),"weight":np.array(weight_arr),"view_ang":np.array(view_ang),"R_recoSign":np.array(R_recoSign),"peak_V":np.array(Peak_V),"peak_H":np.array(Peak_H),"dirProp":dirProp,"nnu":nnu,"launch_ang":launch_ang})
+original_df.to_pickle("./noiseOn/window_Sol0/pol_quant_noise_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
