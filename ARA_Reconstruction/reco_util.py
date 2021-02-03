@@ -303,9 +303,9 @@ def deDisperse_antenna(time, voltage, theta, phi):
     voltage : array_like
         1D array of amplitudes (mV).
     theta : double
-        Incoming signal theta direction
+        Incoming signal theta direction [radians]
     phi : double
-        Incoming signal phi direction
+        Incoming signal phi direction [radians]
 
     Returns
     -------
@@ -333,9 +333,9 @@ def deDisperse(time, voltage, theta, phi):
     voltage : array_like
         1D array of amplitudes (mV).
     theta : double
-        Incoming signal theta direction
+        Incoming signal theta direction [radians]
     phi : double
-        Incoming signal phi direction
+        Incoming signal phi direction [radians]
 
     Returns
     -------
@@ -680,3 +680,37 @@ def PolVectorReco_debug(Peak_V, Peak_H, theta, phi, sign):
     #     Py = -Py
     #     Pz = -Pz
     return np.array([Px,Py,Pz])
+
+def findHighestPeakBin_data(values):
+    if abs(max(values))>=abs(min(values)):
+        peakBin = np.argmax(values)
+    else:
+        peakBin = np.argmin(values)
+    return peakBin
+    
+def integratePowerWindow_data(times, values):
+    times = np.array(times)
+    values = np.array(values)
+    dT = times[1]-times[0]
+    leftNumBins = int(20/dT)#Number of bins in 20 ns
+    rightNumBins = int(60/dT)#Number of bins in 60 ns
+
+    peakBin = findHighestPeakBin(values)#Find bin where peak happens
+    lowerEdgeBin = peakBin-leftNumBins
+    upperEdgeBin = peakBin+rightNumBins
+    if((lowerEdgeBin<0) or (upperEdgeBin<0)):
+        return -1
+    cutWform = values[lowerEdgeBin:upperEdgeBin]
+    cutTimes = times[lowerEdgeBin:upperEdgeBin]
+    power = np.sum(cutWform**2)*dT
+    return power
+
+def integratePowerNoise(times, values):
+    times = np.array(times)
+    values = np.array(values)
+    dT = times[1]-times[0]
+    #need to integrate first 80 ns of the waveform
+    numBins = int(80/dT)
+    cutWform = values[0:numBins]
+    power = np.sum(cutWform**2)*dT
+    return power
