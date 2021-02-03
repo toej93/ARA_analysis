@@ -687,15 +687,32 @@ def findHighestPeakBin_data(values):
     else:
         peakBin = np.argmin(values)
     return peakBin
+
+def findFirstPeak(wf):
+    """
+    Finds where/around where the first peak occurs. Since we're integrating the power, it doesn't matter if it's not the real peak position.
+    ----------
+    wf : array_like
+        1D array of amplitudes (mV)
+    Returns
+    -------
+    peaks[0] : int
+        first element of the peak array (since we only care about the first peak)
+    """
+    normWF = wf/max(abs(wf)) #normalize waveform by the highest peak
+    analytic_signal = scipy.signal.hilbert(normWF) #perform Hilbert envelope
+    amplitude_envelope = np.abs(analytic_signal)
+    peaks,_ = scipy.signal.find_peaks(amplitude_envelope, width=2, prominence=0.5)
+    return peaks[0]
     
-def integratePowerWindow_data(times, values):
+def integratePowerWindow_SpiceCore(times, values):
     times = np.array(times)
     values = np.array(values)
     dT = times[1]-times[0]
     leftNumBins = int(20/dT)#Number of bins in 20 ns
     rightNumBins = int(60/dT)#Number of bins in 60 ns
 
-    peakBin = findHighestPeakBin(values)#Find bin where peak happens
+    peakBin = findFirstPeak(values)#Use first peak (SpiceCore events have two peaks)
     lowerEdgeBin = peakBin-leftNumBins
     upperEdgeBin = peakBin+rightNumBins
     if((lowerEdgeBin<0) or (upperEdgeBin<0)):
@@ -705,12 +722,12 @@ def integratePowerWindow_data(times, values):
     power = np.sum(cutWform**2)*dT
     return power
 
-def integratePowerNoise(times, values):
+def integratePowerNoise_data(times, values):
     times = np.array(times)
     values = np.array(values)
     dT = times[1]-times[0]
-    #need to integrate first 80 ns of the waveform
+    #need to integrate last 80 ns of the waveform
     numBins = int(80/dT)
-    cutWform = values[0:numBins]
+    cutWform = values[len(times)-numBins:times]
     power = np.sum(cutWform**2)*dT
     return power

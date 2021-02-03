@@ -69,7 +69,7 @@ unixtime = []
 
 Omega_reco = []
 noise = True
-for evNum in range(10,10000):#loop over events
+for evNum in range(10,1000):#loop over events
 
     eventTree.GetEntry(evNum)
     
@@ -85,10 +85,8 @@ for evNum in range(10,10000):#loop over events
     if(SNR<8):
         continue
     
-    unixtime.append(rawEvent.unixTime)
     gr = [None]*8
     pyrex_array = []
-    evt_num.append(evNum)
     for ch in [0,4,1,5,2,6,3,7]:
         t = []
         v = []
@@ -126,7 +124,7 @@ for evNum in range(10,10000):#loop over events
             # dTV = deConv_t[1]-deConv_t[0]
             # powerV = np.sum(deConv_v**2)*dTV
             
-            powerV = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
+            powerV = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
             PeakV = util.findMaxSign(np.array(deConv_v))
 
         else:
@@ -138,14 +136,19 @@ for evNum in range(10,10000):#loop over events
                 maxH = util.findMaxSign(np.array(v))
                 rmsH_ = np.array(v[len(v)-60:len(v)]).std()
 
-            # dTH = deConv_t[1]-deConv_t[0]
-            # powerH = np.sum(deConv_v**2)*dTH
-            powerH = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
+            powerH = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
             PeakH = util.findMaxSign(np.array(deConv_v))
-
+                
+    if((powerV<0) or (powerH<0)):
+        continue
+        
     Omega = np.degrees(np.arctan(np.sqrt(powerH/powerV)))            
     # print(Omega)
+    
     Omega_reco.append(Omega)
+    unixtime.append(rawEvent.unixTime)
+    evt_num.append(evNum)
+
 # 
-# original_df = pd.DataFrame({"EvNum":np.array(evt_num),"Omega_reco": np.array(Omega_reco),"unixtime": np.array(unixtime) })
-# original_df.to_pickle("./evNumVsOmegaCh2_10.pkl")
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"Omega_reco": np.array(Omega_reco),"unixtime": np.array(unixtime) })
+original_df.to_pickle("./evNumVsOmegaCh2_10.pkl")
