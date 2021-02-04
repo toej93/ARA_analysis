@@ -40,7 +40,7 @@ gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/ARA_cvmfs/build/inclu
 gSystem.Load('libAraEvent.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
 gSystem.Load("/users/PAS0654/osu8354/ARA_cvmfs/build/lib/libRootFftwWrapper.so")
 
-test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/1227/run_012590/event012590.root")#directory where the files are
+test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/1224/run_012559/event012559.root")#directory where the files are
 
 calibrator = ROOT.AraEventCalibrator.Instance()
 eventTree = test.Get("eventTree")
@@ -69,7 +69,7 @@ unixtime = []
 
 Omega_reco = []
 noise = True
-for evNum in range(10,1000):#loop over events
+for evNum in range(10,totalEvents):#loop over events
 
     eventTree.GetEntry(evNum)
     

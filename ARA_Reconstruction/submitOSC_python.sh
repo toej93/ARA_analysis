@@ -18,9 +18,9 @@ cd /users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/ARA_analysis/CenA_so
 # Print the task and run range
 echo This is task $SLURM_ARRAY_TASK_ID
 
-
-for i in $(seq 565 5 605)
-  do
-    python deDisperse.py $i $SLURM_ARRAY_TASK_ID &
-  done
-wait
+python recoPol_data.py
+# for i in $(seq 565 5 605)
+#   do
+#     python deDisperse.py $i $SLURM_ARRAY_TASK_ID &
+#   done
+# wait
