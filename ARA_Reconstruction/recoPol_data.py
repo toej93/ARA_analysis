@@ -33,7 +33,7 @@ def convertWfToArray(ch, usefulEvent):
     
 def calculateSNR(t, v):
     peak = np.max(abs(v))
-    RMS = v[len(v)-60:len(v)].std()#RMS of the last 600 samples of the wf
+    RMS = v[len(v)-60:len(v)].std()#RMS of the last 60 samples of the wf
     return peak/RMS
     
 gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/ARA_cvmfs/build/include/FFTtools.h"')
@@ -66,9 +66,13 @@ powerHArr = []
 Peak_V = []
 Peak_H = []
 unixtime = []
+SNR_arr = []
+SNR_H_arr = []
 
 Omega_reco = []
 noise = True
+chV = int(sys.argv[1])
+chH = chV + 8
 for evNum in range(10,totalEvents):#loop over events
 
     eventTree.GetEntry(evNum)
@@ -80,9 +84,13 @@ for evNum in range(10,totalEvents):#loop over events
         continue
         
     usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
-    tWf1, vWf1 = convertWfToArray(0, usefulEvent)
+    tWf1, vWf1 = convertWfToArray(chV, usefulEvent)
     SNR = calculateSNR(tWf1, vWf1)
-    if(SNR<8):
+    
+    tWf2, vWf2 = convertWfToArray(chH, usefulEvent)
+    SNR_H = calculateSNR(tWf2, vWf2)
+    peak = max(abs(vWf1))
+    if((SNR<8) or (peak>1480)): #SNR and saturation cuts
         continue
     
     gr = [None]*8
@@ -101,10 +109,9 @@ for evNum in range(10,totalEvents):#loop over events
     vertex, corrValue = util.doReco(pyrex_array)
     theta = np.radians(180-vertex[1])
     phi = np.radians(vertex[2])
-    theta_reco.append(np.degrees(theta))
     phi_reco.append(np.degrees(phi))
 
-    for ch in [2,10]:
+    for ch in [chV,chH]:
         t = []
         v = []
         gr = usefulEvent.getGraphFromRFChan(ch)
@@ -112,7 +119,7 @@ for evNum in range(10,totalEvents):#loop over events
           t.append(gr.GetX()[k])
           v.append(gr.GetY()[k])
     # plt.title("An example of a triggered simulated event with Python")
-        if(ch==2):
+        if(ch==chV):
             deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, 0)
             if(noise == False):
                 maxV = util.findMaxSign(np.array(deConv_v))
@@ -148,7 +155,9 @@ for evNum in range(10,totalEvents):#loop over events
     Omega_reco.append(Omega)
     unixtime.append(rawEvent.unixTime)
     evt_num.append(evNum)
-
+    SNR_arr.append(SNR)
+    theta_reco.append(np.degrees(theta))
+    SNR_H_arr.append(SNR_H)
 # 
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"Omega_reco": np.array(Omega_reco),"unixtime": np.array(unixtime) })
-original_df.to_pickle("./evNumVsOmegaCh2_10.pkl")
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"Omega_reco": np.array(Omega_reco),"unixtime": np.array(unixtime),"SNR_V": np.array(SNR_arr),"SNR_H": np.array(SNR_H_arr),"theta_reco": np.array(theta_reco)})
+original_df.to_pickle("./evNumVsOmegaCh%i_%i.pkl"%(chV,chH))
