@@ -1,0 +1,18 @@
+# Source: ARA Projected 2 station x 4 yr trigger level
+# Data type: Upper limit
+# Energy bins per decade: 2
+# Column values:
+# Energy [eV]
+# Flux [GeV cm^-2 s^-1 sr^-1]
+# Flux band minimum
+# Flux band maximum
+
+9.91245E+15	5.35394e-06	0.0	0.0
+3.11814E+16	1.24309e-06	0.0	0.0
+9.80021E+16	4.20315e-07	0.0	0.0
+3.10745E+17	2.24199e-07	0.0	0.0
+9.94099E+17	1.61582e-07	0.0	0.0
+3.0936E+18	1.50329e-07	0.0	0.0
+9.71449E+18	1.63715e-07	0.0	0.0
+3.07805E+19	2.24543e-07	0.0	0.0
+9.75192E+19	3.36398e-07	0.0	0.0

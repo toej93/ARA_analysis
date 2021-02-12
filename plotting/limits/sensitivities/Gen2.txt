@@ -1,0 +1,18 @@
+# Source: Gen2 Projected 35 station x 10 yr trigger level [https://arxiv.org/pdf/2008.04323.pdf]
+# Data type: Upper limit
+# Energy bins per decade: 1
+# Column values:
+# Energy [GeV]
+# Flux [GeV cm^-2 s^-1 sr^-1]
+# Flux band minimum
+# Flux band maximum
+
+1.00e+07 2.17e-09 0.0 0.0 
+3.00e+07 7.67e-10 0.0 0.0
+1.00e+08 3.48e-10 0.0 0.0
+3.00e+08 2.62e-10 0.0 0.0
+1.00e+09 2.63e-10 0.0 0.0
+3.00e+09 3.03e-10 0.0 0.0
+1.00e+10 3.94e-10 0.0 0.0
+3.00e+10 5.31e-10 0.0 0.0
+
