@@ -229,7 +229,11 @@ class LimitFigure:
             energy2, flux_kot, band_min, band_max  = self.get_data('sensitivities/kotera_FRII.txt')
             fluxInterp = np.interp(energy2, energy, flux)
             fill2 = self.ax.fill_between(energy2, fluxInterp, flux_kot,
-                             color='red',label="Cosmogenic", alpha=0.1)
+                             color='green',label="Cosmogenic", alpha=0.1)
+            self.ax.annotate('ARA SES (2023)',
+                                 xy=(1.4e9, 1e-8), xycoords='data',
+                                 horizontalalignment='center', color='black', rotation=0)
+#             self.ax.grid()
             self.neutrino_models.append(fill2)   
     
             energy_SFRHiE, flux_SFRHiE, band_min, band_max  = self.get_data('sensitivities/kotera_high_e.txt')
@@ -469,7 +473,7 @@ class LimitFigure:
         if 'ice_cube' in name:
             if self.e_power==2:
                 self.ax.annotate('IceCube \n (9y limit)',
-                                 xy=(2e6, 5e-8), xycoords='data',
+                                 xy=(2e6, 3e-8), xycoords='data',
                                  horizontalalignment='center', color='dodgerblue', rotation=0)
             if self.e_power==1:
                 self.ax.annotate('IceCube \n (9y limit)',
@@ -584,11 +588,11 @@ class LimitFigure:
 #                          color='pink')
             
             if self.e_power==2:
-                self.ax.annotate('Auger (14.7yr)',
-                                 xy=(1.2e8, 1.1e-7*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='forestgreen', rotation=-40)
+                self.ax.annotate('Auger (14.7y)',
+                                 xy=(1.2e8, 9e-8*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='forestgreen', rotation=0)
             if self.e_power==1:
-                self.ax.annotate('Auger (14.7yr)',
+                self.ax.annotate('Auger (14.7y)',
                                  xy=(9.e7,8e-16*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='forestgreen', rotation=-58)
 
@@ -606,14 +610,14 @@ class LimitFigure:
 #                 self.ax.annotate('ARA (2x1yr)',
 #                                  xy=(3e8, 6e-7*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='#2288AA', rotation=-10)
-                self.ax.annotate('ARA (2x4yr)',
-                                 xy=(3e8, 1.5e-7*self.e_bins), xycoords='data',
+                self.ax.annotate('ARA (2x4y)',
+                                 xy=(3e8, 9e-7*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='#2288AA', rotation=-10)
             if self.e_power==1:
 #                 self.ax.annotate('ARA (2x1yr)',
 #                                  xy=(3.5e8, 4e-15*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='#2288AA', rotation=-50)
-                self.ax.annotate('ARA (2x4yr)',
+                self.ax.annotate('ARA (2x4y)',
                                  xy=(3.1e8, 9e-16*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='#2288AA', rotation=-50)
 #                 self.ax.annotate('Region excluded \n   by our work',
@@ -628,13 +632,13 @@ class LimitFigure:
             self.ax.plot(energy, flux,
                          color='firebrick')
             if self.e_power==2:
-                self.ax.annotate('ARIANNA',
-                                 xy=(1.2e8, 1.1e-7*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='forestgreen', rotation=-40)
+                self.ax.annotate('ARIANNA (4.5yr)',
+                                 xy=(1.2e8, 4.1e-6*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='firebrick', rotation=-8)
             if self.e_power==1:
                 self.ax.annotate('ARIANNA (4.5yr)',
                                  xy=(5e9, 4.3e-16*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='firebrick', rotation=-28)
+                                 horizontalalignment='left', color='firebrick', rotation=-8)
     
         else:
             raise ValueError("Unrecognized data set '"+str(name)+"'")
@@ -689,7 +693,7 @@ class LimitFigure:
                 models = ['biehl', 'boncioli', 'fang_merger', 'fang_pulsar', 'fang_cluster'] 
         elif group=='ara_Gen2':
             if experiments is None:
-                experiments = ['ice_cube_ehe', 'ice_cube_hese_data', 'ice_cube_mu_fit']
+                experiments = ['ice_cube_ehe', 'ice_cube_hese_data', 'ice_cube_mu_fit','anita', 'auger', 'arianna', 'ara']
             if models is None:
                 models = ['kotera', 'ahlers']
         else:
@@ -936,9 +940,12 @@ Gen2Deep = get_mean_veffs(ara_energies, Gen2_deep)
 Gen2Shallow = get_mean_veffs(ara_energies, Gen2_shallow)
 
 Gen2Year1 = 144/7*(Gen2Deep+Gen2Shallow) + 169/7*Gen2Shallow #we'll deploy 144/7 deep stations per year, 144/7 shallow stations on top of each of those deep stations, and then 169/7 "standalone" shallow stations in addition to those
-Gen2Year2 = Gen2Year1*2 + Gen2Year1
-Gen2Year3 = Gen2Year2*2 + Gen2Year1
-Gen2Year4 = Gen2Year3*2 + Gen2Year1
-Gen2Year5 = Gen2Year4*2 + Gen2Year1
-Gen2Year6 = Gen2Year5*2 + Gen2Year1
-Gen2Year7 = Gen2Year6*2 + Gen2Year1
+Gen2Year2 = Gen2Year1 + Gen2Year1*2
+Gen2Year3 = Gen2Year2 + Gen2Year1*3
+Gen2Year4 = Gen2Year3 + Gen2Year1*4
+Gen2Year5 = Gen2Year4 + Gen2Year1*5
+Gen2Year6 = Gen2Year5 + Gen2Year1*6
+Gen2Year7 = Gen2Year6 + Gen2Year1*7 #Completed here
+# Gen2Year8 = Gen2Year7 + Gen2Year1*8
+# Gen2Year9 = Gen2Year8 + Gen2Year1*9
+Gen2Year10 = Gen2Year7 + Gen2Year1*7*3
