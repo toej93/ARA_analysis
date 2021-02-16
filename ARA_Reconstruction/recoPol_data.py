@@ -133,6 +133,7 @@ for evNum in range(10,totalEvents):#loop over events
             
             powerV = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
             PeakV = util.findMaxSign(np.array(deConv_v))
+            peakLocV = util.findFirstPeak(deConv_v)
 
         else:
             deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, 1)
@@ -142,8 +143,8 @@ for evNum in range(10,totalEvents):#loop over events
             else:
                 maxH = util.findMaxSign(np.array(v))
                 rmsH_ = np.array(v[len(v)-60:len(v)]).std()
-
-            powerH = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
+            
+            powerH = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWinidow = True, peakLoc = peakLocV)-util.integratePowerNoise(deConv_t,deConv_v)
             PeakH = util.findMaxSign(np.array(deConv_v))
                 
     if((powerV<0) or (powerH<0)):

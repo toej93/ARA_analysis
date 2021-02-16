@@ -410,14 +410,48 @@ def PolAngleStokes(Hpol,Vpol):
 def PolRatio(Hpol,Vpol):
     return np.degrees(np.arctan2(Hpol,Vpol))
 
-def getRFChannel(string, channel):
-    if(channel%2==0):
-        RFChannel = string + 2*channel
-    else:
-        if(channel==1):
-            RFChannel = 8 + string*channel
-        if(channel==3):
-            RFChannel = 12 + string
+def getRFChannel(string, channel): #mapping from AraSim to RF channel chain
+    RFChannel = 0
+    if(string == 0):
+        if(channel == 0):
+            RFChannel = 5
+        elif(channel == 1):
+            RFChannel = 13
+        elif(channel == 2):
+            RFChannel = 1
+        elif(channel == 3):
+            RFChannel = 9
+            
+    elif(string == 1):
+        if(channel == 0):
+            RFChannel = 6
+        elif(channel == 1):
+            RFChannel = 14
+        elif(channel == 2):
+            RFChannel = 2
+        elif(channel == 3):
+            RFChannel = 10
+            
+    elif(string == 2):
+        if(channel == 0):
+            RFChannel = 7
+        elif(channel == 1):
+            RFChannel = 15
+        elif(channel == 2):
+            RFChannel = 3
+        elif(channel == 3):
+            RFChannel = 11
+            
+    if(string == 3):
+        if(channel == 0):
+            RFChannel = 4
+        elif(channel == 1):
+            RFChannel = 12
+        elif(channel == 2):
+            RFChannel = 0
+        elif(channel == 3):
+            RFChannel = 8
+            
     return int(RFChannel)
 
 def PolVectorReco(Peak_V, Peak_H, theta, phi):
@@ -705,14 +739,17 @@ def findFirstPeak(wf):
     peaks,_ = scipy.signal.find_peaks(amplitude_envelope, width=2, prominence=0.5)
     return peaks[0]
     
-def integratePowerWindow_SpiceCore(times, values):
+def integratePowerWindow_SpiceCore(times, values, useSameWinidow = False, peakLoc = 0):
     times = np.array(times)
     values = np.array(values)
     dT = times[1]-times[0]
     leftNumBins = int(20/dT)#Number of bins in 20 ns
     rightNumBins = int(60/dT)#Number of bins in 60 ns
 
-    peakBin = findFirstPeak(values)#Use first peak (SpiceCore events have two peaks)
+    if(useSameWinidow):
+        peakBin = peakLoc
+    else:
+        peakBin = findFirstPeak(values)#Use first peak (SpiceCore events have two peaks)
     lowerEdgeBin = peakBin-leftNumBins
     upperEdgeBin = peakBin+rightNumBins
     if((lowerEdgeBin<0) or (upperEdgeBin<0)):
