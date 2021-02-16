@@ -36,7 +36,7 @@ def calculateSNR(t, v):
 gSystem.Load('libAraEvent.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
 
 
-test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/1224/run_012559/event012559.root")#directory where the files are
+test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/1226/run_012577/event012577.root")#directory where the files are
 
 
 calibrator = ROOT.AraEventCalibrator.Instance()
@@ -47,7 +47,7 @@ totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
 isTrue=False
 
-for evNum in range(19,140):#loop over events
+for evNum in range(17855,18500):#loop over events
 
     eventTree.GetEntry(evNum)
     if(rawEvent.isSoftwareTrigger()): #if not soft trigger
@@ -58,7 +58,7 @@ for evNum in range(19,140):#loop over events
     usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
     tWf1, vWf1 = convertWfToArray(0, usefulEvent)
     SNR = calculateSNR(tWf1, vWf1)
-    if(SNR<10):
+    if(SNR<8):
         continue
     
     gr = [None]*16

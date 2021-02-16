@@ -161,4 +161,4 @@ for evNum in range(10,totalEvents):#loop over events
     SNR_H_arr.append(SNR_H)
 # 
 original_df = pd.DataFrame({"EvNum":np.array(evt_num),"Omega_reco": np.array(Omega_reco),"unixtime": np.array(unixtime),"SNR_V": np.array(SNR_arr),"SNR_H": np.array(SNR_H_arr),"theta_reco": np.array(theta_reco)})
-original_df.to_pickle("./evNumVsOmegaCh%i_%i.pkl"%(chV,chH))
+original_df.to_pickle("./RecoOmegaCh%i_%i_run_012559.pkl"%(chV,chH))
