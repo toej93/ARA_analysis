@@ -219,20 +219,29 @@ class LimitFigure:
             self.neutrino_models.extend([prot100, prot10, prot1])
             
             
+        elif name=='ahlers_fig2_p_solid_line':
+            energy, flux, band_min, band_max = self.get_data('sensitivities/ahlers_fig2_p_solid_line.txt')
+            ahlers, = self.ax.plot(energy, flux,
+                                   color='Red', linestyle='-.',
+                                   label=r'Ahlers Fig. 2 p solid')
+            self.neutrino_models.append(ahlers)
             
-        elif name=='ahlers_1':
+        elif name=='ahlers_fig2_N_solid_line':
+            energy, flux, band_min, band_max = self.get_data('sensitivities/ahlers_fig2_N_solid_line.txt')
+            ahlers, = self.ax.plot(energy, flux,
+                                   color='violet', linestyle='-.',
+                                   label=r'Ahlers Fig. 2 N solid')
+            self.neutrino_models.append(ahlers)
+            
+        elif(name=='Cosmogenic'):
             energy, flux, band_min, band_max = self.get_data('sensitivities/ahlers_1.txt')
-#             prot10, = self.ax.plot(energy, flux,
-#                                    color='cornflowerblue', linestyle='-.',
-#                                    label=r'1% protons, Ahlers & Halzen')
-#             self.neutrino_models.append(prot10)
             energy2, flux_kot, band_min, band_max  = self.get_data('sensitivities/kotera_FRII.txt')
             fluxInterp = np.interp(energy2, energy, flux)
             fill2 = self.ax.fill_between(energy2, fluxInterp, flux_kot,
                              color='green',label="Cosmogenic", alpha=0.1)
             self.ax.annotate('ARA SES (2023)',
-                                 xy=(1.4e9, 1e-8), xycoords='data',
-                                 horizontalalignment='center', color='black', rotation=0)
+                                 xy=(1.4e9, 1.1e-8), xycoords='data',
+                                 horizontalalignment='center', color='grey', rotation=0)
 #             self.ax.grid()
             self.neutrino_models.append(fill2)   
     
@@ -387,7 +396,8 @@ class LimitFigure:
         elif name=='van_vliet2019_Elow':
                 energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19_Elow.txt')
                 prot10, = self.ax.plot(energy, flux,
-                                       color='orchid', linestyle='--')
+                                       color='blue', linestyle='--',
+                                       label = "vanvliet_red_dashed")
                 self.neutrino_models.append(prot10)
             
         elif name=='van_vliet2019_hard':
@@ -401,6 +411,13 @@ class LimitFigure:
                 prot10, = self.ax.plot(energy, flux,
                                        color='deeppink', linestyle='-.',
                                        label=r'Hard/soft spectrum ($E_{max}=10^{12}$ GeV)')
+                self.neutrino_models.append(prot10)
+                
+        elif name=='van_vliet2019_soft_100EeV':
+                energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19_soft_100EeV.txt')
+                prot10, = self.ax.plot(energy, flux,
+                                       color='deeppink', linestyle='-.',
+                                       label=r'vanvliet solid blue')
                 self.neutrino_models.append(prot10)
                 
         elif name=='diagonal':
@@ -422,8 +439,8 @@ class LimitFigure:
                 
         elif name=='vanvliet19_highE_hard':
                 energy, flux, band_min, band_max = self.get_data('sensitivities/vanvliet19_highE_hard.txt')
-                prot10, = self.ax.plot(energy[26:], flux[26:],
-                                       color='red', linestyle='-.',
+                prot10, = self.ax.plot(energy, flux,
+                                       color='blue', linestyle='-.',
                                        label=r'$E_{max}=10^{14}$ GeV, $\alpha=2.0$')
                 self.neutrino_models.append(prot10)
 #                 energy2, flux_kot, band_min, band_max  = self.get_data('sensitivities/kotera_FRII.txt')
@@ -431,6 +448,20 @@ class LimitFigure:
 #                 fill2=self.ax.fill_between(energy, flux, fluxInterp,
 #                                  color='0.8',label="Shaded region", alpha=0.6)
 #                 self.neutrino_models.append(fill2)
+
+        elif name=='righi_fig6_right_solid_red_line':
+                energy, flux, band_min, band_max = self.get_data('sensitivities/righi_fig6_right_solid_red_line.txt')
+                prot10, = self.ax.plot(energy, flux,
+                                       color='green', linestyle='-.',
+                                       label=r'righi fig6 right solid red line')
+                self.neutrino_models.append(prot10)
+       
+        elif name=='righi_fig6_left_solid_red_line':
+                energy, flux, band_min, band_max = self.get_data('sensitivities/righi_fig6_left_solid_red_line.txt')
+                prot10, = self.ax.plot(energy, flux,
+                                       color='C1', linestyle='-.',
+                                       label=r'righi fig6 left solid red line')
+                self.neutrino_models.append(prot10)
 
         elif name=='Cuoco_CenA':
                 energy, flux, band_min, band_max = self.get_data('sensitivities/Cuoco_CenA.txt')
@@ -463,6 +494,28 @@ class LimitFigure:
                              color='blue',label="Astrophysical", alpha=0.1)
             self.neutrino_models.append(fill2)   
             
+        elif name=='Astro_Gen2':
+
+            energy, flux, _, _ = self.get_data('sensitivities/Astrophysical_upper_Gen2.txt')
+
+            energy2, flux2, _, _ = self.get_data('sensitivities/Astrophysical_lower_Gen2.txt')
+            LowerAstroInterp = np.interp(energy, energy2, flux2)
+            fill2 = self.ax.fill_between(energy, LowerAstroInterp, flux,
+                             color='blue',label="Astrophysical", alpha=0.1)
+            self.neutrino_models.append(fill2)   
+            
+        elif name=='Cosmo_Gen2':
+
+            energy, flux, _, _ = self.get_data('sensitivities/Cosmogenic_upper_Gen2.txt')
+
+            energy2, flux2, _, _ = self.get_data('sensitivities/ahlers_fig2_N_solid_line.txt')
+            LowerCosmoInterp = np.interp(energy, energy2, flux2)
+            fill2 = self.ax.fill_between(energy, LowerCosmoInterp, flux,
+                             color='green',label="Cosmogenic", alpha=0.1)
+            self.neutrino_models.append(fill2)   
+            self.ax.annotate('ARA SES (2023)',
+                                 xy=(4e9, 1.2e-8), xycoords='data',
+                                 horizontalalignment='center', color='grey', rotation=0)
             
 
         else:
@@ -472,11 +525,14 @@ class LimitFigure:
     def add_experiment(self, name):
         if 'ice_cube' in name:
             if self.e_power==2:
-                self.ax.annotate('IceCube \n (9y limit)',
+                self.ax.annotate('IceCube',
                                  xy=(2e6, 3e-8), xycoords='data',
                                  horizontalalignment='center', color='dodgerblue', rotation=0)
+                self.ax.annotate('IceCube-Gen2 Optical SES',
+                                 xy=(2e6, 3e-10), xycoords='data',
+                                 horizontalalignment='center', color='dodgerblue', rotation=0)
             if self.e_power==1:
-                self.ax.annotate('IceCube \n (9y limit)',
+                self.ax.annotate('IceCube',
                                  xy=(1.3e7, 3.1e-15), xycoords='data',
                                  horizontalalignment='center', color='dodgerblue', rotation=-30)
 
@@ -519,6 +575,11 @@ class LimitFigure:
             energy, flux, _, _ = self.get_data('sensitivities/ice_cube_ehe.txt')
             self.ax.plot(energy, flux,
                          color='dodgerblue')
+            
+        elif name=='ice_cube_ehe_Gen2Optical':
+            energy, flux, _, _ = self.get_data('sensitivities/ice_cube_ehe.txt')
+            self.ax.plot(energy, flux/(5*2.44),
+                         color='dodgerblue', linestyle='--')
 
         elif name=='ice_cube_hese_data':
             energy, flux, err_min, err_max = self.get_data('sensitivities/ice_cube_hese.txt')
@@ -552,16 +613,16 @@ class LimitFigure:
             self.ax.plot(energy, flux,
                          color='dodgerblue')
             
-        elif name=='Gen2':
-            energy, flux, _, _ = self.get_data('sensitivities/Gen2.txt')
+        elif name=='Gen2Radio':
+            energy, flux, _, _ = self.get_data('sensitivities/Gen2_radio_proposal_10y.txt')
             self.ax.plot(energy, flux,
-                         color='red', linestyle="--")
+                         color='red', linestyle="-")
             if self.e_power==2:
-                self.ax.annotate('IceCube-Gen2',
-                                 xy=(1e10, 3e-9*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='red', rotation=40)
+                self.ax.annotate('Gen2 Radio SES',
+                                 xy=(2e8, 2e-10*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='red', rotation=0)
             if self.e_power==1:
-                self.ax.annotate('IceCube-Gen2',
+                self.ax.annotate('Gen2 Radio',
                                  xy=(1e7, 5e-17*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='red', rotation=-52)
 
@@ -599,7 +660,7 @@ class LimitFigure:
         elif name=='ara':
             energy, flux, _, _ = self.get_data('sensitivities/ara_2019.txt')
             self.ax.plot(energy, flux,
-                         color='#2288AA')
+                         color='grey')
 #             self.ax.fill_between(energy, flux, flux+0.1,
 #                          color='green', alpha=0.2, label ="Excluded by ARA")
             
@@ -612,31 +673,31 @@ class LimitFigure:
 #                                  horizontalalignment='left', color='#2288AA', rotation=-10)
                 self.ax.annotate('ARA (2x4y)',
                                  xy=(3e8, 9e-7*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='#2288AA', rotation=-10)
+                                 horizontalalignment='left', color='grey', rotation=-10)
             if self.e_power==1:
 #                 self.ax.annotate('ARA (2x1yr)',
 #                                  xy=(3.5e8, 4e-15*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='#2288AA', rotation=-50)
                 self.ax.annotate('ARA (2x4y)',
                                  xy=(3.1e8, 9e-16*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='#2288AA', rotation=-50)
+                                 horizontalalignment='left', color='grey', rotation=-50)
 #                 self.ax.annotate('Region excluded \n   by our work',
 #                                  xy=(7e9, 5e-15*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='red', rotation=-50, fontsize=12)
-#                 self.ax.annotate('ARA 2023 (SES)',
-#                                  xy=(5e7, 2e-16*self.e_bins), xycoords='data',
-#                                  horizontalalignment='left', color='black', rotation=-47)
+                self.ax.annotate('ARA 2023 (SES)',
+                                 xy=(5e7, 2e-16*self.e_bins), xycoords='data',
+                                 horizontalalignment='left', color='black', rotation=-47)
 
         elif name=='arianna':
             energy, flux, _, _ = self.get_data('sensitivities/arianna_2019.txt')
             self.ax.plot(energy, flux,
                          color='firebrick')
             if self.e_power==2:
-                self.ax.annotate('ARIANNA (4.5yr)',
-                                 xy=(1.2e8, 4.1e-6*self.e_bins), xycoords='data',
+                self.ax.annotate('ARIANNA (4.5y)',
+                                 xy=(1e8, 4.1e-6*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='firebrick', rotation=-8)
             if self.e_power==1:
-                self.ax.annotate('ARIANNA (4.5yr)',
+                self.ax.annotate('ARIANNA (4.5y)',
                                  xy=(5e9, 4.3e-16*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='firebrick', rotation=-8)
     
@@ -693,7 +754,7 @@ class LimitFigure:
                 models = ['biehl', 'boncioli', 'fang_merger', 'fang_pulsar', 'fang_cluster'] 
         elif group=='ara_Gen2':
             if experiments is None:
-                experiments = ['ice_cube_ehe', 'ice_cube_hese_data', 'ice_cube_mu_fit','anita', 'auger', 'arianna', 'ara']
+                experiments = ['ice_cube_ehe', 'ice_cube_hese_data', 'ice_cube_mu_fit', 'ice_cube_ehe_Gen2Optical', 'anita', 'auger', 'arianna', 'ara', 'Gen2Radio']
             if models is None:
                 models = ['kotera', 'ahlers']
         else:
@@ -730,6 +791,28 @@ class LimitFigure:
                              zorder=100+len(self.custom_limits))
         self.custom_limits.append(_plt)
 
+    def add_limitFromAeff(self, name, energies, aeffs, stations=1, years=1, color=None, linestyle=None, label=None):
+        limits = calculate_fluxFromAeff(energies, aeffs, stations, years)
+        limits *= energies**self.e_power # convert to GeV m^-2 s^-1 sr^-1 (if this is an E^2 plot)
+        limits *= 1e-4 # convert to GeV cm^-2 s^-1 sr^-1
+
+        # Scale by energy bin size
+        log_energy = np.log10(energies)
+        d_log_energy = np.diff(log_energy)
+        bins_per_decade = 1/d_log_energy[0]
+        limits *= self.e_bins / bins_per_decade
+
+        if label is None:
+            label = "{2}: {0} stations, {1} years".format(stations, years, name)
+
+        # Plot limit
+        _plt, = self.ax.plot(energies / self.e_unit,
+                             limits / self.f_unit,
+                             color=color, linestyle=linestyle,
+                             label=label,
+                             linewidth=3,
+                             zorder=100+len(self.custom_limits))
+        self.custom_limits.append(_plt)
 
     def title(self, title, size=None):
         self.ax.set_title(title)
@@ -739,8 +822,8 @@ class LimitFigure:
 
     def show(self, legend_size=12, save_name=None, *args, **kwargs):
         if self.e_power==2:
-            self.ax.add_artist(plt.legend(handles=self.neutrino_models, loc=4, fontsize=legend_size))
-            self.ax.add_artist(plt.legend(handles=self.custom_limits, loc=2, fontsize=legend_size))
+            self.ax.add_artist(plt.legend(handles=self.neutrino_models, loc='upper left', fontsize=legend_size))
+#             self.ax.add_artist(plt.legend(handles=self.custom_limits, loc='best', fontsize=legend_size))
         elif self.e_power==1:
             joined = self.neutrino_models+self.custom_limits
             self.ax.add_artist(plt.legend(handles=joined, loc=3,fontsize=legend_size))
@@ -788,6 +871,29 @@ def calculate_flux(energies, veffs, stations=1, years=1):
 
     return upper_limit / aeff_tots * bins_per_decade / np.log(10) / energies
 
+
+def calculate_fluxFromAeff(energies, aeffs, stations=1, years=1):
+    """Calculate flux (m^-2 s^-1 sr^-1 GeV^-1) for energies in GeV and aeffs in km^2 and livetime in years"""
+    energies = np.asarray(energies)
+    aeffs = np.asarray(aeffs)
+
+    # Get number of energy bins per decade
+    log_energy = np.log10(energies)
+    d_log_energy = np.diff(log_energy)
+    for d_log in d_log_energy:
+        if not np.isclose(d_log, d_log_energy[0]):
+            raise ValueError("Energies should be evenly spaced in log-10-space")
+    bins_per_decade = 1/d_log_energy[0]
+    aeffs = aeffs*1E6*4*np.pi # convert to m^2 sr
+
+    aeff_tots = aeffs * stations * (years * 365.25 * 24 * 60 * 60)
+
+    # Upper limit on events
+    # 2.3 for Neyman UL w/ 0 background,
+    # 2.44 for F-C UL w/ 0 background, etc
+    upper_limit = 2.44
+
+    return upper_limit / aeff_tots * bins_per_decade / np.log(10) / energies
 
 def count_neutrinos(flux, energies, veffs, stations=1, years=1):
     """Count the number of neutrinos observed for a given flux at each energy"""
@@ -949,3 +1055,28 @@ Gen2Year7 = Gen2Year6 + Gen2Year1*7 #Completed here
 # Gen2Year8 = Gen2Year7 + Gen2Year1*8
 # Gen2Year9 = Gen2Year8 + Gen2Year1*9
 Gen2Year10 = Gen2Year7 + Gen2Year1*7*3
+
+# Gen2Optical = np.array([8.25e-06, 1.22e-05, 1.56e-05, 2.07e-05, 2.72e-05, 3.43e-05,
+#        4.37e-05, 5.43e-05, 6.60e-05, 8.03e-05, 9.36e-05, 1.13e-04,
+#        1.31e-04, 1.55e-04, 1.77e-04, 2.00e-04, 2.27e-04, 2.56e-04,
+#        2.87e-04, 3.13e-04, 3.48e-04, 3.90e-04, 4.30e-04, 4.91e-04,
+#        5.23e-04, 5.70e-04, 6.20e-04, 6.99e-04, 7.39e-04, 8.09e-04,
+#        8.58e-04, 9.52e-04, 1.08e-03, 1.18e-03, 1.21e-03, 1.32e-03,
+#        1.45e-03, 1.57e-03, 1.63e-03, 1.87e-03, 2.00e-03, 2.18e-03,
+#        2.43e-03, 2.46e-03, 2.84e-03, 2.84e-03, 3.19e-03, 3.39e-03,
+#        3.79e-03, 4.01e-03, 4.36e-03, 4.82e-03, 5.12e-03, 5.51e-03,
+#        5.98e-03, 6.14e-03, 6.98e-03, 7.05e-03, 8.18e-03, 8.42e-03,
+#        9.65e-03, 1.05e-02, 1.02e-02, 1.19e-02, 1.29e-02, 1.32e-02,
+#        1.53e-02, 1.54e-02, 1.70e-02, 1.81e-02]) #These are effective areas (km^2)
+
+# Gen2Optical_Energies = 10**np.array([13.1, 13.2, 13.3, 13.4, 13.5, 13.6, 13.7, 13.8, 13.9, 14. , 14.1,
+#        14.2, 14.3, 14.4, 14.5, 14.6, 14.7, 14.8, 14.9, 15. , 15.1, 15.2,
+#        15.3, 15.4, 15.5, 15.6, 15.7, 15.8, 15.9, 16. , 16.1, 16.2, 16.3,
+#        16.4, 16.5, 16.6, 16.7, 16.8, 16.9, 17. , 17.1, 17.2, 17.3, 17.4,
+#        17.5, 17.6, 17.7, 17.8, 17.9, 18. , 18.1, 18.2, 18.3, 18.4, 18.5,
+#        18.6, 18.7, 18.8, 18.9, 19. , 19.1, 19.2, 19.3, 19.4, 19.5, 19.6,
+#        19.7, 19.8, 19.9, 20. ]) / 1e9
+
+Gen2Optical_Energies = 10**np.array([14., 15., 16., 17., 18., 19., 20.]) / 1e9
+
+Gen2Optical = np.array([8.03e-05, 3.13e-04, 8.09e-04, 1.87e-03, 4.01e-03, 8.42e-03, 1.81e-02])
