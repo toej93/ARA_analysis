@@ -160,7 +160,7 @@ for evNum in range(10,totalEvents):#loop over events
                 maxH = util.findMaxSign(np.array(v))
                 rmsH_ = np.array(v[len(v)-60:len(v)]).std()
             
-            powerH = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWinidow = True, peakLoc = peakLocV)--noisePowerChan[ch]#util.integratePowerNoise(deConv_t,deConv_v)
+            powerH = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWinidow = True, peakLoc = peakLocV)-noisePowerChan[ch]#util.integratePowerNoise(deConv_t,deConv_v)
             PeakH = util.findMaxSign(np.array(deConv_v))
                 
     if((powerV<0) or (powerH<0)):

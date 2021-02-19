@@ -44,7 +44,7 @@ gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/ARA_cvmfs/build/inclu
 gSystem.Load('libAraEvent.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
 gSystem.Load("/users/PAS0654/osu8354/ARA_cvmfs/build/lib/libRootFftwWrapper.so")
 
-test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/1226/run_012577/event012577.root")#directory where the files are
+test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/1224/run_012559/event012559.root")#directory where the files are
 
 calibrator = ROOT.AraEventCalibrator.Instance()
 eventTree = test.Get("eventTree")
@@ -73,6 +73,11 @@ unixtime = []
 SNR_arr = []
 SNR_H_arr = []
 
+power_H = []
+power_V = []
+powerH_noise = []
+powerV_noise = []
+
 Omega_reco = []
 noise = True
 chV = int(sys.argv[1])
@@ -85,7 +90,7 @@ noisePowerChan = np.array([ 2305456.86774099,  4704735.94561591, 10417781.385576
         5395738.82052792,  2061752.15165964,  5164978.22803217,
        20520769.36426187])
        
-for evNum in range(10,totalEvents):#loop over events
+for evNum in range(17317,17351):#loop over events
 
     eventTree.GetEntry(evNum)
     
@@ -126,6 +131,7 @@ for evNum in range(10,totalEvents):#loop over events
     theta = np.radians(180-vertex[1])
     phi = np.radians(vertex[2])
     phi_reco.append(np.degrees(phi))
+    
 
     for ch in [chV,chH]:
         t = []
@@ -150,6 +156,8 @@ for evNum in range(10,totalEvents):#loop over events
             powerV = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v)-noisePowerChan[ch]#util.integratePowerNoise(deConv_t,deConv_v)
             PeakV = util.findMaxSign(np.array(deConv_v))
             peakLocV = util.findFirstPeak(deConv_v)
+            power_V.append(util.integratePowerWindow_SpiceCore(deConv_t,deConv_v))
+            powerV_noise.append(noisePowerChan[ch])
 
         else:
             deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, 1)
@@ -160,12 +168,14 @@ for evNum in range(10,totalEvents):#loop over events
                 maxH = util.findMaxSign(np.array(v))
                 rmsH_ = np.array(v[len(v)-60:len(v)]).std()
             
-            powerH = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWinidow = True, peakLoc = peakLocV)--noisePowerChan[ch]#util.integratePowerNoise(deConv_t,deConv_v)
+            powerH = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWinidow = True, peakLoc = peakLocV)-noisePowerChan[ch]#util.integratePowerNoise(deConv_t,deConv_v)
             PeakH = util.findMaxSign(np.array(deConv_v))
+            power_H.append(util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWinidow = True, peakLoc = peakLocV))
+            powerH_noise.append(noisePowerChan[ch])
                 
-    if((powerV<0) or (powerH<0)):
-        # print("Negative")
-        continue
+    # if((powerV<0) or (powerH<0)):
+    #     # print("Negative")
+    #     continue
         
     Omega = np.degrees(np.arctan(np.sqrt(powerH/powerV)))            
     # print(Omega)
@@ -176,6 +186,7 @@ for evNum in range(10,totalEvents):#loop over events
     SNR_arr.append(SNR)
     theta_reco.append(np.degrees(theta))
     SNR_H_arr.append(SNR_H)
+    
 # 
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"Omega_reco": np.array(Omega_reco),"unixtime": np.array(unixtime),"SNR_V": np.array(SNR_arr),"SNR_H": np.array(SNR_H_arr),"theta_reco": np.array(theta_reco)})
-original_df.to_pickle("./RecoOmegaCh%i_%i_run_012577_softTrigPow.pkl"%(chV,chH))
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"Omega_reco": np.array(Omega_reco),"power_V": np.array(power_V),"power_H": np.array(power_H),"powerV_noise": np.array(powerV_noise),"powerH_noise": np.array(powerH_noise)})
+original_df.to_pickle("./RecoOmegaCh%i_%i_run_012577_debug.pkl"%(chV,chH))
