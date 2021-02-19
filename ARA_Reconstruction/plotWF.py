@@ -36,7 +36,7 @@ def calculateSNR(t, v):
 gSystem.Load('libAraEvent.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
 
 
-test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/1226/run_012577/event012577.root")#directory where the files are
+test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/1224/run_012559/event012559.root")#directory where the files are
 
 
 calibrator = ROOT.AraEventCalibrator.Instance()
@@ -47,7 +47,7 @@ totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
 isTrue=False
 
-for evNum in range(17855,18500):#loop over events
+for evNum in range(17317,17351):#loop over events
 
     eventTree.GetEntry(evNum)
     if(rawEvent.isSoftwareTrigger()): #if not soft trigger
@@ -71,10 +71,13 @@ for evNum in range(17855,18500):#loop over events
         for kk in range(0,gr[ch].GetN()):
           t.append(gr[ch].GetX()[kk])
           v.append(gr[ch].GetY()[kk])
-        axs[ch].plot(t,v,linewidth=0.5, label = "Ch %i"%ch)
-        axs[ch].legend()
+        v = np.array(v)
+        peak = np.max(abs(v))
+        RMS = v[len(v)-60:len(v)].std()
+        axs[ch].plot(t,v,linewidth=0.5, label = "Ch %i\n $V_{peak}$ = %0.2f, RMS = %0.2f"%(ch, peak, RMS))
+        axs[ch].legend(prop={'size': 6})
         plt.grid(which="both")
-        axs[ch].set_ylim(-600,600)
+        axs[ch].set_ylim(-1000,1000)
     plt.tight_layout()
     plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/SpiceCorePolReco/wf_all_ev%i.png"%evNum, dpi=200)
     plt.close('all')

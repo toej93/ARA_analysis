@@ -1,9 +1,9 @@
 """
 #####deDisperse.py#####
 
-Reconstruct polarization on data (SpiceCore events)
+Calculate power of sof triggers along a 80 ns window (SpiceCore events)
 Author: Jorge Torres
-Date: Feb 2, 2021.
+Date: Feb 18, 2021.
 """
 from ROOT import TCanvas, TGraph
 from ROOT import gROOT
@@ -54,10 +54,12 @@ print('total events:', totalEvents)
 # unixtime = []
 # SNR_arr = []
 # SNR_H_arr = []
-rms_arr = []
+NoisePow_arr = []
 # chV = int(sys.argv[1])
 # chH = chV + 8
-for evNum in range(10,10000):#loop over events
+theta = np.pi/2 #Use 90 deg for the deconvolution code. This is not correct, so it'll have to be changed eventually.
+phi = 0
+for evNum in range(10,20000):#loop over events
 
     eventTree.GetEntry(evNum)
     
@@ -65,21 +67,19 @@ for evNum in range(10,10000):#loop over events
         continue
         
     usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
-    rms = []
+    noisePower = []
     for chan in range(0,16):
+        if(chan<8):
+            pol = 0 #Vpol
+        else:
+            pol = 1 #Hpol
         t, v = convertWfToArray(chan, usefulEvent)
-        rms.append(v.std())
-    # tWf1, vWf1 = convertWfToArray(chV, usefulEvent)
-    # SNR = calculateSNR(tWf1, vWf1)
-    # 
-    # tWf2, vWf2 = convertWfToArray(chH, usefulEvent)
-    # SNR_H = calculateSNR(tWf2, vWf2)
-    # 
-    # unixtime.append(rawEvent.unixTime)
-    # evt_num.append(evNum)
-    # SNR_arr.append(SNR)
-    # SNR_H_arr.append(SNR_H)
-    rms_arr.append(np.array(rms))
-# 
-original_df = pd.DataFrame({"rms":rms_arr})
-original_df.to_pickle("./rms_softTriggers_run012559.pkl")
+        
+        deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, pol)
+        powerNoise = util.integratePowerNoise_softTrig(deConv_t,deConv_v)
+        noisePower.append(powerNoise)
+        
+    NoisePow_arr.append(np.array(noisePower))
+# # 
+original_df = pd.DataFrame({"noisePower":NoisePow_arr})
+original_df.to_pickle("./PowerNoise_softTriggers_run012559.pkl")

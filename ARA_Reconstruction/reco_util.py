@@ -702,6 +702,16 @@ def integratePowerNoise(times, values):
     power = np.sum(cutWform**2)*dT
     return power
     
+def integratePowerNoise_softTrig(times, values):
+    times = np.array(times)
+    values = np.array(values)
+    dT = times[1]-times[0]
+    #need to integrate second block of 80 ns of the waveform
+    numBins = int(80/dT)
+    cutWform = values[numBins:2*numBins]
+    power = np.sum(cutWform**2)*dT
+    return power
+    
 def PolVectorReco_debug(Peak_V, Peak_H, theta, phi, sign):
     R = abs(Peak_H/Peak_V)*sign
     denom = np.sqrt(1+R**2)
