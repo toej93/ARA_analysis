@@ -90,7 +90,7 @@ noisePowerChan = np.array([ 2305456.86774099,  4704735.94561591, 10417781.385576
         5395738.82052792,  2061752.15165964,  5164978.22803217,
        20520769.36426187])
        
-for evNum in range(17317,17351):#loop over events
+for evNum in range(11981,11985):#loop over events
 
     eventTree.GetEntry(evNum)
     
