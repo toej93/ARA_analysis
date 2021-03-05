@@ -749,14 +749,14 @@ def findFirstPeak(wf):
     peaks,_ = scipy.signal.find_peaks(amplitude_envelope, width=2, prominence=0.5)
     return peaks[0]
     
-def integratePowerWindow_SpiceCore(times, values, useSameWinidow = False, peakLoc = 0):
+def integratePowerWindow_SpiceCore(times, values, useSameWindow = False, peakLoc = 0):
     times = np.array(times)
     values = np.array(values)
     dT = times[1]-times[0]
     leftNumBins = int(20/dT)#Number of bins in 20 ns
     rightNumBins = int(60/dT)#Number of bins in 60 ns
 
-    if(useSameWinidow):
+    if(useSameWindow):
         peakBin = peakLoc
     else:
         peakBin = findFirstPeak(values)#Use first peak (SpiceCore events have two peaks)

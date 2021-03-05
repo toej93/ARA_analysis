@@ -40,11 +40,22 @@ def calculateSNR(t, v, ch):
        43.35847075])#RMS of the last 60 samples of the wf
     return peak/RMS[ch]
     
+
 gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/ARA_cvmfs/build/include/FFTtools.h"')
 gSystem.Load('libAraEvent.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
 gSystem.Load("/users/PAS0654/osu8354/ARA_cvmfs/build/lib/libRootFftwWrapper.so")
 
-test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/1226/run_012577/event012577.root")#directory where the files are
+day = 26
+
+if(day == 24):
+    date = 1224
+    run = "012559"
+    
+elif(day == 26):
+    date = 1226
+    run = "012577"
+
+test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/%i/run_%s/event%s.root"%(date, run, run))#directory where the files are
 
 calibrator = ROOT.AraEventCalibrator.Instance()
 eventTree = test.Get("eventTree")
@@ -146,11 +157,11 @@ for evNum in range(10,totalEvents):#loop over events
 
             # dTV = deConv_t[1]-deConv_t[0]
             # powerV = np.sum(deConv_v**2)*dTV
-            
-            powerV = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v)-noisePowerChan[ch]#util.integratePowerNoise(deConv_t,deConv_v)
+            powV = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v)
+            powerV = 0.7*powV-noisePowerChan[ch]#util.integratePowerNoise(deConv_t,deConv_v)
             PeakV = util.findMaxSign(np.array(deConv_v))
             peakLocV = util.findFirstPeak(deConv_v)
-
+            
         else:
             deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, 1)
             if(noise == False):
@@ -159,8 +170,8 @@ for evNum in range(10,totalEvents):#loop over events
             else:
                 maxH = util.findMaxSign(np.array(v))
                 rmsH_ = np.array(v[len(v)-60:len(v)]).std()
-            
-            powerH = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWinidow = True, peakLoc = peakLocV)-noisePowerChan[ch]#util.integratePowerNoise(deConv_t,deConv_v)
+            dT = deConv_t[1]-deConv_t[0]
+            powerH = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWindow = True, peakLoc = peakLocV-int(14.1/dT))-noisePowerChan[ch] # 14.1 ns due to birefringence https://arxiv.org/abs/1910.01471
             PeakH = util.findMaxSign(np.array(deConv_v))
                 
     if((powerV<0) or (powerH<0)):
@@ -178,4 +189,4 @@ for evNum in range(10,totalEvents):#loop over events
     SNR_H_arr.append(SNR_H)
 # 
 original_df = pd.DataFrame({"EvNum":np.array(evt_num),"Omega_reco": np.array(Omega_reco),"unixtime": np.array(unixtime),"SNR_V": np.array(SNR_arr),"SNR_H": np.array(SNR_H_arr),"theta_reco": np.array(theta_reco)})
-original_df.to_pickle("./RecoOmegaCh%i_%i_run_012577_softTrigPow.pkl"%(chV,chH))
+original_df.to_pickle("./RecoOmegaCh%i_%i_run_%s_30PercentCrossPol.pkl"%(chV,chH, run))

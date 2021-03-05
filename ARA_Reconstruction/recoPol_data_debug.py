@@ -90,7 +90,7 @@ noisePowerChan = np.array([ 2305456.86774099,  4704735.94561591, 10417781.385576
         5395738.82052792,  2061752.15165964,  5164978.22803217,
        20520769.36426187])
        
-for evNum in range(11981,11985):#loop over events
+for evNum in range(25650,25900):#loop over events
 
     eventTree.GetEntry(evNum)
     
@@ -150,7 +150,6 @@ for evNum in range(11981,11985):#loop over events
                 maxV = util.findMaxSign(np.array(v))
                 rmsV_ = np.array(v[len(v)-60:len(v)]).std()
 
-            # dTV = deConv_t[1]-deConv_t[0]
             # powerV = np.sum(deConv_v**2)*dTV
             
             powerV = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v)-noisePowerChan[ch]#util.integratePowerNoise(deConv_t,deConv_v)
@@ -167,10 +166,11 @@ for evNum in range(11981,11985):#loop over events
             else:
                 maxH = util.findMaxSign(np.array(v))
                 rmsH_ = np.array(v[len(v)-60:len(v)]).std()
-            
-            powerH = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWinidow = True, peakLoc = peakLocV)-noisePowerChan[ch]#util.integratePowerNoise(deConv_t,deConv_v)
+            dT = deConv_t[1]-deConv_t[0]
+
+            powerH = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWindow = True, peakLoc = peakLocV-int(14.1/dT))-noisePowerChan[ch]#util.integratePowerNoise(deConv_t,deConv_v)
             PeakH = util.findMaxSign(np.array(deConv_v))
-            power_H.append(util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWinidow = True, peakLoc = peakLocV))
+            power_H.append(util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWindow = True, peakLoc = peakLocV-int(14.1/dT)))
             powerH_noise.append(noisePowerChan[ch])
                 
     # if((powerV<0) or (powerH<0)):
