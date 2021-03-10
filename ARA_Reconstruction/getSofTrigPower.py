@@ -50,16 +50,18 @@ totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
 
 
-# evt_num = []
+evt_num = []
 # unixtime = []
 # SNR_arr = []
 # SNR_H_arr = []
 NoisePow_arr = []
+NoisePowDeco_arr = []
+
 # chV = int(sys.argv[1])
 # chH = chV + 8
 theta = np.pi/2 #Use 90 deg for the deconvolution code. This is not correct, so it'll have to be changed eventually.
 phi = 0
-for evNum in range(10,20000):#loop over events
+for evNum in range(10,totalEvents):#loop over events
 
     eventTree.GetEntry(evNum)
     
@@ -68,18 +70,23 @@ for evNum in range(10,20000):#loop over events
         
     usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
     noisePower = []
+    noisePowerDeco = []
+
     for chan in range(0,16):
         if(chan<8):
             pol = 0 #Vpol
         else:
             pol = 1 #Hpol
         t, v = convertWfToArray(chan, usefulEvent)
-        
+        noisePower.append(util.integratePowerNoise_softTrig(t,v))
         deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, pol)
         powerNoise = util.integratePowerNoise_softTrig(deConv_t,deConv_v)
-        noisePower.append(powerNoise)
+        noisePowerDeco.append(powerNoise)
         
     NoisePow_arr.append(np.array(noisePower))
+    NoisePowDeco_arr.append(np.array(noisePowerDeco))
+
+    evt_num.append(evNum)
 # # 
-original_df = pd.DataFrame({"noisePower":NoisePow_arr})
+original_df = pd.DataFrame({"evNum":evt_num,"noisePower":NoisePow_arr,"noisePowerDeco":NoisePowDeco_arr})
 original_df.to_pickle("./PowerNoise_softTriggers_run012559.pkl")

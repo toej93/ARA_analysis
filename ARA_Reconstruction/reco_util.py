@@ -734,7 +734,7 @@ def findHighestPeakBin_data(values):
 
 def findFirstPeak(wf):
     """
-    Finds where/around where the first peak occurs. Since we're integrating the power, it doesn't matter if it's not the real peak position.
+    Finds where/around where the first peak occurs. Since we're integrating the power, it doesn't matter if it's not the real peak position (not sure about this anymore...).
     ----------
     wf : array_like
         1D array of amplitudes (mV)

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=polReco
-#SBATCH --nodes=1 --ntasks-per-node=12
+#SBATCH --nodes=1 --ntasks-per-node=2
 #SBATCH --account=PAS0654
 #SBATCH --mail-type=END,FAIL
 #SBATCH --time=01:10:00
@@ -14,15 +14,15 @@ export RUNLEVEL=3
 export QT_QPA_PLATFORM='offscreen' #Need to add so my python job doesn't crash
 cd /users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/ARA_analysis/ARA_Reconstruction
 
-python recoPol_data.py 0 &
-python recoPol_data.py 1 &
-python recoPol_data.py 2 &
-python recoPol_data.py 3 &
-python recoPol_data.py 4 &
-python recoPol_data.py 5 &
-python recoPol_data.py 6 &
+# python recoPol_data.py 0 &
+# python recoPol_data.py 1 &
+# python recoPol_data.py 2 &
+# python recoPol_data.py 3 &
+# python recoPol_data.py 4 &
+# python recoPol_data.py 5 &
+# python recoPol_data.py 6 &
 
-
+python getSofTrigPower.py 
 # python getSofTrigSNR.py 0 &
 # python getSofTrigSNR.py 1 &
 # python getSofTrigSNR.py 2 &

@@ -35,7 +35,7 @@ def calculateSNR(t, v):
     
 gSystem.Load('libAraEvent.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
 
-day = 26
+day = 24
 
 if(day == 24):
     date = 1224
@@ -54,20 +54,20 @@ totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
 isTrue=False
 
-for evNum in range(26423,26424):#loop over events
-
+for evNum in range(0,500):#loop over events
+    print(evNum)
     eventTree.GetEntry(evNum)
-    if(rawEvent.isSoftwareTrigger()): #if not soft trigger
+    if(rawEvent.isSoftwareTrigger()==0): #if not soft trigger
         continue
-    if(rawEvent.isCalpulserEvent()): #if not a cal pulser
-        continue
+    # if(rawEvent.isCalpulserEvent()): #if not a cal pulser
+    #     continue
         
     usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
     tWf1, vWf1 = convertWfToArray(0, usefulEvent)
-    SNR = calculateSNR(tWf1, vWf1)
-    if(SNR<8):
-        continue
-    
+    # SNR = calculateSNR(tWf1, vWf1)
+    # if(SNR<8):
+    #     continue
+    # 
     gr = [None]*16
     fig, axs = plt.subplots(4, 4, figsize = (11,9))
     axs = axs.ravel()
@@ -84,9 +84,9 @@ for evNum in range(26423,26424):#loop over events
         axs[ch].plot(t,v,linewidth=0.5, label = "Ch %i"%(ch))
         import scipy.signal
 
-        analytic_signal = scipy.signal.hilbert(v) #perform Hilbert envelope
-        amplitude_envelope = np.abs(analytic_signal)
-        # axs[ch].plot(t,amplitude_envelope,linewidth=0.5, label = "Ch %i\n $V_{peak}$ = %0.2f, RMS = %0.2f"%(ch, peak, RMS))
+        # analytic_signal = scipy.signal.hilbert(v) #perform Hilbert envelope
+        # amplitude_envelope = np.abs(analytic_signal)
+        # axs[ch].plot(t,v,linewidth=0.5, label = "Ch %i"%(ch))
         axs[ch].legend()
         axs[ch].grid()
 
@@ -94,21 +94,21 @@ for evNum in range(26423,26424):#loop over events
         # axs[ch].set_xlim(-100,900)
         # axs[ch].set_xlim(0,250)
 
-        if(ch<8):
-            axs[ch].set_ylim(-1200,1200)
-        else:
-            axs[ch].set_ylim(-200,200)
+        # if(ch<8):
+        #     axs[ch].set_ylim(-1200,1200)
+        # else:
+        #     axs[ch].set_ylim(-200,200)
     plt.tight_layout()
     plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/SpiceCorePolReco/wf_all_ev%i.png"%evNum, dpi=200)
     plt.close('all')
-    tWf1, vWf1 = convertWfToArray(6, usefulEvent)
-    tWf2, vWf2 = convertWfToArray(14, usefulEvent)
-
-    original_df = pd.DataFrame({"t":np.array(tWf1),"v": np.array(vWf1)})
-    original_df2 = pd.DataFrame({"t":np.array(tWf2),"v": np.array(vWf2)})
-
-    original_df.to_pickle("./exampleWF.pkl")
-    original_df2.to_pickle("./exampleWF2.pkl")
+    # tWf1, vWf1 = convertWfToArray(6, usefulEvent)
+    # tWf2, vWf2 = convertWfToArray(14, usefulEvent)
+    # 
+    # original_df = pd.DataFrame({"t":np.array(tWf1),"v": np.array(vWf1)})
+    # original_df2 = pd.DataFrame({"t":np.array(tWf2),"v": np.array(vWf2)})
+    # 
+    # original_df.to_pickle("./exampleWF.pkl")
+    # original_df2.to_pickle("./exampleWF2.pkl")
 
 
     # break

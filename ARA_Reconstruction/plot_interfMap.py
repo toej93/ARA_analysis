@@ -152,7 +152,7 @@ for i in range(42,43):#loop over events
     if(plot_map):
         max_idx = np.unravel_index(np.argmax(inter_data), inter_data.shape)
         # print("Hilbert Coherence", name+":", np.max(inter_data))
-        with np.load(os.path.join('tofs_ara02_vpols_3000m_spherical.npz')) as f:
+        with np.load(os.path.join('tofs_ara02_vpols_300m_spherical.npz')) as f:
             antenna_positions = None
             if antenna_positions is not None:
                 for i, pos in enumerate(antenna_positions):
