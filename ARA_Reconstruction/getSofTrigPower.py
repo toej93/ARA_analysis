@@ -23,6 +23,8 @@ warnings.filterwarnings("ignore")
 
 def convertWfToArray(ch, usefulEvent):
     gr = usefulEvent.getGraphFromRFChan(ch)
+    gr = ROOT.FFTtools.getInterpolatedGraph(gr,0.5) #interpoalate and pad waveform so it has the same length
+    gr = ROOT.FFTtools.padWaveToLength(gr,2048)
     wfLength = gr.GetN()
     t = []
     v = []

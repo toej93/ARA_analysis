@@ -23,6 +23,8 @@ warnings.filterwarnings("ignore")
 
 def convertWfToArray(ch, usefulEvent):
     gr = usefulEvent.getGraphFromRFChan(ch)
+    gr = ROOT.FFTtools.getInterpolatedGraph(gr,0.5) #interpoalate and pad waveform so it has the same length
+    gr = ROOT.FFTtools.padWaveToLength(gr,2048)
     wfLength = gr.GetN()
     t = []
     v = []
@@ -52,7 +54,6 @@ print('total events:', totalEvents)
 
 evt_num = []
 fftArray = []
-freqArray = []
 # chV = int(sys.argv[1])
 # chH = chV + 8
 theta = np.pi/2 #Use 90 deg for the deconvolution code. This is not correct, so it'll have to be changed eventually.
@@ -66,6 +67,7 @@ for evNum in range(10,totalEvents):#loop over events
         
     usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
     fft_chan = []#[[] for i in range(16)]
+    freqArray = []
     freqs = []
     fft_chan.append(evNum)
     freqs.append(evNum)
@@ -75,6 +77,7 @@ for evNum in range(10,totalEvents):#loop over events
         else:
             pol = 1 #Hpol
         t, v = convertWfToArray(chan, usefulEvent)
+        print(len(v))
         fft,freq,dT = util.doFFT(t,v)
         fft_chan.append(abs(fft))
         freqs.append(freq)
@@ -82,15 +85,15 @@ for evNum in range(10,totalEvents):#loop over events
     # NoisePowDeco_arr.append(np.array(noisePowerDeco))
     
     # evt_num.append(evNum)
-    # fftArray.append(fft_chan)
+    fftArray.append(fft_chan)
     freqArray.append(freqs) 
-    break
+    # break
 chNames = ["ch%i"%i for i in range(16) ]
 evNum = ["evNum"]
 colNames = [*evNum, *chNames] 
 
 # original_df = pd.DataFrame(fftArray, columns = colNames)
 # original_df.to_pickle("./Spectra_softTriggers_run012559.pkl")
-
-freq_df = pd.DataFrame(freqArray, columns = colNames)
-freq_df.to_pickle("./Spectra_freqs_run012559.pkl")
+# 
+# freq_df = pd.DataFrame(freqArray, columns = colNames)
+# freq_df.to_pickle("./Spectra_freqs_run012559.pkl")

@@ -706,9 +706,15 @@ def integratePowerNoise_softTrig(times, values):
     times = np.array(times)
     values = np.array(values)
     dT = times[1]-times[0]
-    #need to integrate second block of 80 ns of the waveform
+    #need to integrate the first 80 ns of signal of padded waveform
     numBins = int(80/dT)
-    cutWform = values[numBins:2*numBins]
+    startBin = 0
+    for sample in range(len(values)):
+        ampAbs =  abs(values[sample])
+        if(ampAbs>5):
+            startBin = sample
+            break
+    cutWform = values[startBin:startBin+numBins]
     power = np.sum(cutWform**2)*dT
     return power
     
