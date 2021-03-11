@@ -23,6 +23,8 @@ warnings.filterwarnings("ignore")
 
 def convertWfToArray(ch, usefulEvent):
     gr = usefulEvent.getGraphFromRFChan(ch)
+    gr = ROOT.FFTtools.getInterpolatedGraph(gr,0.5) #interpoalate and pad waveform so it has the same length
+    gr = ROOT.FFTtools.padWaveToLength(gr,2048)
     wfLength = gr.GetN()
     t = []
     v = []
@@ -37,7 +39,7 @@ def calculateSNR(t, v, ch):
     RMS = np.array([19.11142993, 38.17949104, 43.26204128, 27.29571625, 25.18840903,
        21.23152277, 39.00044813, 30.1579534 , 31.8938169 , 22.33289857,
        24.34887954, 22.10759288, 28.14282986, 17.58028961, 29.55762914,
-       43.35847075])#RMS of the last 60 samples of the wf
+       43.35847075])#RMS from 80 ns window from soft triggers
     return peak/RMS[ch]
     
 
@@ -78,25 +80,31 @@ PolVecReco_array = []
 PolVecTrue_array = []
 powerVArr = []
 powerHArr = []
+
 Peak_V = []
 Peak_H = []
 unixtime = []
 SNR_arr = []
 SNR_H_arr = []
 
+power_H = []
+power_V = []
+powerH_noise = []
+powerV_noise = []
+
 Omega_reco = []
 noise = True
 chV = int(sys.argv[1])
 chH = chV + 8
 
-noisePowerChan = np.array([ 2305456.86774099,  4704735.94561591, 10417781.38557688,
-        1291268.197961  ,  2811482.70038974,  4283226.42206426,
-        6979042.07952783,  8694717.48332755,  7515525.90979793,
-        3332080.04148448,  3748150.1377401 ,  3435882.53139423,
-        5395738.82052792,  2061752.15165964,  5164978.22803217,
-       20520769.36426187])
+noisePowerChan = np.array([ 973544.01630302,  4030813.70363995,  4893631.63497624,
+        2002484.96047707,  1670426.92291533,  1212040.42916982,
+        3969254.80873348,  2426239.35218019,  6132869.5345848 ,
+        3141758.88746944,  3655675.67687107,  3020277.49439349,
+        4322508.64965333,  1883638.99794043,  4881948.87580455,
+       16795280.39621745])
        
-for evNum in range(10,totalEvents):#loop over events
+for evNum in range(0,totalEvents):#loop over events
 
     eventTree.GetEntry(evNum)
     
@@ -154,13 +162,10 @@ for evNum in range(10,totalEvents):#loop over events
             else:
                 maxV = util.findMaxSign(np.array(v))
                 rmsV_ = np.array(v[len(v)-60:len(v)]).std()
-
-            # dTV = deConv_t[1]-deConv_t[0]
-            # powerV = np.sum(deConv_v**2)*dTV
-            powV = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v)
-            powerV = 0.7*powV-noisePowerChan[ch]#util.integratePowerNoise(deConv_t,deConv_v)
-            PeakV = util.findMaxSign(np.array(deConv_v))
+            
             peakLocV = util.findFirstPeak(deConv_v)
+            power_V.append(util.integratePowerWindow_SpiceCore(deConv_t,deConv_v))
+            powerV_noise.append(noisePowerChan[ch])
             
         else:
             deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, 1)
@@ -171,22 +176,14 @@ for evNum in range(10,totalEvents):#loop over events
                 maxH = util.findMaxSign(np.array(v))
                 rmsH_ = np.array(v[len(v)-60:len(v)]).std()
             dT = deConv_t[1]-deConv_t[0]
-            powerH = util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWindow = True, peakLoc = peakLocV-int(14.1/dT))-noisePowerChan[ch] # 14.1 ns due to birefringence https://arxiv.org/abs/1910.01471
-            PeakH = util.findMaxSign(np.array(deConv_v))
-                
-    if((powerV<0) or (powerH<0)):
-        # print("Negative")
-        continue
-        
-    Omega = np.degrees(np.arctan(np.sqrt(powerH/powerV)))            
-    # print(Omega)
+            power_H.append(util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWindow = True, peakLoc = peakLocV-int(14.1/dT)))
+            powerH_noise.append(noisePowerChan[ch])
     
-    Omega_reco.append(Omega)
     unixtime.append(rawEvent.unixTime)
     evt_num.append(evNum)
     SNR_arr.append(SNR)
     theta_reco.append(np.degrees(theta))
     SNR_H_arr.append(SNR_H)
 # 
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"Omega_reco": np.array(Omega_reco),"unixtime": np.array(unixtime),"SNR_V": np.array(SNR_arr),"SNR_H": np.array(SNR_H_arr),"theta_reco": np.array(theta_reco)})
-original_df.to_pickle("./RecoOmegaCh%i_%i_run_%s_30PercentCrossPol.pkl"%(chV,chH, run))
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"unixtime": np.array(unixtime),"SNR_V": np.array(SNR_arr),"SNR_H": np.array(SNR_H_arr),"theta_reco": np.array(theta_reco),"power_V": np.array(power_V),"power_H": np.array(power_H),"powerV_noise": np.array(powerV_noise),"powerH_noise": np.array(powerH_noise)})
+original_df.to_pickle("./RecoOmegaCh%i_%i_run_%s.pkl"%(chV,chH, run))
