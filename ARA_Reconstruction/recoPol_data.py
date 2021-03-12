@@ -47,7 +47,7 @@ gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/ARA_cvmfs/build/inclu
 gSystem.Load('libAraEvent.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
 gSystem.Load("/users/PAS0654/osu8354/ARA_cvmfs/build/lib/libRootFftwWrapper.so")
 
-day = 26
+day = 24
 
 if(day == 24):
     date = 1224
