@@ -56,7 +56,7 @@ evt_num = []
 fftArray = []
 # chV = int(sys.argv[1])
 # chH = chV + 8
-theta = np.pi/2 #Use 90 deg for the deconvolution code. This is not correct, so it'll have to be changed eventually.
+theta = np.pi/2 #Use 90 deg for the deconvolution code. This is not entirely correct, so it'll have to be changed eventually.
 phi = 0
 for evNum in range(10,totalEvents):#loop over events
 
@@ -77,23 +77,22 @@ for evNum in range(10,totalEvents):#loop over events
         else:
             pol = 1 #Hpol
         t, v = convertWfToArray(chan, usefulEvent)
-        print(len(v))
-        fft,freq,dT = util.doFFT(t,v)
+        deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, pol)
+        fft,freq,dT = util.doFFT(deConv_t,deConv_v)
         fft_chan.append(abs(fft))
         freqs.append(freq)
-    # NoisePow_arr.append(np.array(noisePower))
-    # NoisePowDeco_arr.append(np.array(noisePowerDeco))
+    
     
     # evt_num.append(evNum)
     fftArray.append(fft_chan)
-    freqArray.append(freqs) 
+    # freqArray.append(freqs) 
     # break
 chNames = ["ch%i"%i for i in range(16) ]
 evNum = ["evNum"]
 colNames = [*evNum, *chNames] 
 
-# original_df = pd.DataFrame(fftArray, columns = colNames)
-# original_df.to_pickle("./Spectra_softTriggers_run012559.pkl")
-# 
+original_df = pd.DataFrame(fftArray, columns = colNames)
+original_df.to_pickle("./DeconvSpectra_softTriggers_run012559.pkl")
+
 # freq_df = pd.DataFrame(freqArray, columns = colNames)
 # freq_df.to_pickle("./Spectra_freqs_run012559.pkl")
