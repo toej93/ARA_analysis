@@ -77,7 +77,7 @@ for evNum in range(10,totalEvents):#loop over events
         else:
             pol = 1 #Hpol
         t, v = convertWfToArray(chan, usefulEvent)
-        deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, pol)
+        deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v, theta, phi, pol)
         fft,freq,dT = util.doFFT(deConv_t,deConv_v)
         fft_chan.append(abs(fft))
         freqs.append(freq)

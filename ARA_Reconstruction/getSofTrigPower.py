@@ -1,5 +1,5 @@
 """
-#####deDisperse.py#####
+#####getSofTrigPower.py#####
 
 Calculate power of sof triggers along a 80 ns window (SpiceCore events)
 Author: Jorge Torres
@@ -81,7 +81,7 @@ for evNum in range(10,totalEvents):#loop over events
             pol = 1 #Hpol
         t, v = convertWfToArray(chan, usefulEvent)
         noisePower.append(util.integratePowerNoise_softTrig(t,v))
-        deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, pol)
+        deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v, theta, phi, pol)
         powerNoise = util.integratePowerNoise_softTrig(deConv_t,deConv_v)
         noisePowerDeco.append(powerNoise)
         

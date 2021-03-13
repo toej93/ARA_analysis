@@ -155,7 +155,7 @@ for evNum in range(0,totalEvents):#loop over events
           v.append(gr.GetY()[k])
     # plt.title("An example of a triggered simulated event with Python")
         if(ch==chV):
-            deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, 0)
+            deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v, theta, phi, 0)
             if(noise == False):
                 maxV = util.findMaxSign(np.array(deConv_v))
                 rmsV_ = max(abs(np.array(v)))
@@ -168,7 +168,7 @@ for evNum in range(0,totalEvents):#loop over events
             powerV_noise.append(noisePowerChan[ch])
             
         else:
-            deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, 1)
+            deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v, theta, phi, 1)
             if(noise == False):
                 maxH = util.findMaxSign(np.array(deConv_v))
                 rmsH_ = max(abs(np.array(v)))

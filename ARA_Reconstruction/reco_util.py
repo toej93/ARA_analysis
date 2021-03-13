@@ -580,7 +580,7 @@ def deConvolve_antennaAraSim(time, voltage, theta, phi, pol_ant):
     import scipy.signal as signal
 
     sampRate = len(time)/(max(time)-min(time))
-    b,a = signal.bessel(4, [0.15,0.4], 'bandpass', analog=False, fs=sampRate)
+    # b,a = signal.bessel(4, [0.15,0.4], 'bandpass', analog=False, fs=sampRate)
     fft_v, fft_f, dT = doFFT(time,voltage)
     ff, heffs, filter_gains = getResponseAraSim(theta,phi,fft_f,pol_ant)
     response = heffs
