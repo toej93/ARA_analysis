@@ -561,7 +561,7 @@ def getResponseAraSim(theta, phi, freq, pol):
 
 def deConvolve_antennaAraSim(time, voltage, theta, phi, pol_ant):
     """
-    Apply inverse of ARA antenna response
+    Apply inverse of ARA antenna response. Similar to deConvolve_antennaAraSim, but for this routine the response is directly obtained from an AraSim file using getResponseAraSim. The folder data/ from AraSim needs to be in the same location from which this code is being run.
     ----------
     time : array_like
         1D array of times (ns)
@@ -741,6 +741,8 @@ def findHighestPeakBin_data(values):
 def findFirstPeak(wf):
     """
     Finds where/around where the first peak occurs. Since we're integrating the power, it doesn't matter if it's not the real peak position (not sure about this anymore...).
+    
+    Parameters
     ----------
     wf : array_like
         1D array of amplitudes (mV)
@@ -756,6 +758,22 @@ def findFirstPeak(wf):
     return peaks[0]
     
 def integratePowerWindow_SpiceCore(times, values, useSameWindow = False, peakLoc = 0):
+    """
+    Integrates power in a 80 ns [peak-20ns, peak+60ns] around the peak. 
+    
+    Parameters
+    ----------
+    times : array_like
+        1D array of times (ns) [in principle any units]
+    values : array_like
+        1D array of amplitudes (mV) [in principle any units]
+    useSameWindow : bool
+        It will use a window given by the argument peakLoc (in case the window has already been calculated for other channels)
+    Returns
+    -------
+    power : double
+        integrated power in units of [amplitude]^2*[time]
+    """
     times = np.array(times)
     values = np.array(values)
     dT = times[1]-times[0]
@@ -776,6 +794,20 @@ def integratePowerWindow_SpiceCore(times, values, useSameWindow = False, peakLoc
     return power
 
 def integratePowerNoise_data(times, values):
+    """
+    Integrates power in a 80 ns [0, 80ns] window from the start of the noise waveform. 
+    
+    Parameters
+    ----------
+    times : array_like
+        1D array of times (ns) [in principle any units]
+    values : array_like
+        1D array of amplitudes (mV) [in principle any units]
+    Returns
+    -------
+    power : double
+        integrated power in units of [amplitude]^2*[time]
+    """
     times = np.array(times)
     values = np.array(values)
     dT = times[1]-times[0]
@@ -784,3 +816,40 @@ def integratePowerNoise_data(times, values):
     cutWform = values[len(times)-numBins:times]
     power = np.sum(cutWform**2)*dT
     return power
+    
+def returnFirstPeakWform(times, values, useSameWindow = False, peakLoc = 0):
+    """
+    Returns waveform in a 80 ns window [peak-20ns, peak+60ns] around the peak. 
+    
+    Parameters
+    ----------
+    times : array_like
+        1D array of times (ns) [in principle any units]
+    values : array_like
+        1D array of amplitudes (mV) [in principle any units]
+    useSameWindow : bool
+        It will use a window given by the argument peakLoc (in case the window has already been calculated for other channels)
+    Returns
+    -------
+    cutTimes : array_like
+        cut waveform times [ns]
+    cutWform : array_like
+        cut waveform amplitudes [mV]
+    """
+    times = np.array(times)
+    values = np.array(values)
+    dT = times[1]-times[0]
+    leftNumBins = int(20/dT)#Number of bins in 20 ns
+    rightNumBins = int(60/dT)#Number of bins in 60 ns
+
+    if(useSameWindow):
+        peakBin = peakLoc
+    else:
+        peakBin = findFirstPeak(values)#Use first peak (SpiceCore events have two peaks)
+    lowerEdgeBin = peakBin-leftNumBins
+    upperEdgeBin = peakBin+rightNumBins
+    if((lowerEdgeBin<0) or (upperEdgeBin<0)):
+        return -1
+    cutWform = values[lowerEdgeBin:upperEdgeBin]
+    cutTimes = times[lowerEdgeBin:upperEdgeBin]
+    return cutTimes, cutWform
