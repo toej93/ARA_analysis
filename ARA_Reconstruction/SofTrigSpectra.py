@@ -54,11 +54,11 @@ print('total events:', totalEvents)
 
 evt_num = []
 fftArray = []
-# chV = int(sys.argv[1])
-# chH = chV + 8
+
 theta = np.pi/2 #Use 90 deg for the deconvolution code. This is not entirely correct, so it'll have to be changed eventually.
 phi = 0
 for evNum in range(10,totalEvents):#loop over events
+# for evNum in range(5359,19099): #depths from 600 to 1000 m 
 
     eventTree.GetEntry(evNum)
     
@@ -77,7 +77,7 @@ for evNum in range(10,totalEvents):#loop over events
         else:
             pol = 1 #Hpol
         t, v = convertWfToArray(chan, usefulEvent)
-        deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v, theta, phi, pol)
+        deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, pol)
         fft,freq,dT = util.doFFT(deConv_t,deConv_v)
         fft_chan.append(abs(fft))
         freqs.append(freq)
@@ -92,7 +92,7 @@ evNum = ["evNum"]
 colNames = [*evNum, *chNames] 
 
 original_df = pd.DataFrame(fftArray, columns = colNames)
-original_df.to_pickle("./DeconvSpectra_softTriggers_run012559.pkl")
+original_df.to_pickle("./DeconvSpectra_softTriggers_run012559_PyREx.pkl")
 
 # freq_df = pd.DataFrame(freqArray, columns = colNames)
 # freq_df.to_pickle("./Spectra_freqs_run012559.pkl")

@@ -1,9 +1,9 @@
 """
-#####deDisperse.py#####
+#####getSpectraForAmy.py#####
 
-Reconstruct polarization on data (SpiceCore events)
+Isolate D-pulse and get spectra and power for Amy
 Author: Jorge Torres
-Date: Feb 2, 2021.
+Date: Mar 14, 2021.
 """
 from ROOT import TCanvas, TGraph
 from ROOT import gROOT
@@ -67,22 +67,9 @@ totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
 
 theta_reco = []
-theta_antenna = []
-phi_antenna = []
-
 phi_reco = []
 evt_num = []
-rmsV = []
-rmsH = []
-maxV_array = []
-maxH_array = []
-PolVecReco_array = []
-PolVecTrue_array = []
-powerVArr = []
-powerHArr = []
 
-Peak_V = []
-Peak_H = []
 unixtime = []
 SNR_arr = []
 SNR_H_arr = []
@@ -94,8 +81,10 @@ powerV_noise = []
 
 Omega_reco = []
 noise = True
-chV = int(sys.argv[1])
+chV = 0
 chH = chV + 8
+fftArray = []
+
 
 noisePowerChan = np.array([ 242200.31630436, 1015601.09290294, 1224386.22113829,
         503611.00983592,  417826.11248431,  301816.81166007,
@@ -104,7 +93,7 @@ noisePowerChan = np.array([ 242200.31630436, 1015601.09290294, 1224386.22113829,
        1072358.65934628,  473898.25144686, 1216227.99115952,
        4285738.86701185])
        
-for evNum in range(0,totalEvents):#loop over events
+for evNum in range(0,500):#loop over events
 # for evNum in range(5359,19099): #depths from 600 to 1000 m 
 
     eventTree.GetEntry(evNum)
@@ -146,45 +135,74 @@ for evNum in range(0,totalEvents):#loop over events
     theta = np.radians(180-vertex[1])
     phi = np.radians(vertex[2])
     phi_reco.append(np.degrees(phi))
-
-    for ch in [chV,chH]:
-        t = []
-        v = []
-        gr = usefulEvent.getGraphFromRFChan(ch)
-        for k in range(0,gr.GetN()):
-          t.append(gr.GetX()[k])
-          v.append(gr.GetY()[k])
-    # plt.title("An example of a triggered simulated event with Python")
-        if(ch==chV):
-            deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, 0)
-            if(noise == False):
-                maxV = util.findMaxSign(np.array(deConv_v))
-                rmsV_ = max(abs(np.array(v)))
-            else:
-                maxV = util.findMaxSign(np.array(v))
-                rmsV_ = np.array(v[len(v)-60:len(v)]).std()
-            
-            peakLocV = util.findFirstPeak(deConv_v)
-            power_V.append(util.integratePowerWindow_SpiceCore(deConv_t,deConv_v))
-            powerV_noise.append(noisePowerChan[ch])
-            
-        else:
-            deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, 1)
-            if(noise == False):
-                maxH = util.findMaxSign(np.array(deConv_v))
-                rmsH_ = max(abs(np.array(v)))
-            else:
-                maxH = util.findMaxSign(np.array(v))
-                rmsH_ = np.array(v[len(v)-60:len(v)]).std()
-            dT = deConv_t[1]-deConv_t[0]
-            power_H.append(util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWindow = True, peakLoc = peakLocV-int(14.1/dT)))
-            powerH_noise.append(noisePowerChan[ch])
     
-    unixtime.append(rawEvent.unixTime)
-    evt_num.append(evNum)
-    SNR_arr.append(SNR)
-    theta_reco.append(np.degrees(theta))
-    SNR_H_arr.append(SNR_H)
-# 
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"unixtime": np.array(unixtime),"SNR_V": np.array(SNR_arr),"SNR_H": np.array(SNR_H_arr),"theta_reco": np.array(theta_reco),"power_V": np.array(power_V),"power_H": np.array(power_H),"powerV_noise": np.array(powerV_noise),"powerH_noise": np.array(powerH_noise)})
-original_df.to_pickle("./RecoOmegaCh%i_%i_run_%s.pkl"%(chV,chH, run))
+    fft_chan = []#[[] for i in range(16)]
+    freqArray = []
+    freqs = []
+    fft_chan.append(evNum)
+    freqs.append(evNum)
+    for chan in range(0,16):
+        if(chan<8):
+            pol = 0 #Vpol
+        else:
+            pol = 1 #Hpol
+        t, v = convertWfToArray(chan, usefulEvent)
+        deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, pol)
+        tPeak, vPeak = util.returnFirstPeakWform(deConv_t,deConv_v)
+        fft,freq,dT = util.doFFT(tPeak,vPeak)
+        fft_chan.append(abs(fft))
+        # freqs.append(freq)
+    
+    
+    # evt_num.append(evNum)
+    fftArray.append(fft_chan)
+    freqArray.append(freq) 
+    # break
+chNames = ["ch%i"%i for i in range(16) ]
+evNum = ["evNum"]
+colNames = [*evNum, *chNames] 
+
+original_df = pd.DataFrame(fftArray, columns = colNames)
+original_df.to_pickle("./forAmy_run012559.pkl")
+
+    # for ch in [chV,chH]:
+    #     t = []
+    #     v = []
+    #     gr = usefulEvent.getGraphFromRFChan(ch)
+    #     for k in range(0,gr.GetN()):
+    #       t.append(gr.GetX()[k])
+    #       v.append(gr.GetY()[k])
+    # # plt.title("An example of a triggered simulated event with Python")
+    #     if(ch==chV):
+    #         deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, 0)
+    #         if(noise == False):
+    #             maxV = util.findMaxSign(np.array(deConv_v))
+    #             rmsV_ = max(abs(np.array(v)))
+    #         else:
+    #             maxV = util.findMaxSign(np.array(v))
+    #             rmsV_ = np.array(v[len(v)-60:len(v)]).std()
+    # 
+    #         peakLocV = util.findFirstPeak(deConv_v)
+    #         power_V.append(util.integratePowerWindow_SpiceCore(deConv_t,deConv_v))
+    #         powerV_noise.append(noisePowerChan[ch])
+    # 
+    #     else:
+    #         deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, 1)
+    #         if(noise == False):
+    #             maxH = util.findMaxSign(np.array(deConv_v))
+    #             rmsH_ = max(abs(np.array(v)))
+    #         else:
+    #             maxH = util.findMaxSign(np.array(v))
+    #             rmsH_ = np.array(v[len(v)-60:len(v)]).std()
+    #         dT = deConv_t[1]-deConv_t[0]
+    #         power_H.append(util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWindow = True, peakLoc = peakLocV-int(14.1/dT)))
+    #         powerH_noise.append(noisePowerChan[ch])
+    
+#     unixtime.append(rawEvent.unixTime)
+#     evt_num.append(evNum)
+#     SNR_arr.append(SNR)
+#     theta_reco.append(np.degrees(theta))
+#     SNR_H_arr.append(SNR_H)
+# # 
+# original_df = pd.DataFrame({"EvNum":np.array(evt_num),"unixtime": np.array(unixtime),"SNR_V": np.array(SNR_arr),"SNR_H": np.array(SNR_H_arr),"theta_reco": np.array(theta_reco),"power_V": np.array(power_V),"power_H": np.array(power_H),"powerV_noise": np.array(powerV_noise),"powerH_noise": np.array(powerH_noise)})
+# # original_df.to_pickle("./RecoOmegaCh%i_%i_run_%s.pkl"%(chV,chH, run))

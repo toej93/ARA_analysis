@@ -16,6 +16,33 @@ from ROOT import gInterpreter, gSystem
 from ROOT import TChain, TSelector, TTree
 import scipy
 import sys
+
+import seaborn as sns
+import matplotlib as mpl
+
+
+# mpl.use('agg') 
+mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.unicode'] = True
+mpl.rcParams['mathtext.rm'] = 'Times New Roman'
+mpl.rcParams['mathtext.it'] = 'Times New Roman:italic'
+mpl.rcParams['mathtext.bf'] = 'Times New Roman:bold'
+
+mpl.rc('font', family='serif', size=12)
+mpl.rcParams['xtick.labelsize'] = 14
+mpl.rcParams['ytick.labelsize'] = 14
+mpl.rcParams['xtick.major.size'] = 5
+mpl.rcParams['ytick.major.size'] = 5
+
+mpl.rcParams['axes.titlesize'] = 18
+mpl.rcParams['axes.labelsize'] = 18
+# mpl.rc('font', size=16)
+mpl.rc('axes', titlesize=20)
+
+current_palette = sns.color_palette('colorblind', 10)
+import warnings
+warnings.filterwarnings("ignore")
+
 # import warnings
 # warnings.filterwarnings("ignore")
 def convertWfToArray(ch, usefulEvent):
@@ -54,22 +81,22 @@ totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
 isTrue=False
 
-for evNum in range(0,500):#loop over events
+for evNum in range(5359,5367):#loop over events
     print(evNum)
     eventTree.GetEntry(evNum)
-    if(rawEvent.isSoftwareTrigger()==0): #if not soft trigger
+    if(rawEvent.isSoftwareTrigger()): #if not soft trigger
         continue
-    # if(rawEvent.isCalpulserEvent()): #if not a cal pulser
-    #     continue
+    if(rawEvent.isCalpulserEvent()): #if not a cal pulser
+        continue
         
     usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
     tWf1, vWf1 = convertWfToArray(0, usefulEvent)
-    # SNR = calculateSNR(tWf1, vWf1)
-    # if(SNR<8):
-    #     continue
+    SNR = calculateSNR(tWf1, vWf1)
+    if(SNR<8):
+        continue
     # 
     gr = [None]*16
-    fig, axs = plt.subplots(4, 4, figsize = (11,9))
+    fig, axs = plt.subplots(4, 4, figsize = (12,8))
     axs = axs.ravel()
     for ch in range(0,16):
         t = []
@@ -91,15 +118,18 @@ for evNum in range(0,500):#loop over events
         axs[ch].grid()
 
         plt.grid(which="both")
-        # axs[ch].set_xlim(-100,900)
+        axs[ch].set_xlim(-100,1000)
         # axs[ch].set_xlim(0,250)
 
-        # if(ch<8):
-        #     axs[ch].set_ylim(-1200,1200)
-        # else:
-        #     axs[ch].set_ylim(-200,200)
-    plt.tight_layout()
-    plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/SpiceCorePolReco/wf_all_ev%i.png"%evNum, dpi=200)
+        if(ch<8):
+            axs[ch].set_ylim(-700,700)
+        else:
+            axs[ch].set_ylim(-200,200)
+            
+    fig.text(0.5, 0.03, 'Time [ns]', ha='center', va='center', fontsize=20)
+    fig.text(0.03, 0.5, 'Amplitude [mV]', ha='center', va='center', rotation='vertical', fontsize=20)
+    plt.tight_layout(rect=[0.03, 0.03, 1, 0.95])
+    plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/SpiceCorePolReco/wf_all_ev%i.pdf"%evNum)
     plt.close('all')
     # tWf1, vWf1 = convertWfToArray(6, usefulEvent)
     # tWf2, vWf2 = convertWfToArray(14, usefulEvent)

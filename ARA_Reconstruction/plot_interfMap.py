@@ -18,6 +18,31 @@ import pyrex.custom.envelope_reco as reco
 from ROOT import gInterpreter, gSystem
 import pandas as pd
 
+import seaborn as sns
+import matplotlib as mpl
+my_path_plots = os.path.abspath("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/")
+
+
+# mpl.use('agg') 
+mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.unicode'] = True
+mpl.rcParams['mathtext.rm'] = 'Times New Roman'
+mpl.rcParams['mathtext.it'] = 'Times New Roman:italic'
+mpl.rcParams['mathtext.bf'] = 'Times New Roman:bold'
+
+mpl.rc('font', family='serif', size=12)
+mpl.rcParams['xtick.labelsize'] = 14
+mpl.rcParams['ytick.labelsize'] = 14
+mpl.rcParams['xtick.major.size'] = 5
+mpl.rcParams['ytick.major.size'] = 5
+
+mpl.rcParams['axes.titlesize'] = 18
+mpl.rcParams['axes.labelsize'] = 18
+# mpl.rc('font', size=16)
+mpl.rc('axes', titlesize=20)
+
+current_palette = sns.color_palette('colorblind', 10)
+
 gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/ARA_cvmfs/build/include/FFTtools.h"')
 gSystem.Load('libAraEvent.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
 gSystem.Load("/users/PAS0654/osu8354/ARA_cvmfs/build/lib/libRootFftwWrapper.so")
@@ -59,7 +84,7 @@ def calculate_interferometric_grid(waveforms, tofs, hilbert=False):
 
     return inter_data
 # try:
-test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/1224/run_012559/event012559.root")#directory where the files are
+test = ROOT.TFile.Open("/fs/project/PAS0654/ARA_DATA/A23/100pct/RawData/A2/2014/0628/run003826/event003826.root")#directory where the files are
 # if(test.IsOpen()):
 #     print('made it')
 # else:
@@ -72,14 +97,14 @@ totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
 isTrue=False
 
-for i in range(42,43):#loop over events
+for i in range(100,200):#loop over events
     if(isTrue):
         break
     eventTree.GetEntry(i)
-    if(rawEvent.isSoftwareTrigger()): #if not soft trigger
-        continue
+    # if(rawEvent.isSoftwareTrigger()): #if not soft trigger
+    #     continue
         
-    if(rawEvent.isCalpulserEvent()): #if not a cal pulser
+    if(rawEvent.isCalpulserEvent()==False): #if not a cal pulser
         continue
     usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
     gr = [None]*8
@@ -100,7 +125,7 @@ for i in range(42,43):#loop over events
     # original_df = pd.DataFrame({"time": np.array(t), "voltage": np.array(v)})
     # original_df.to_pickle("./wform_forDebug_calpulser.pkl")
     isTrue=True
-    plotting = True
+    plotting = False
     if(plotting == True):
         fig, axs = plt.subplots(2, 4, figsize = (10,5))
         axs = axs.ravel()
@@ -152,7 +177,7 @@ for i in range(42,43):#loop over events
     if(plot_map):
         max_idx = np.unravel_index(np.argmax(inter_data), inter_data.shape)
         # print("Hilbert Coherence", name+":", np.max(inter_data))
-        with np.load(os.path.join('tofs_ara02_vpols_300m_spherical.npz')) as f:
+        with np.load(os.path.join('tofs_ara02_vpols_calpulser_spherical.npz')) as f:
             antenna_positions = None
             if antenna_positions is not None:
                 for i, pos in enumerate(antenna_positions):
@@ -168,12 +193,20 @@ for i in range(42,43):#loop over events
         mesh_thetas = np.concatenate((thetas, [thetas[-1]+(thetas[1]-thetas[0])]))
         mesh_phis = np.concatenate((phis, [phis[-1]+(phis[1]-phis[0])]))
 
+        # for name, tofs in zip(('Direct'), tofs_dir):
         for name, tofs in zip(('Direct', 'Reflected'), tof_data):
+            plt.figure(figsize=(8,5))
             inter_data = reco.calculate_interferometric_grid(antenna_waveforms, tofs, hilbert=True)
             max_idx = np.unravel_index(np.argmax(inter_data), inter_data.shape)
             print("Hilbert Coherence", name+":", np.max(inter_data))
-            plt.pcolormesh(mesh_phis, mesh_thetas, inter_data[0, :, :], vmin=0, vmax=1)
-            plt.colorbar()
-            plt.scatter(phis[max_idx[2]], thetas[max_idx[1]], color='k', marker=',', s=1)
-            plt.title("Fullband Hilbert Reconstruction "+name)
-            plt.show()
+            plt.pcolormesh(mesh_phis, mesh_thetas, inter_data[0, :, :], vmin=0, vmax=2, rasterized=True ,shading='gouring')
+            plt.colorbar(label = "$C_{sky}$")
+            plt.scatter(phis[max_idx[2]], thetas[max_idx[1]], color='k', marker=',', s=1, label = "$C_{sky, max}$: $\\theta = 86$ deg, $\phi = 65$ deg")
+            plt.xlabel("$\phi$ [deg]")
+            plt.ylabel("$\\theta$ [deg]")
+            # plt.title("Fullband Hilbert Reconstruction "+name)
+            # plt.show()
+            plt.grid(alpha = 0.2)
+            plt.legend()
+            plt.tight_layout()
+            plt.savefig(my_path_plots+'/Figures_forThesis/InterfMapCalpulser_%s.pdf'%name)

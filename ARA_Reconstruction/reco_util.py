@@ -389,9 +389,9 @@ def deConvolve_antenna(time, voltage, theta, phi, pol_ant):
     sampRate = len(time)/(max(time)-min(time))
     b,a = signal.bessel(4, [0.15,0.4], 'bandpass', analog=False, fs=sampRate)
     fft_v, fft_f, dT = doFFT(time,voltage)
-    response_filter = np.array(interpolate_filter(fft_f*1E6))
+    # response_filter = np.array(interpolate_filter(fft_f*1E6))
     dir_res = ant.antenna.directional_response(theta=theta, phi=phi, polarization=polarization)(fft_f*1E6)
-    heff = ant.antenna.frequency_response(fft_f*1E6)
+    heff = 2*ant.antenna.frequency_response(fft_f*1E6) #IMPORTANT: the factor of 2 here is included since PyREx treatment differs from AraSim's by a factor of two when applying the antenna response (these factors are applied at different stages of the code.)
     response_antenna = dir_res*heff
     response = response_antenna
     deDis_wf = np.divide(fft_v,abs(response))
@@ -399,8 +399,8 @@ def deConvolve_antenna(time, voltage, theta, phi, pol_ant):
     deDis_wf = np.divide(deDis_wf,response)
     deDis_wf = np.nan_to_num(deDis_wf)
     revert = doInvFFT(deDis_wf)
-    # deDis_wf = signal.lfilter(b, a, revert)
-    deDis_wf = revert
+    deDis_wf = signal.lfilter(b, a, revert)
+    # deDis_wf = revert
     return time, deDis_wf
     #vetted!
     
@@ -493,17 +493,19 @@ def getResponseAraSim(theta, phi, freq, pol):
         1D array of input frequencies (Hz) WHY???
     heffs : array_like
         1D array of complex effective heights
+    filter_gains : array_like
+        1D array of complex filter gains
     """
     from ROOT import TCanvas, TGraph
     from ROOT import gROOT
     import ROOT
     import os
-    import pandas as pd
-    import matplotlib.pyplot as plt
+    # import pandas as pd
+    # import matplotlib.pyplot as plt
     import numpy as np
     from ROOT import gInterpreter, gSystem
     from ROOT import TChain, TSelector, TTree
-    import cmath
+    # import cmath
 
     gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Position.h"')
     gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Report.h"')
