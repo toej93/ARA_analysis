@@ -399,8 +399,8 @@ def deConvolve_antenna(time, voltage, theta, phi, pol_ant):
     deDis_wf = np.divide(deDis_wf,response)
     deDis_wf = np.nan_to_num(deDis_wf)
     revert = doInvFFT(deDis_wf)
-    deDis_wf = signal.lfilter(b, a, revert)
-    # deDis_wf = revert
+    # deDis_wf = signal.lfilter(b, a, revert)
+    deDis_wf = revert
     return time, deDis_wf
     #vetted!
     
