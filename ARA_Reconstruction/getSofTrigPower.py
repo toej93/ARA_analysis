@@ -65,14 +65,14 @@ NoisePowDeco_arr = []
 theta = np.pi/2 #Use 90 deg for the deconvolution code. This is not correct, so it'll have to be changed eventually.
 phi = 0
 # for evNum in range(10,totalEvents):#loop over events
-for evNum in range(5359,19099): #depths from 600 to 1000 m 
+for evNum in range(10,30000): #depths from 600 to 1000 m 
 
     eventTree.GetEntry(evNum)
     
     if(rawEvent.isSoftwareTrigger()==False): #if not soft trigger
         continue
         
-    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib14to20)#get useful event
+    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
     noisePower = []
     noisePowerDeco = []
 

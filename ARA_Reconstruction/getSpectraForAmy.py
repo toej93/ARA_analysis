@@ -37,15 +37,14 @@ def convertWfToArray(ch, usefulEvent):
 def calculateSNR(t, v, ch):
     peakBin = util.findFirstPeak(v)
     peak = abs(v[peakBin])
-    # RMS = np.array([19.11142993, 38.17949104, 43.26204128, 27.29571625, 25.18840903,
-    #    21.23152277, 39.00044813, 30.1579534 , 31.8938169 , 22.33289857,
-    #    24.34887954, 22.10759288, 28.14282986, 17.58028961, 29.55762914,
-    #    43.35847075])#RMS from 80 ns window from soft triggers (from old calibration)
-    RMS = np.array([18.82786008, 36.7767046 , 42.38902264, 26.45596178, 24.7945771 ,
-       20.8805134 , 38.37206735, 29.70437442, 29.56303063, 20.92734235,
-       22.36172272, 20.7001257 , 25.80451102, 16.40808135, 26.81534257,
-       41.038079  ])
-    
+    RMS = np.array([19.21869686, 29.49330015, 33.58970854, 20.63299035, 24.05139993,
+       18.56017141, 31.54495256, 23.54967839, 24.95720637, 19.73107754,
+       20.75493806, 19.52190911, 21.89901339, 15.70998125, 22.97913165,
+       30.1300627 ])#RMS from 80 ns window
+    # RMS = np.array([18.82786008, 36.7767046 , 42.38902264, 26.45596178, 24.7945771 ,
+    #    20.8805134 , 38.37206735, 29.70437442, 29.56303063, 20.92734235,
+    #    22.36172272, 20.7001257 , 25.80451102, 16.40808135, 26.81534257,
+    #    41.038079  ])#RMS from 80 ns window from soft triggers (from old calibration)
     return peak/RMS[ch]
     
 def calculatePower(t, v):
@@ -97,12 +96,12 @@ fftArray = []
 powerArray = []
 
 
-noisePowerChan = np.array([ 242200.31630436, 1015601.09290294, 1224386.22113829,
-        503611.00983592,  417826.11248431,  301816.81166007,
-        992056.69893234,  602061.71155769, 1533958.19434926,
-        786180.34865162,  918586.81578353,  755935.18566052,
-       1072358.65934628,  473898.25144686, 1216227.99115952,
-       4285738.86701185])
+noisePowerChan = np.array([ 198948.83237201,  618793.94802602,  741895.28129648,
+        272935.49802384,  324209.48699648,  208490.58954556,
+        641412.61161848,  341862.21483048,  986471.80705882,
+        608865.14894156,  710127.49137097,  551354.39763633,
+        691066.29589686,  360988.99495955,  834482.5863635 ,
+       2020906.83550409])
        
 # for evNum in range(0,500):#loop over events
 for evNum in range(5359,19099): #depths from 600 to 1000 m 
@@ -115,7 +114,7 @@ for evNum in range(5359,19099): #depths from 600 to 1000 m
     if(rawEvent.isCalpulserEvent()): #if not a cal pulser
         continue
         
-    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib14to20)#get useful event
+    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
     tWf1, vWf1 = convertWfToArray(chV, usefulEvent)
     try:
         SNR = calculateSNR(tWf1, vWf1, chV)

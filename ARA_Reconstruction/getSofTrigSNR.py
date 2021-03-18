@@ -67,7 +67,7 @@ for evNum in range(10,30000):#loop over events
     if(rawEvent.isSoftwareTrigger()==False): #if not soft trigger
         continue
         
-    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib14to20)#get useful event
+    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
     rms = []
     for chan in range(0,16):
         t, v = convertWfToArray(chan, usefulEvent)
