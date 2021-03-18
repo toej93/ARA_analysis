@@ -152,6 +152,7 @@ for evNum in range(5359,19099): #depths from 600 to 1000 m
     fft_chan.append(evNum)
     power_chan.append(np.degrees(theta))
     power_chan.append(np.degrees(phi))
+    power_chan.append(rawEvent.unixTime)
 
     # freqs.append(evNum)
     for chan in range(0,16):
@@ -179,7 +180,7 @@ chNames = ["ch%iFFT"%i for i in range(16) ]
 chPowNames = ["ch%iPow"%i for i in range(16) ]
 
 evNum = ["evNum"]
-angles = ["theta_reco","phi_reco"]
+angles = ["theta_reco","phi_reco", "unixTime"]
 
 frequency = ["freqs"]
 

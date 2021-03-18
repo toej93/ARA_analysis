@@ -31,6 +31,7 @@ def convertWfToArray(ch, usefulEvent):
     for kk in range(0,wfLength):
       t.append(gr.GetX()[kk])
       v.append(gr.GetY()[kk])
+    del gr
     return np.array(t), np.array(v)
     
 def calculateSNR(t, v):
@@ -57,15 +58,15 @@ fftArray = []
 
 theta = np.pi/2 #Use 90 deg for the deconvolution code. This is not entirely correct, so it'll have to be changed eventually.
 phi = 0
-for evNum in range(10,totalEvents):#loop over events
-# for evNum in range(5359,19099): #depths from 600 to 1000 m 
+# for evNum in range(10,totalEvents):#loop over events
+for evNum in range(5359,19099): #depths from 600 to 1000 m 
 
     eventTree.GetEntry(evNum)
     
     if(rawEvent.isSoftwareTrigger()==False): #if not soft trigger
         continue
         
-    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
+    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib14to20)#get useful event
     fft_chan = []#[[] for i in range(16)]
     freqArray = []
     freqs = []
@@ -81,7 +82,7 @@ for evNum in range(10,totalEvents):#loop over events
         fft,freq,dT = util.doFFT(deConv_t,deConv_v)
         fft_chan.append(abs(fft))
         freqs.append(freq)
-    
+    del usefulEvent
     
     # evt_num.append(evNum)
     fftArray.append(fft_chan)
@@ -92,7 +93,7 @@ evNum = ["evNum"]
 colNames = [*evNum, *chNames] 
 
 original_df = pd.DataFrame(fftArray, columns = colNames)
-original_df.to_pickle("./DeconvSpectra_softTriggers_run012559_PyREx.pkl")
+original_df.to_pickle("./DeconvSpectra_softTriggers_run012559_newCalib.pkl")
 
 # freq_df = pd.DataFrame(freqArray, columns = colNames)
 # freq_df.to_pickle("./Spectra_freqs_run012559.pkl")

@@ -31,6 +31,7 @@ def convertWfToArray(ch, usefulEvent):
     for kk in range(0,wfLength):
       t.append(gr.GetX()[kk])
       v.append(gr.GetY()[kk])
+    del gr
     return np.array(t), np.array(v)
     
 def calculateSNR(t, v):
@@ -71,7 +72,7 @@ for evNum in range(5359,19099): #depths from 600 to 1000 m
     if(rawEvent.isSoftwareTrigger()==False): #if not soft trigger
         continue
         
-    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
+    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib14to20)#get useful event
     noisePower = []
     noisePowerDeco = []
 
@@ -92,4 +93,4 @@ for evNum in range(5359,19099): #depths from 600 to 1000 m
     evt_num.append(evNum)
 # # 
 original_df = pd.DataFrame({"evNum":evt_num,"noisePower":NoisePow_arr,"noisePowerDeco":NoisePowDeco_arr})
-original_df.to_pickle("./PowerNoise_softTriggers_run012559_PyREx.pkl")
+original_df.to_pickle("./PowerNoise_softTriggers_run012559_newCalib.pkl")

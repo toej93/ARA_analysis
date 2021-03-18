@@ -23,12 +23,15 @@ warnings.filterwarnings("ignore")
 
 def convertWfToArray(ch, usefulEvent):
     gr = usefulEvent.getGraphFromRFChan(ch)
+    gr = ROOT.FFTtools.getInterpolatedGraph(gr,0.5) #interpoalate and pad waveform so it has the same length
+    gr = ROOT.FFTtools.padWaveToLength(gr,2048)
     wfLength = gr.GetN()
     t = []
     v = []
     for kk in range(0,wfLength):
       t.append(gr.GetX()[kk])
       v.append(gr.GetY()[kk])
+    del gr
     return np.array(t), np.array(v)
     
 def calculateSNR(t, v):
@@ -57,29 +60,30 @@ print('total events:', totalEvents)
 rms_arr = []
 # chV = int(sys.argv[1])
 # chH = chV + 8
-for evNum in range(10,10000):#loop over events
+for evNum in range(10,30000):#loop over events
 
     eventTree.GetEntry(evNum)
     
     if(rawEvent.isSoftwareTrigger()==False): #if not soft trigger
         continue
         
-    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
+    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib14to20)#get useful event
     rms = []
     for chan in range(0,16):
         t, v = convertWfToArray(chan, usefulEvent)
-        rms.append(v.std())
-    # tWf1, vWf1 = convertWfToArray(chV, usefulEvent)
-    # SNR = calculateSNR(tWf1, vWf1)
-    # 
-    # tWf2, vWf2 = convertWfToArray(chH, usefulEvent)
-    # SNR_H = calculateSNR(tWf2, vWf2)
-    # 
-    # unixtime.append(rawEvent.unixTime)
-    # evt_num.append(evNum)
-    # SNR_arr.append(SNR)
-    # SNR_H_arr.append(SNR_H)
+        dT = t[1]-t[0]
+        #need to calculate rms on the first 80 ns of signal of padded waveform
+        numBins = int(80/dT)
+        startBin = 0
+        for sample in range(len(v)):
+            ampAbs =  abs(v[sample])
+            if(ampAbs>5):
+                startBin = sample
+                break
+        cutWform = v[startBin:startBin+numBins]
+        rms.append(cutWform.std())
+
     rms_arr.append(np.array(rms))
 # 
 original_df = pd.DataFrame({"rms":rms_arr})
-original_df.to_pickle("./rms_softTriggers_run012559.pkl")
+original_df.to_pickle("./rms_softTriggers_run012559_newCalib.pkl")

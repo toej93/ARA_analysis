@@ -31,15 +31,20 @@ def convertWfToArray(ch, usefulEvent):
     for kk in range(0,wfLength):
       t.append(gr.GetX()[kk])
       v.append(gr.GetY()[kk])
+    del gr
     return np.array(t), np.array(v)
     
 def calculateSNR(t, v, ch):
     peakBin = util.findFirstPeak(v)
     peak = abs(v[peakBin])
-    RMS = np.array([19.11142993, 38.17949104, 43.26204128, 27.29571625, 25.18840903,
-       21.23152277, 39.00044813, 30.1579534 , 31.8938169 , 22.33289857,
-       24.34887954, 22.10759288, 28.14282986, 17.58028961, 29.55762914,
-       43.35847075])#RMS from 80 ns window from soft triggers
+    # RMS = np.array([19.11142993, 38.17949104, 43.26204128, 27.29571625, 25.18840903,
+    #    21.23152277, 39.00044813, 30.1579534 , 31.8938169 , 22.33289857,
+    #    24.34887954, 22.10759288, 28.14282986, 17.58028961, 29.55762914,
+    #    43.35847075])#RMS from 80 ns window from soft triggers (from old calibration)
+    RMS = np.array([18.82786008, 36.7767046 , 42.38902264, 26.45596178, 24.7945771 ,
+       20.8805134 , 38.37206735, 29.70437442, 29.56303063, 20.92734235,
+       22.36172272, 20.7001257 , 25.80451102, 16.40808135, 26.81534257,
+       41.038079  ])
     return peak/RMS[ch]
     
 
@@ -115,7 +120,7 @@ for evNum in range(0,totalEvents):#loop over events
     if(rawEvent.isCalpulserEvent()): #if not a cal pulser
         continue
         
-    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
+    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib14to20)#get useful event
     tWf1, vWf1 = convertWfToArray(chV, usefulEvent)
     try:
         SNR = calculateSNR(tWf1, vWf1, chV)
@@ -141,6 +146,7 @@ for evNum in range(0,totalEvents):#loop over events
           t.append(gr[ch].GetX()[k])
           v.append(gr[ch].GetY()[k])
         pyrex_array.append(pyrex.Signal(1E-9*np.array(t), 1E-3*np.array(v)))#Convert to seconds and volts
+    del gr
 
     vertex, corrValue = util.doReco(pyrex_array)
     theta = np.radians(180-vertex[1])
@@ -148,13 +154,9 @@ for evNum in range(0,totalEvents):#loop over events
     phi_reco.append(np.degrees(phi))
 
     for ch in [chV,chH]:
-        t = []
-        v = []
-        gr = usefulEvent.getGraphFromRFChan(ch)
-        for k in range(0,gr.GetN()):
-          t.append(gr.GetX()[k])
-          v.append(gr.GetY()[k])
-    # plt.title("An example of a triggered simulated event with Python")
+        t, v = convertWfToArray(ch, usefulEvent)
+        # del gr
+    
         if(ch==chV):
             deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, 0)
             if(noise == False):
@@ -179,7 +181,8 @@ for evNum in range(0,totalEvents):#loop over events
             dT = deConv_t[1]-deConv_t[0]
             power_H.append(util.integratePowerWindow_SpiceCore(deConv_t,deConv_v, useSameWindow = True, peakLoc = peakLocV-int(14.1/dT)))
             powerH_noise.append(noisePowerChan[ch])
-    
+    del usefulEvent
+
     unixtime.append(rawEvent.unixTime)
     evt_num.append(evNum)
     SNR_arr.append(SNR)
@@ -187,4 +190,4 @@ for evNum in range(0,totalEvents):#loop over events
     SNR_H_arr.append(SNR_H)
 # 
 original_df = pd.DataFrame({"EvNum":np.array(evt_num),"unixtime": np.array(unixtime),"SNR_V": np.array(SNR_arr),"SNR_H": np.array(SNR_H_arr),"theta_reco": np.array(theta_reco),"power_V": np.array(power_V),"power_H": np.array(power_H),"powerV_noise": np.array(powerV_noise),"powerH_noise": np.array(powerH_noise)})
-original_df.to_pickle("./RecoOmegaCh%i_%i_run_%s.pkl"%(chV,chH, run))
+original_df.to_pickle("./RecoOmegaCh%i_%i_run_%s_newCalib.pkl"%(chV,chH, run))
