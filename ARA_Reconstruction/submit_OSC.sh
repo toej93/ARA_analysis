@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=polReco
-#SBATCH --nodes=1 --ntasks-per-node=10
+#SBATCH --nodes=1 --ntasks-per-node=5
 #SBATCH --account=PAS0654
 #SBATCH --mail-type=END,FAIL
 #SBATCH --time=02:10:00
@@ -23,10 +23,10 @@ cd /users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/ARA_analysis/ARA_Rec
 # python recoPol_data.py 6 &
 
 # python SofTrigSpectra.py &
-python getSofTrigPower.py &
-python getSofTrigSNR.py &
+# python getSofTrigPower.py &
+# python getSofTrigSNR.py &
 # python getSpectraForAmy.py &
-
+python storeDirectPulses.py &
 # python getSofTrigSNR.py 0 &
 # python getSofTrigSNR.py 1 &
 # python getSofTrigSNR.py 2 &

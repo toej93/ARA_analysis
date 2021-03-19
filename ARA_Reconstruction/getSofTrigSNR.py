@@ -67,7 +67,7 @@ for evNum in range(10,30000):#loop over events
     if(rawEvent.isSoftwareTrigger()==False): #if not soft trigger
         continue
         
-    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
+    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib14to20)#get useful event
     rms = []
     for chan in range(0,16):
         t, v = convertWfToArray(chan, usefulEvent)
@@ -86,4 +86,4 @@ for evNum in range(10,30000):#loop over events
     rms_arr.append(np.array(rms))
 # 
 original_df = pd.DataFrame({"rms":rms_arr})
-original_df.to_pickle("./rms_softTriggers_run012559_newCalib.pkl")
+original_df.to_pickle("./rms_softTriggers_run012559.pkl")
