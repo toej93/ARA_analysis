@@ -1,0 +1,1 @@
+/fs/scratch/PAS0654/ara/10pct/RawData/A2/2014/1212/run004660/event004660.root /fs/scratch/PAS0654/ara/peds/A2/2014/pedestalValues.run004659.dat
