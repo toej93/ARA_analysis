@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --nodes=1 --ntasks-per-node=1
+#SBATCH --nodes=1 --ntasks-per-node=2
 #SBATCH --mail-type=FAIL
 #SBATCH --time=01:10:00
 

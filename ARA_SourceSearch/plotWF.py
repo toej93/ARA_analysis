@@ -75,6 +75,9 @@ elif(day == 26):
     date = 1226
     run = "012577"
 
+date = 1229
+run = "012610"
+
 test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/%i/run_%s/event%s.root"%(date, run, run))#directory where the files are
 calibrator = ROOT.AraEventCalibrator.Instance()
 eventTree = test.Get("eventTree")
@@ -84,10 +87,10 @@ totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
 isTrue=False
 
-for evNum in range(5438,5439):#loop over events
-    print("I'm here")
+for evNum in range(14300,totalEvents):#loop over events
+    # print("I'm here")
 
-    print(evNum)
+    # print(evNum)
     eventTree.GetEntry(evNum)
     if(rawEvent.isSoftwareTrigger()): #if not soft trigger
         continue
@@ -129,14 +132,15 @@ for evNum in range(5438,5439):#loop over events
         # axs[ch].set_xlim(0,250)
 
         if(ch<8):
-            axs[ch].set_ylim(-700,700)
+            axs[ch].set_ylim(-900,900)
         else:
             axs[ch].set_ylim(-200,200)
             
     fig.text(0.5, 0.03, 'Time [ns]', ha='center', va='center', fontsize=20)
     fig.text(0.03, 0.5, 'Amplitude [mV]', ha='center', va='center', rotation='vertical', fontsize=20)
+    plt.suptitle("Run %s, event %i"%(run, evNum))
     plt.tight_layout(rect=[0.03, 0.03, 1, 0.95])
-    plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/SpiceCorePolReco/wf_all_ev%i.png"%evNum)
+    plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/SpiceCorePolReco/wf_all_run%s_ev%i.png"%(run,evNum))
     plt.close('all')
     # sys.exit()
 

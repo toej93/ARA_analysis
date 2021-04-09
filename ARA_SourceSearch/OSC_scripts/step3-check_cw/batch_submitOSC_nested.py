@@ -2,10 +2,10 @@ import os
 import csv, subprocess
 
 cores = 6 #Number of cores needed
-project = "PAS0654" #"PCON0003"
-# project = "PCON0003" #what project to use
+# project = "PAS0654" #"PCON0003"
+project = "PCON0003" #what project to use
 station = 2
-year = 2013
+year = 2016
 print("Year: %i"%year)
 isSim = 0 #data (0) or simulation (1)
 anaFolder = os.path.expanduser('/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/ARA_analysis/ARA_SourceSearch/') #Where are the files with the run lists
