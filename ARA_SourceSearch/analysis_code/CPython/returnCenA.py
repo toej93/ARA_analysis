@@ -2,9 +2,10 @@
 import astropy.units as u #astropy's units module
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
-import datetime
-from astropy.coordinates import get_sun
+# import datetime
 import numpy as np
+
+CenA = SkyCoord.from_name('Cen A')
 
 def getCenACoords(station, unixtime):
     """
@@ -19,9 +20,8 @@ def getCenACoords(station, unixtime):
     Returns
     -------
     Azimuth : array_like
-        cut waveform times [ns]
+        Azimuth [radians]
     """    
-    CenA = SkyCoord.from_name('Cen A')
     stationLon = 0
     stationHeight = 0
     
@@ -37,18 +37,14 @@ def getCenACoords(station, unixtime):
     
     south_pole = EarthLocation(lat=-89.97*u.deg, lon=stationLon*u.deg, height=stationHeight*u.m)#Assuming all stations are at the same Lat
     utcoffset = -0*u.hour  # No UTC offset, as the South Pole uses UTC
-    time = Time(1356998400.0, format="unix") - utcoffset
-    timestimeRange = time
-    frametimeRange = AltAz(obstime=timestimeRange, location=south_pole)
-    sunaltazstimeRange = get_sun(timestimeRange).transform_to(frametimeRange)
-    coord = float(np.radians(sunaltazstimeRange.az)/u.rad)
+    time = Time(unixtime, format="unix") - utcoffset
+    
+    frametimeRange = AltAz(obstime=time, location=south_pole)
+    CenAaltaz = CenA.transform_to(frametimeRange)
+    coord = float(np.radians(CenAaltaz.az)/u.rad)
     # print(coord)
     return float(coord)
 
-# coord = my_func()
-# print()
 
-def returnTime(unixTime):
-    return int(unixTime)
-
-print(getCenACoords(2,1617997947))
+for i in range(0,10):
+    print(getCenACoords(2,1617997947))
