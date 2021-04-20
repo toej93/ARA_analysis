@@ -20,7 +20,7 @@ main(int argc, char** argv)
     // Load the module
     PyObject *pName = PyUnicode_FromString("returnCenA");
     PyObject *pModule = PyImport_Import(pName);
-    PyObject *pFunc, *pFuncUnixTime;
+    PyObject *pFunc;
     PyObject *pValue, *pUnixTime, *pStation;
     PyObject *pDict, *pArgs;
     // Random use-less check
@@ -70,9 +70,11 @@ main(int argc, char** argv)
     // okay, it's a list
     for (Py_ssize_t i = 0; i < PyList_Size(pValue); ++i) {
         PyObject* next = PyList_GetItem(pValue, i);
-        result[i] = PyFloat_AsDouble(next);
-        printf("Returned val: %0.3f\n", result[i]);
+        coords[i] = PyFloat_AsDouble(next);
+        printf("Returned val: %0.3f\n", coords[i]);
         // do something with next
+        Py_DECREF(next);
+
     }
 }
     }
@@ -83,12 +85,9 @@ main(int argc, char** argv)
     Py_DECREF(pFunc);
     Py_DECREF(pDict);
     Py_DECREF(pValue);
+    Py_DECREF(pStation);
+    Py_DECREF(pUnixTime);
     Py_DECREF(pArgs);
-    Py_DECREF(next);
-
-
-
-
 
     // Finish the Python Interpreter
     Py_Finalize();
