@@ -1,4 +1,5 @@
-# import astropy
+# This will be a standalone fcuntion, since C++ needs to import needed modules each time.
+
 import astropy.units as u #astropy's units module
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
@@ -9,7 +10,7 @@ CenA = SkyCoord.from_name('Cen A')
 
 def getCenACoords(station, unixtime):
     """
-    Returns the position of CenA in ARA's coordinate system 
+    Returns the position of CenA in ARA's coordinate system for a given unixTime and station
     
     Parameters
     ----------
@@ -41,10 +42,26 @@ def getCenACoords(station, unixtime):
     
     frametimeRange = AltAz(obstime=time, location=south_pole)
     CenAaltaz = CenA.transform_to(frametimeRange)
-    coord = float(np.radians(CenAaltaz.az)/u.rad)
+    CenAAz = convertToARACoord(float(np.degrees(CenAaltaz.az).rad))
+    CenAZen = float(np.degrees(CenAaltaz.zen).rad)
     # print(coord)
-    return float(coord)
+    return [CenAAz,CenAZen]#Return a list
 
-
-for i in range(0,10):
-    print(getCenACoords(2,1617997947))
+def convertToARACoord(phi_AstroPy):
+    """
+    Returns the position of CenA in ARA's coordinate system from given Astropy coord.
+    
+    Parameters
+    ----------
+    station : int
+        ARA station. Works for TB (0), A2(2), A3(3)
+    unixTime : int
+        Time Stamp in seconds
+    Returns
+    -------
+    Azimuth : array_like
+        Azimuth [radians]
+    """    
+    phi_CCW = np.mod(np.pi/2-phi_AstroPy,2*np.pi) # Convert from CW coord. system to CCW
+    phi_ARA = np.mod((phi_CCW+np.pi),2*np.pi)-np.pi/2#+np.pi/2 #Convert from [0,360] to [-180,180]+ 90 deg out of phase with the ISO 6709
+    return phi_ARA

@@ -21,7 +21,7 @@ main(int argc, char** argv)
     PyObject *pName = PyUnicode_FromString("returnCenA");
     PyObject *pModule = PyImport_Import(pName);
     PyObject *pFunc, *pFuncUnixTime;
-    PyObject *pValue, *pUnixTime, *pValue2, *pStation;
+    PyObject *pValue, *pUnixTime, *pStation;
     PyObject *pDict, *pArgs;
     // Random use-less check
     std::cout<< "Works fine till here\n";
@@ -50,8 +50,8 @@ main(int argc, char** argv)
       abort();//Abort if module not found
     }
     
-    pArgs = PyTuple_New(2); 
-
+    pArgs = PyTuple_New(2); //Declare tuple that will be Python input 
+    PyObject* next;
     for(int unixtime = 1617997947;unixtime<1617997957;unixtime++){
             
       //Implement function now
@@ -61,13 +61,20 @@ main(int argc, char** argv)
       PyTuple_SetItem(pArgs, 0, pStation);
       PyTuple_SetItem(pArgs, 1, pUnixTime);
 
-
-      // pValue2 = PyObject_CallObject(pFuncUnixTime, pArgs);//call function that returns unixTime 
-      // int result2 = PyLong_AsLong(pValue2);
-      
       pValue = PyObject_CallObject(pFunc, pArgs);
-      double result = PyFloat_AsDouble(pValue);
-      printf("Returned val: %0.3f\n", result);
+      // next = PyList_GetItem(pValue, 0);
+      // double result = PyFloat_AsDouble(next);
+      // printf("Returned val: %0.3f\n", result);
+      double coords[2];//{phi,theta}
+      if (PyList_Check(pValue)) {
+    // okay, it's a list
+    for (Py_ssize_t i = 0; i < PyList_Size(pValue); ++i) {
+        PyObject* next = PyList_GetItem(pValue, i);
+        result[i] = PyFloat_AsDouble(next);
+        printf("Returned val: %0.3f\n", result[i]);
+        // do something with next
+    }
+}
     }
 
     // Clean up
@@ -76,6 +83,10 @@ main(int argc, char** argv)
     Py_DECREF(pFunc);
     Py_DECREF(pDict);
     Py_DECREF(pValue);
+    Py_DECREF(pArgs);
+    Py_DECREF(next);
+
+
 
 
 
