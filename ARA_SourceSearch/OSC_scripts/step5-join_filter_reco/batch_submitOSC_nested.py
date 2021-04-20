@@ -8,7 +8,7 @@ station = 2
 # year = 2015
 # radius = 6
 # radius = 19
-for year in range(2015,2016):
+for year in range(2013,2014):
     print("Year: %i"%year)
     # print("Radius: %i"%radius)
     isSim = 0 #data (0) or simulation (1)
@@ -26,7 +26,10 @@ for year in range(2015,2016):
         count_core = 0
         for job in reader:
             split = os.path.split(job[0])
-            run = os.path.splitext(split[1])[0].lstrip("event00")
+            if(os.path.splitext(split[1])[0].lstrip("event")=="000000"):
+                run = "0000"
+            else:    
+                run = os.path.splitext(split[1])[0].lstrip("event00")
             # print(run)
             filterFile = filterDir + "processed_station_%i_run_%i_filter.root"%(station,int(run))
             if(count_core==0):
