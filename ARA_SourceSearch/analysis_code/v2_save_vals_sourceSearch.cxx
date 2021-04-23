@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////	v2_save_vals_sourceSearch.cxx 
-////	A23 point source search, save values for cuts. This code was mostly taken from the original 	////  v2_save_vals.cxx from the A23 diffuse search, but with  
+////	A23 point source search, save values for cuts. This code was mostly taken from the original 	////  v2_save_vals.cxx from the A23 diffuse search, but modified to get CenA location as a function of unixtime
 ////
-////	Nov 2018
+////	Apr 2021
 ////////////////////////////////////////////////////////////////////////////////
 
 //C++
@@ -67,8 +67,8 @@ int main(int argc, char **argv)
 	}
 	char *SimDirPath(getenv("SIM_DIR"));
 	if (SimDirPath == NULL){
-		std::cout << "Error! $SIM_DIR is not set!" << endl;
-		return -1;
+		std::cout << "Warning! $SIM_DIR is not set!" << endl;
+		// return -1;
 	}
 	char *PedDirPath(getenv("PED_DIR"));
 	if (PedDirPath == NULL){
@@ -290,7 +290,14 @@ int main(int argc, char **argv)
 		int isFirstFiveEvent_out;
 		int eventNumber_out;
 		int runNum_out;
-
+		bool isSpikey;
+		bool isCliff;
+		bool OutofBandIssue;
+		bool isBadEvent_v2;
+		bool isRFEvent;
+		bool isPayloadBlast;
+		bool badRun;
+		
 		trees[2]->Branch("bad",&isBadEvent_out);
 		trees[2]->Branch("bad_updated",&isBadEvent_out_updated);
 		trees[2]->Branch("weight",&outweight);
@@ -300,9 +307,17 @@ int main(int argc, char **argv)
 		trees[2]->Branch("isFirstFiveEvent",&isFirstFiveEvent_out);
 		trees[2]->Branch("eventNumber",&eventNumber_out);
 		trees[2]->Branch("runNum",&runNum_out);
+		trees[2]->Branch("isSpikey",&isSpikey);
+		trees[2]->Branch("isCliff",&isCliff);
+		trees[2]->Branch("OutofBandIssue",&OutofBandIssue);
+		trees[2]->Branch("isRFEvent",&isRFEvent);
+		trees[2]->Branch("isPayloadBlast2",&isPayloadBlast);
+		trees[2]->Branch("badRun",&badRun);
 		if(isSimulation)
 			trees[2]->Branch("Trig_Pass", &Trig_Pass_out, "Trig_Pass_out[16]/I");
 
+		vector<int> BadRunList=BuildBadRunList(station);
+		badRun = isBadRun(station,runNum,BadRunList);
 
 		// four new cuts for dealing with glitches in A3...
 		// bool isSpikey;
@@ -493,7 +508,6 @@ int main(int argc, char **argv)
     
     pArgs = PyTuple_New(2); //Declare tuple that will be Python input 
     PyObject* next;//Dummy variable for looping
-		
 		int start=0;
 		//now to loop over events
 		for(int event=start; event<numEntries; event++){
@@ -512,6 +526,11 @@ int main(int argc, char **argv)
 			isFirstFiveEvent_out=false;
 			hasBadSpareChanIssue_out=false;
 			hasBadSpareChanIssue2_out=false;
+			isSpikey=false;
+			isCliff=false;
+			OutofBandIssue=false;
+			isRFEvent=false;
+			isPayloadBlast=false;
 
 			for(int pol=0; pol<2; pol++){
 				isSurfEvent_org_out[pol]=0;
@@ -565,7 +584,7 @@ int main(int argc, char **argv)
 			    }
 				}
 			}
-			
+
 			bool isShort=false;
 			bool isSurf[2];
 			isSurf[0]=false;
@@ -573,6 +592,8 @@ int main(int argc, char **argv)
 			// bool isSurf[2]={false};
 			bool isCP5=false;
 			bool isCP6=false;
+			bool isCP5_300m=false;
+			bool isCP6_300m=false;
 			bool failWavefrontRMS[2];
 			failWavefrontRMS[0]=false;
 			failWavefrontRMS[1]=false;
@@ -658,9 +679,40 @@ int main(int argc, char **argv)
 				}//loop over reco bins
 			}//loop over polarizations
 			
+			//figure out which reconstruction map (vpol or hpol) is best
+			//for the 300m bin
+			double bestCorr_select[] = {0., 0., 0.};
+			int bestCorrRadiusBin_select[3];
+			int bestPol_select = 2;
+			int bestTheta_select[3];
+			int bestPhi_select[3];
+
+			for(int pol=0; pol<2; pol++){
+				for(int i=0; i<35; i++){
+					if (i == recoBinSelect){
+						if (peakCorr[i][pol] > bestCorr_select[pol]){
+							bestCorr_select[pol] = peakCorr[i][pol];
+							bestCorrRadiusBin_select[pol] = i;
+							bestTheta_select[pol] = peakTheta[i][pol];
+							bestPhi_select[pol] = peakPhi[i][pol];
+						}
+						if (peakCorr[i][pol] > bestCorr_select[2]){
+							bestCorr_select[2] = peakCorr[i][pol];
+							bestCorrRadiusBin_select[2] = i;
+							bestTheta_select[2] = peakTheta[i][pol];
+							bestPhi_select[2] = peakPhi[i][pol];
+							bestPol_select = pol;
+						}
+					}//reco (300m) bin check
+				}//loop over reco bins
+			}//loop over polarizations
+			
 			//draw a box around the cal pulser
 			for (int pol = 0; pol < 2; pol++){
 				identifyCalPulser(station,config, bestTheta_pulser[pol], bestPhi_pulser[pol], isCP5, isCP6);
+				
+				identifyCalPulser(station,config, bestTheta_select[pol], bestPhi_select[pol], isCP5_300m, isCP6_300m);
+
 			}
 			for(int pol=0; pol<2; pol++){
 				theta_300_org[pol]=bestTheta[pol];
@@ -682,9 +734,12 @@ int main(int argc, char **argv)
 			bool isCutonCW_fwd[2]; isCutonCW_fwd[0]=false; isCutonCW_fwd[1]=false;
 			bool isCutonCW_back[2]; isCutonCW_back[0]=false; isCutonCW_back[1]=false;
 			bool isCutonCW_baseline[2]; isCutonCW_baseline[0]=false; isCutonCW_baseline[1]=false;
-			
+			cout << "-------HERE2----------" << endl;
+
 			for(int pol=0; pol<badFreqs_baseline->size(); pol++){
+				
 				vector<double> badFreqListLocal_baseline = badFreqs_baseline->at(pol);
+
 				if(badFreqListLocal_baseline.size()>0) isCutonCW_baseline[pol]=true;
 			}
 
@@ -825,7 +880,7 @@ int main(int argc, char **argv)
 			if(isShort){
 				isShortWave_out=1;
 			}
-			if(isCP5 || isCP6 ){
+			if(isCP5 || isCP6 || isCP5_300m || isCP6_300m){
 				isNewBox_out=1;
 			}
 
@@ -841,7 +896,8 @@ int main(int argc, char **argv)
 				isSurfEvent_new_out[pol] = isSurfEvent_org_out[pol];
 				WFRMS_new[pol] = WFRMS_org[pol];
 			}
-
+			
+			
 			for(int pol=0; pol<2; pol++){
 				corr_val_org[pol]=bestCorr[pol];
 				snr_val_org[pol]=SNRs[pol];
@@ -870,12 +926,15 @@ int main(int argc, char **argv)
 
 				// if(!failWavefrontRMS[pol])
 				// 	cout<<"Event "<<event<<" doesn't fail the WFRMS filter"<<endl;
+				
 
+				
+					
 				if(!isCalPulser_in
 					&& !isSoftTrigger_in
 					&& !isShort
 					&& !failWavefrontRMS[pol]
-					&& !isCP5 && !isCP6
+					&& !isCP5 && !isCP6 && !isCP5_300m && !isCP6_300m
 					&& !isBadEvent_out
 					&& !isFirstFiveEvent_out
 					// now, we will let all events which are surface be filtered too. this is a  major change.
@@ -895,7 +954,7 @@ int main(int argc, char **argv)
 						}
 					else{
 						// sprintf(run_file_name,"%s/RawData/A%d/by_config/c%d/event%d.root",DataDirPath,station,config,runNum);
-						sprintf(run_file_name,"%s/RawData/A%d/by_config/c%d/event%d.root",DataDirPath_Project,station,config,runNum);
+						sprintf(run_file_name,"%s/A%d/by_config/c%d/event%d.root",DataDirPath_Project,station,config,runNum);
 					}
 					TFile *mapFile = TFile::Open(run_file_name,"READ");
 					if(!mapFile){
@@ -910,7 +969,7 @@ int main(int argc, char **argv)
 
 					UsefulAtriStationEvent *realAtriEvPtr=0;
 					RawAtriStationEvent *rawPtr =0;
-
+					
 					if(isSimulation){
 						eventTree->SetBranchAddress("UsefulAtriStationEvent", &realAtriEvPtr);
 						eventTree->GetEvent(event);
@@ -1078,7 +1137,24 @@ int main(int argc, char **argv)
 						}
 						for(int i=0; i<16; i++) delete graphs_int[i]; // clean up
 					}
+					if(!isSimulation){
+						isRFEvent=rawPtr->isRFTrigger();
+					}
+					vector<TGraph*> graphs;
+					for (int i = 0; i < 16; i++){
+						TGraph* gr = realAtriEvPtr->getGraphFromRFChan(i);
+						graphs.push_back(gr);
+					}
 
+					if(isCliffEvent(graphs)) isCliff=true;
+					if(isSpikeyStringEvent(station,dropBadChans,graphs,config)) isSpikey=true;
+					if(hasOutofBandIssue(graphs,dropBadChans)) OutofBandIssue=true;
+					if(isHighPowerStringEvent(graphs, station, config)) isPayloadBlast=true;
+
+					for (int i=0; i < graphs.size(); i++){
+						delete graphs[i];
+					}
+					graphs.clear();
 					// and now to do *filtering*
 					if((isCutonCW_fwd[pol] || isCutonCW_back[pol] || isCutonCW_baseline[pol]) && !hasBadSpareChanIssue_out && !hasBadSpareChanIssue2_out && !isBadEvent_out_updated){
 					// if((isCutonCW_fwd[pol] || isCutonCW_back[pol] || isCutonCW_baseline[pol]) && !hasBadSpareChanIssue && 2==3){
@@ -1671,6 +1747,7 @@ int main(int argc, char **argv)
 			}//loop over polarization
 			trees[2]->Fill();
 			trees[3]->Fill();
+
 		}//loop over events
 		
 		// CPython clean up
