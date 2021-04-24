@@ -207,7 +207,6 @@ int main(int argc, char **argv)
 		int surfTopPhi[2];
 		double theta_vertex[2];
 		double phi_vertex[2];
-		double CenACoordsARA[2];//Coordinates of CenA in ARA's local coordinates {phi, theta};
 
 		trees[0]->Branch("corr_val_V_new",&corr_val_new[0]);
 		trees[0]->Branch("snr_val_V_new",&snr_val_new[0]);
@@ -263,7 +262,8 @@ int main(int argc, char **argv)
 		int isSurfEvent_top[2]; // a top event?
 		int isSurfEvent_vertex[2]; // a vertex-based "surface" event (need to be careful here, this actually containes a minimum num hits cut...)
 		int isVertexable[2];
-		
+		double CenACoordsARA[2];//Coordinates of CenA in ARA's local coordinates {phi, theta};
+
 		trees[2]->Branch("cal",&isCal_out);
 		trees[2]->Branch("soft",&isSoft_out);
 		trees[2]->Branch("short",&isShortWave_out);
@@ -279,6 +279,10 @@ int main(int argc, char **argv)
 		trees[2]->Branch("surf_H_vertex",&isSurfEvent_vertex[1]);
 		trees[2]->Branch("isVertexable_V",&isVertexable[0]);
 		trees[2]->Branch("isVertexable_H",&isVertexable[1]);
+		trees[2]->Branch("isVertexable_H",&isVertexable[1]);
+		trees[2]->Branch("CenA_phi",&CenACoordsARA[0]);//These are in global station coords
+		trees[2]->Branch("CenA_theta",&CenACoordsARA[1]);//These are in global station coords
+
 
 		int isBadEvent_out;
 		int isBadEvent_out_updated;
@@ -445,13 +449,7 @@ int main(int argc, char **argv)
 		NewCWTree->SetBranchAddress("badSigmas_fwd",&badSigmas_fwd);
 		NewCWTree->SetBranchAddress("badFreqs_back",&badFreqs_back);
 		NewCWTree->SetBranchAddress("badSigmas_back",&badSigmas_back);
-		// which it goes to depends on if this is sim or data (which cares about if the baseline was contaminated)
-		if(isSimulation){
-			NewCWTree->SetBranchAddress("badFreqs_baseline",&badFreqs_baseline);
-		}
-		else if(!isSimulation){
-			NewCWTree->SetBranchAddress("badFreqs_baseline_TB",&badFreqs_baseline);
-		}
+		NewCWTree->SetBranchAddress("badFreqs_baseline",&badFreqs_baseline);
 
 		// start out with a problem threshold of 1.5 for A2 and most of A3
 		// if the run has untagged cal pulses though, lift the threshold to 2.0
@@ -459,7 +457,7 @@ int main(int argc, char **argv)
 		if(station==3){
 			threshCW=2.0;
 		}
-
+		
 		int numEntries = inputTree_filter->GetEntries();
 		Long64_t starEvery=numEntries/200;
 		if(starEvery==0) starEvery++;
@@ -566,25 +564,27 @@ int main(int argc, char **argv)
 			if(!isSimulation){//Only determine the position of CenA if we know the unixTime (for data only)
 				pUnixTime = PyLong_FromLong(unixTime_out);//Arguments, unixtime in this case 
 	      pStation = PyLong_FromLong(2);//Arguments, unixtime in this case 
-
+				// PyObject* next;
 	      PyTuple_SetItem(pArgs, 0, pStation);
 	      PyTuple_SetItem(pArgs, 1, pUnixTime);
-
+			
 	      pValue = PyObject_CallObject(pFunc, pArgs);
 	      // next = PyList_GetItem(pValue, 0);
 	      // double result = PyFloat_AsDouble(next);
 	      // printf("Returned val: %0.3f\n", result);
 	      if (PyList_Check(pValue)) {    // okay, it's a list
 			    for (Py_ssize_t i = 0; i < PyList_Size(pValue); ++i) {
-		        PyObject* next = PyList_GetItem(pValue, i);
+		        next = PyList_GetItem(pValue, i);
 		        CenACoordsARA[i] = PyFloat_AsDouble(next);//Cen A coordinates
 		        // printf("Returned val: %0.3f\n", coords[i]);
 		        // do something with next
-		        Py_DECREF(next);
+		        // 
 			    }
 				}
+				// Py_DECREF(next);
 			}
-
+			cout << "----threshCW:" << threshCW << endl;
+			
 			bool isShort=false;
 			bool isSurf[2];
 			isSurf[0]=false;
@@ -734,7 +734,7 @@ int main(int argc, char **argv)
 			bool isCutonCW_fwd[2]; isCutonCW_fwd[0]=false; isCutonCW_fwd[1]=false;
 			bool isCutonCW_back[2]; isCutonCW_back[0]=false; isCutonCW_back[1]=false;
 			bool isCutonCW_baseline[2]; isCutonCW_baseline[0]=false; isCutonCW_baseline[1]=false;
-			cout << "-------HERE2----------" << endl;
+			// cout << "-------HERE2----------" << endl;
 
 			for(int pol=0; pol<badFreqs_baseline->size(); pol++){
 				
@@ -1751,14 +1751,14 @@ int main(int argc, char **argv)
 		}//loop over events
 		
 		// CPython clean up
-		Py_DECREF(pModule);
-		Py_DECREF(pName);
-		Py_DECREF(pFunc);
-		Py_DECREF(pDict);
-		Py_DECREF(pValue);
-		Py_DECREF(pStation);
-		Py_DECREF(pUnixTime);
-		Py_DECREF(pArgs);
+		// Py_DECREF(pModule);
+		// Py_DECREF(pName);
+		// Py_DECREF(pFunc);
+		// Py_DECREF(pDict);
+		// Py_DECREF(pValue);
+		// Py_DECREF(pStation);
+		// Py_DECREF(pUnixTime);
+		// Py_DECREF(pArgs);
 
 		// Finish the Python Interpreter
 		Py_Finalize();
