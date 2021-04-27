@@ -52,7 +52,7 @@ main(int argc, char** argv)
     
     pArgs = PyTuple_New(2); //Declare tuple that will be Python input 
     PyObject* next;
-    for(int unixtime = 1617997947;unixtime<1617997957;unixtime++){
+    for(int unixtime = 1617997947;unixtime<1617997957;unixtime++){//Try some unix times to evaluate speed.
             
       //Implement function now
       pUnixTime = PyLong_FromLong(unixtime);//Arguments, unixtime in this case 

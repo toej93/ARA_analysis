@@ -905,8 +905,8 @@ int main(int argc, char **argv)
 				corr_val_new[pol] = corr_val_org[pol];
 				snr_val_new[pol] = snr_val_org[pol];
 
-				// printf(BLUE"Run %4d, Event %5d/%5d, Pol %d : isCal %d, isSoft %d, isShort %d, does Fail WFRMS %d, isCP5 %d, isCP6 %d, isSurf %d and %d, isBad %d, isFirstFive %d \n"RESET
-				// 	,runNum, event, eventNumber_out, pol, isCalPulser, isSoftTrigger, isShort, failWavefrontRMS[pol], isCP5, isCP6, isSurf[0], isSurf[1], isBadEvent, isFirstFiveEvent);
+				printf(BLUE"Run %4d, Event %5d/%5d, Pol %d :  isSoft %d, isShort %d, does Fail WFRMS %d, isCP5 %d, isCP6 %d, isSurf %d and %d\n"RESET
+					,runNum, event, eventNumber_out, pol, isSoftTrigger, isShort, failWavefrontRMS[pol], isCP5, isCP6, isSurf[0], isSurf[1]);
 				
 
 				// this is a sad and desperate mix of "input" and "output variables"
@@ -1160,7 +1160,7 @@ int main(int argc, char **argv)
 						isCW_out=1;
 						Refilt[pol]=1;
 
-						printf(RED"	Need to filter event %d and eventNumber %d in pol %d, and is bad event? %d \n"RESET,event, realAtriEvPtr->eventNumber, pol, isBadEvent_out_updated);
+						// printf(RED"	Need to filter event %d and eventNumber %d in pol %d, and is bad event? %d \n"RESET,event, realAtriEvPtr->eventNumber, pol, isBadEvent_out_updated);
 
 						//get the frequencies to notch
 						vector<double> badFreqListLocal_fwd;
@@ -1693,9 +1693,9 @@ int main(int argc, char **argv)
 						deleteGraphVector(grWaveformsPowerSpectrum);
 						deleteGraphVector(grWaveformsPowerSpectrum_notched);
 
-						printf("		old vs new logrms calc in pol %d: %.2f vs %.2f \n",pol,log(bestFaceRMS[pol])/log(10),log(bestFaceRMS_new[pol])/log(10));
-						printf("		old vs new snr in pol %d: %.2f vs %.2f \n",pol,SNRs[pol],SNRs_new[pol] );
-						printf("		old vs new corr in pol %d: %.4f vs %.4f \n",pol,corr_val_org[pol],PeakCorr_Recompute_300m);
+						// printf("		old vs new logrms calc in pol %d: %.2f vs %.2f \n",pol,log(bestFaceRMS[pol])/log(10),log(bestFaceRMS_new[pol])/log(10));
+						// printf("		old vs new snr in pol %d: %.2f vs %.2f \n",pol,SNRs[pol],SNRs_new[pol] );
+						// printf("		old vs new corr in pol %d: %.4f vs %.4f \n",pol,corr_val_org[pol],PeakCorr_Recompute_300m);
 
 
 						// re-check top face reco

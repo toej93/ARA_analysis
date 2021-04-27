@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-////	v2_save_vals_sourceSearch.cxx 
-////	A23 point source search, save values for cuts. This code was mostly taken from the original 	////  v2_save_vals.cxx from the A23 diffuse search, but modified to get CenA location as a function of unixtime
+////	v2_save_vals_sim_wVertex.cxx 
+////	A23 diffuse, save values for cuts
 ////
-////	Apr 2021
+////	Nov 2019
 ////////////////////////////////////////////////////////////////////////////////
 
 //C++
@@ -37,12 +37,9 @@ AraAntPol::AraAntPol_t Hpol = AraAntPol::kHorizontal;
 #include "tools_outputObjects.h"
 #include "tools_Cuts.h"
 #include "tools_CommandLine.h"
+
 #include "AraVertex.h"
 #include "AraRecoHandler.h"
-
-//Including Python imports
-#include </usr/include/python3.6m/Python.h>
-#define PY_SSIZE_T_CLEAN
 
 using namespace std;
 
@@ -57,42 +54,31 @@ int main(int argc, char **argv)
 
 	char *AuxDirPath(getenv("AUX_DIR"));
 	if (AuxDirPath == NULL){
-		std::cout << "Error! $AUX_DIR is not set! You need this for CWID and RunSummary files" << endl;
+		std::cout << "Warning! $AUX_DIR is not set! You need this for CWID and RunSummary files" << endl;
 		return -1;
 	}
 	char *DataDirPath_Project(getenv("DATA_DIR_PROJECT"));
 	if (DataDirPath_Project == NULL){
-		std::cout << "Error! $DATA_DIR_PROJECT is not set!" << endl;
+		std::cout << "Warning! $DATA_DIR_PROJECT is not set!" << endl;
 		return -1;
 	}
 	char *SimDirPath(getenv("SIM_DIR"));
 	if (SimDirPath == NULL){
 		std::cout << "Warning! $SIM_DIR is not set!" << endl;
-		// return -1;
-	}
-	char *PedDirPath(getenv("PED_DIR"));
-	if (PedDirPath == NULL){
-		std::cout << "Error! $DATA_DIR is not set!" << endl;
 		return -1;
 	}
 	char *plotPath(getenv("PLOT_PATH"));
 	if (plotPath == NULL){
-		std::cout << "Error! $PLOT_PATH is not set!" << endl;
+		std::cout << "Warning! $PLOT_PATH is not set!" << endl;
 		return -1;
 	}
-	char *ToolsDirPath(getenv("TOOLS_DIR"));
-	if(ToolsDirPath == NULL){
-		std::cout << "Error! $TOOLS_DIR is not set! This is needed for finding where your list of runs without cal pulses is "<< endl;
-		return -1;
-	}
-
 
 	stringstream ss;
 	AraEventCalibrator *calibrator = AraEventCalibrator::Instance();
 	AraQualCuts *qualCut = AraQualCuts::Instance();
 	AraVertex *Reco = new AraVertex();
 	AraRecoHandler *RecoHandler = new AraRecoHandler();
-
+	
 	if(argc<12){
 		cout<< "Usage\n" << argv[0] << " <isSim?> <station> <config> <year_or_energy (as float, eg 17.0 or 18.5)> <drop_bad_chan> <output_location> <V SNR bin> <H SNR bin> <V WFRMS val> <H WFRMS val> <joined filename 1> <joined filename 2 > ... <joined filename x>"<<endl;
 		return 0;
@@ -105,8 +91,8 @@ int main(int argc, char **argv)
 	string output_location = argv[6];
 
 	//just to have the cut parameters up front and easy to find
-	int thresholdBin_pol[]={atoi(argv[7]), atoi(argv[8])}; //bin 3 = 2.3, bin 5 = 2.5 //what is the faceRMS inclusion threshold?
-	double wavefrontRMScut[]={atof(argv[9]),atof(argv[10])}; //event wavefrontRMS < this value
+	int thresholdBin_pol[]={atoi(argv[7]), atoi(argv[8])};
+	double wavefrontRMScut[]={atof(argv[9]),atof(argv[10])};
 
 	//set up the ray tracer
 	Settings *settings = new Settings();
@@ -118,7 +104,7 @@ int main(int argc, char **argv)
 	RayTraceCorrelator *theCorrelators[2];
 	theCorrelators[0] =  new RayTraceCorrelator(station, 41., settings, 1, 4); //41 m, cal puser
 	theCorrelators[1] =  new RayTraceCorrelator(station, 300., settings, 1, 4);//300 m, far reco
-	//Utilities for vertexing
+
 	AraGeomTool *araGeom_vertex = AraGeomTool::Instance();
 	double antenna_average[3]={0.};
 	for(int i=0; i<16; i++){
@@ -137,6 +123,8 @@ int main(int argc, char **argv)
 	double interpH = 0.625;
 	int nIntSamp_V = int(25./interpV);
 	int nIntSamp_H = int(25./interpH);
+
+
 	for(int file_num=11; file_num<argc; file_num++){
 
 		string file = string(argv[file_num]);
@@ -148,11 +136,85 @@ int main(int argc, char **argv)
 		string strRunNum = file.substr(foundRun+4,diff);
 		int runNum = atoi(strRunNum.c_str());
 
-		if(!isSimulation){
-			//we're almost certainly going to need the calibrator, so let's just load it now
-			char ped_file_name[400];
-			sprintf(ped_file_name,"%s/run_specific_peds/A%d/all_peds/event%d_specificPeds.dat",PedDirPath,station,runNum);
-			calibrator->setAtriPedFile(ped_file_name,station); //because someone had a brain (!!), this will error handle itself if the pedestal doesn't exist
+
+		// right off the top, try and load the data
+		char run_file_name[400];
+		if(isSimulation){
+			
+			// to map back to data files, we need to do some "encoding"
+			double triggerThreshold=6.22;
+
+				if(station==2){
+					if(config==4 || config==5){
+						triggerThreshold=6.40;
+					}
+				}
+				if(station==3){
+					if(config==3 || config==4){
+						triggerThreshold=6.40;
+					}
+				}
+
+			double energyCode = (year_or_energy - 400.)/10.;
+
+			// if it has integer energies energies
+			if((int)year_or_energy==560 || (int)year_or_energy==570 || (int)year_or_energy==580 || (int)year_or_energy==590 || (int)year_or_energy==600 || (int)year_or_energy==610){
+				// printf(RED"INTEGER ENERGIES\n"RESET);
+				sprintf(run_file_name,"%s/RawSim/A%d/c%d/E%d/AraOut.setup_ARA0%d_type%d_E%d_Thres%1.2fMul3.txt.run%d.root",SimDirPath,station,config,int(year_or_energy),station,config,int(energyCode),triggerThreshold,runNum);
+				printf(BLUE"%s/RawSim/A%d/c%d/E%d/AraOut.setup_ARA0%d_type%d_E%d_Thres%1.2fMul3.txt.run%d.root"RESET,SimDirPath,station,config,int(year_or_energy),station,config,int(energyCode),triggerThreshold,runNum);
+
+			}
+			else{ // if it does not have integer energies in the filename
+				// printf(CYAN"NON INTEGER ENERGIES, energyCode %2.1f \n"RESET, energyCode);
+				sprintf(run_file_name,"%s/RawSim/A%d/c%d/E%d/AraOut.setup_ARA0%d_type%d_E%2.1f_Thres%1.2fMul3.txt.run%d.root",SimDirPath,station,config,int(year_or_energy),station,config,energyCode,triggerThreshold,runNum);
+				printf(CYAN"%s/RawSim/A%d/c%d/E%d/AraOut.setup_ARA0%d_type%d_E%2.1f_Thres%1.2fMul3.txt.run%d.root"RESET,SimDirPath,station,config,int(year_or_energy),station,config,energyCode,triggerThreshold,runNum);
+			}
+
+			// old
+			// sprintf(run_file_name,"%s/RawSim/A%d/c%d/E%d/AraOut.A%d_c%d_E%d.txt.run%d.root",SimDirPath,station,config,int(year_or_energy),station,config,int(year_or_energy),runNum);
+			// filename conventions
+
+			// AraOut.setup_ARA02_type1_E21_Thres6.22Mul3.txt.run45.root
+			// AraOut.setup_ARA02_type2_E21_Thres6.22Mul3.txt.run43.root 
+			// AraOut.setup_ARA02_type3_E21_Thres6.22Mul3.txt.run41.root
+			// AraOut.setup_ARA02_type4_E21_Thres6.40Mul3.txt.run40.root
+			// AraOut.setup_ARA02_type5_E21_Thres6.40Mul3.txt.run47.root
+
+
+			// AraOut.setup_ARA03_type1_E21_Thres6.22Mul3.txt.run49.root
+			// AraOut.setup_ARA03_type2_E21_Thres6.22Mul3.txt.run48.root
+			// AraOut.setup_ARA03_type3_E21_Thres6.40Mul3.txt.run43.root
+			// AraOut.setup_ARA03_type4_E21_Thres6.40Mul3.txt.run47.root 
+			// AraOut.setup_ARA03_type5_E21_Thres6.22Mul3.txt.run49.root
+
+
+			// and then, of course, some come as half integers...
+			// AraOut.setup_ARA03_type5_E20.5_Thres6.22Mul3.txt.run17.root
+		}
+		else{
+			// sprintf(run_file_name,"%s/RawData/A%d/by_config/c%d/event%d.root",DataDirPath,station,config,runNum);
+			sprintf(run_file_name,"%s/RawData/A%d/by_config/c%d/event%d.root",DataDirPath_Project,station,config,runNum);
+		}
+
+		TFile *mapFile = TFile::Open(run_file_name,"READ");
+		if(!mapFile){
+			cout<<"Can't open data file for map!"<<endl;
+			return -1;
+		}
+		TTree *eventTree = (TTree*) mapFile-> Get("eventTree");
+		if(!eventTree){
+			cout<<"Can't find eventTree for map"<<endl;
+			return -1;
+		}
+
+		UsefulAtriStationEvent *realAtriEvPtr=0;
+		RawAtriStationEvent *rawPtr =0;
+
+		if(isSimulation){
+			eventTree->SetBranchAddress("UsefulAtriStationEvent", &realAtriEvPtr);
+		}
+		else if(!isSimulation){
+			eventTree->SetBranchAddress("event",&rawPtr);
 		}
 
 		char outfile_name[300];
@@ -195,7 +257,6 @@ int main(int argc, char **argv)
 		trees[1]->Branch("phi_300_H_org",&phi_300_org[1]);
 		trees[1]->Branch("phi_41_H_org",&phi_41_org[1]);
 
-
 		double corr_val_new[2];
 		double snr_val_new[2];
 		int WFRMS_new[2];
@@ -207,7 +268,6 @@ int main(int argc, char **argv)
 		int surfTopPhi[2];
 		double theta_vertex[2];
 		double phi_vertex[2];
-
 		trees[0]->Branch("corr_val_V_new",&corr_val_new[0]);
 		trees[0]->Branch("snr_val_V_new",&snr_val_new[0]);
 		trees[0]->Branch("wfrms_val_V_new",&WFRMS_new[0]);
@@ -262,8 +322,7 @@ int main(int argc, char **argv)
 		int isSurfEvent_top[2]; // a top event?
 		int isSurfEvent_vertex[2]; // a vertex-based "surface" event (need to be careful here, this actually containes a minimum num hits cut...)
 		int isVertexable[2];
-		double CenACoordsARA[2];//Coordinates of CenA in ARA's local coordinates {phi, theta};
-
+		int box300;
 		trees[2]->Branch("cal",&isCal_out);
 		trees[2]->Branch("soft",&isSoft_out);
 		trees[2]->Branch("short",&isShortWave_out);
@@ -271,18 +330,15 @@ int main(int argc, char **argv)
 		trees[2]->Branch("box",&isNewBox_out);
 		trees[2]->Branch("surf_V_org",&isSurfEvent_org_out[0]);
 		trees[2]->Branch("surf_H_org",&isSurfEvent_org_out[1]);
-		trees[2]->Branch("surf_V_new",&isSurfEvent_new_out[0]);
-		trees[2]->Branch("surf_H_new",&isSurfEvent_new_out[1]);
+		trees[2]->Branch("surf_V_new2",&isSurfEvent_new_out[0]);
+		trees[2]->Branch("surf_H_new2",&isSurfEvent_new_out[1]);
 		trees[2]->Branch("surf_top_V",&isSurfEvent_top[0]);
 		trees[2]->Branch("surf_top_H",&isSurfEvent_top[1]);
 		trees[2]->Branch("surf_V_vertex",&isSurfEvent_vertex[0]);
 		trees[2]->Branch("surf_H_vertex",&isSurfEvent_vertex[1]);
 		trees[2]->Branch("isVertexable_V",&isVertexable[0]);
 		trees[2]->Branch("isVertexable_H",&isVertexable[1]);
-		trees[2]->Branch("isVertexable_H",&isVertexable[1]);
-		trees[2]->Branch("CenA_phi",&CenACoordsARA[0]);//These are in global station coords
-		trees[2]->Branch("CenA_theta",&CenACoordsARA[1]);//These are in global station coords
-
+		trees[2]->Branch("box300",&box300);
 
 		int isBadEvent_out;
 		int isBadEvent_out_updated;
@@ -294,14 +350,7 @@ int main(int argc, char **argv)
 		int isFirstFiveEvent_out;
 		int eventNumber_out;
 		int runNum_out;
-		bool isSpikey;
-		bool isCliff;
-		bool OutofBandIssue;
-		bool isBadEvent_v2;
-		bool isRFEvent;
-		bool isPayloadBlast;
-		bool badRun;
-		
+
 		trees[2]->Branch("bad",&isBadEvent_out);
 		trees[2]->Branch("bad_updated",&isBadEvent_out_updated);
 		trees[2]->Branch("weight",&outweight);
@@ -311,34 +360,28 @@ int main(int argc, char **argv)
 		trees[2]->Branch("isFirstFiveEvent",&isFirstFiveEvent_out);
 		trees[2]->Branch("eventNumber",&eventNumber_out);
 		trees[2]->Branch("runNum",&runNum_out);
+		if(isSimulation)
+			trees[2]->Branch("Trig_Pass", &Trig_Pass_out, "Trig_Pass_out[16]/I");
+		
+		// ForA3 (our new glitch detection items)
+		bool isSpikey;
+		bool isCliff;
+		bool OutofBandIssue;
+		bool bad_v2;
+		bool isRFEvent;
+		bool isPayloadBlast;
 		trees[2]->Branch("isSpikey",&isSpikey);
 		trees[2]->Branch("isCliff",&isCliff);
 		trees[2]->Branch("OutofBandIssue",&OutofBandIssue);
+		trees[2]->Branch("bad_v2",&bad_v2);
 		trees[2]->Branch("isRFEvent",&isRFEvent);
 		trees[2]->Branch("isPayloadBlast2",&isPayloadBlast);
-		trees[2]->Branch("badRun",&badRun);
-		if(isSimulation)
-			trees[2]->Branch("Trig_Pass", &Trig_Pass_out, "Trig_Pass_out[16]/I");
-
-		vector<int> BadRunList=BuildBadRunList(station);
-		badRun = isBadRun(station,runNum,BadRunList);
-
-		// four new cuts for dealing with glitches in A3...
-		// bool isSpikey;
-		// bool isCliff;
-		// bool OutofBandIsue;
-		// bool isBadEvent_v2;
-		// trees[2]->Branch("bad_v2",&isBadEvent_v2);
-		// trees[2]->Branch("OutofBandIsue",&OutofBandIsue);
-		// trees[2]->Branch("isCliff",&isCliff);
-		// trees[2]->Branch("isSpikey",&isSpikey);
-		
 
 		cout << "Run " << file_num << " :: " << argv[file_num] << endl;
 		
 		//first, load in the data file; this shoud be a "joined" file
 		//meaning it should contain "filter" trees and "reco" trees
-		TFile *inputFile = TFile::Open(argv[file_num]);
+		TFile *inputFile = TFile::Open(argv[file_num],"READ");
 		if(!inputFile){
 			cout<<"Can't open joined file!"<<endl;			
 			return -1;
@@ -421,15 +464,12 @@ int main(int argc, char **argv)
 	
 		char summary_file_name[400];
 		if(isSimulation){
-			if(year_or_energy<25)
-				sprintf(summary_file_name,"%s/CWID/A%d/c%d/E%2.2f/CWID_station_%d_run_%d.root",SimDirPath,station,config,year_or_energy,station,runNum);
-			else
-				sprintf(summary_file_name,"%s/CWID/A%d/c%d/E%d/CWID_station_%d_run_%d.root",SimDirPath,station,config,int(year_or_energy),station,runNum);
+			sprintf(summary_file_name,"%s/CWID/A%d/c%d/E%d/CWID_station_%d_run_%d.root",SimDirPath,station,config,int(year_or_energy),station,runNum);
 		}
 		else{
 			sprintf(summary_file_name,"%s/CWID/A%d/all_runs/CWID_station_%d_run_%d.root",AuxDirPath,station,station,runNum);
 		}
-		TFile *NewCWFile = TFile::Open(summary_file_name);
+		TFile *NewCWFile = TFile::Open(summary_file_name,"READ");
 		if(!NewCWFile) {
 			std::cerr << "Can't open new CW file\n";
 			return -1;
@@ -449,7 +489,13 @@ int main(int argc, char **argv)
 		NewCWTree->SetBranchAddress("badSigmas_fwd",&badSigmas_fwd);
 		NewCWTree->SetBranchAddress("badFreqs_back",&badFreqs_back);
 		NewCWTree->SetBranchAddress("badSigmas_back",&badSigmas_back);
-		NewCWTree->SetBranchAddress("badFreqs_baseline",&badFreqs_baseline);
+		// which it goes to depends on if this is sim or data (which cares about if the baseline was contaminated)
+		if(isSimulation){
+			NewCWTree->SetBranchAddress("badFreqs_baseline",&badFreqs_baseline);
+		}
+		else if(!isSimulation){
+			NewCWTree->SetBranchAddress("badFreqs_baseline_TB",&badFreqs_baseline);
+		}
 
 		// start out with a problem threshold of 1.5 for A2 and most of A3
 		// if the run has untagged cal pulses though, lift the threshold to 2.0
@@ -457,7 +503,7 @@ int main(int argc, char **argv)
 		if(station==3){
 			threshCW=2.0;
 		}
-		
+
 		int numEntries = inputTree_filter->GetEntries();
 		Long64_t starEvery=numEntries/200;
 		if(starEvery==0) starEvery++;
@@ -465,47 +511,6 @@ int main(int argc, char **argv)
 		cout<<"Star every is "<<starEvery<<endl;
 		// numEntries=2000;
 
-		//Initialize Cpython
-		Py_Initialize();
-
-    // First set in path where to find your custom python module.
-    // You have to tell the path otherwise the next line will try to load
-    // your module from the path where Python's system modules/packages are
-    // found.
-    PyObject* sysPath = PySys_GetObject("path");
-    PyList_Append(sysPath, PyUnicode_FromString("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/ARA_analysis/ARA_SourceSearch/analysis_code/CPython/"));
-
-    // Load the module
-    PyObject *pName = PyUnicode_FromString("returnCenA");
-    PyObject *pModule = PyImport_Import(pName);
-    PyObject *pFunc, *pFuncUnixTime;
-    PyObject *pValue, *pUnixTime, *pStation;
-    PyObject *pDict, *pArgs;
-    // Random use-less check
-    // std::cout<< "Works fine till here\n";
-
-    if (pModule != NULL) {
-        std::cout << "Python module found\n";
-
-        // Load all module level attributes as a dictionary
-        pDict = PyModule_GetDict(pModule);
-				
-        pFunc = PyDict_GetItem(pDict, PyUnicode_FromString("getCenACoords"));
-
-        if(pFunc != NULL){
-            cout << "Imported Python function successfully\n";
-        } else {
-            std::cout << "Couldn't find func\n";
-            abort();//Abort if module not found
-        }
-    }
-    else{
-      std::cout << "Python Module not found \n";
-      abort();//Abort if module not found
-    }
-    
-    pArgs = PyTuple_New(2); //Declare tuple that will be Python input 
-    PyObject* next;//Dummy variable for looping
 		int start=0;
 		//now to loop over events
 		for(int event=start; event<numEntries; event++){
@@ -521,14 +526,17 @@ int main(int argc, char **argv)
 			isShortWave_out=0;
 			isCW_out=0;
 			isNewBox_out=0;
+			box300=0;
 			isFirstFiveEvent_out=false;
 			hasBadSpareChanIssue_out=false;
 			hasBadSpareChanIssue2_out=false;
-			isSpikey=false;
-			isCliff=false;
-			OutofBandIssue=false;
-			isRFEvent=false;
-			isPayloadBlast=false;
+
+			isSpikey=false; // ForA3
+			isCliff=false; // ForA3
+			OutofBandIssue=false; // ForA3
+			bad_v2=false; // ForA3
+			isRFEvent=false; // ForA3
+			isPayloadBlast=false; // ForA3
 
 			for(int pol=0; pol<2; pol++){
 				isSurfEvent_org_out[pol]=0;
@@ -560,30 +568,7 @@ int main(int argc, char **argv)
 			if(eventNumber_out<5 && !isSimulation){ //eep, never check this for simulation, will be huge efficiency hit!
 				isFirstFiveEvent_out=true;
 			}
-			
-			if(!isSimulation){//Only determine the position of CenA if we know the unixTime (for data only)
-				pUnixTime = PyLong_FromLong(unixTime_out);//Arguments, unixtime in this case 
-	      pStation = PyLong_FromLong(2);//Arguments, unixtime in this case 
-				// PyObject* next;
-	      PyTuple_SetItem(pArgs, 0, pStation);
-	      PyTuple_SetItem(pArgs, 1, pUnixTime);
-			
-	      pValue = PyObject_CallObject(pFunc, pArgs);
-	      // next = PyList_GetItem(pValue, 0);
-	      // double result = PyFloat_AsDouble(next);
-	      // printf("Returned val: %0.3f\n", result);
-	      if (PyList_Check(pValue)) {    // okay, it's a list
-			    for (Py_ssize_t i = 0; i < PyList_Size(pValue); ++i) {
-		        next = PyList_GetItem(pValue, i);
-		        CenACoordsARA[i] = PyFloat_AsDouble(next);//Cen A coordinates
-		        // printf("Returned val: %0.3f\n", coords[i]);
-		        // do something with next
-		        // 
-			    }
-				}
-				// Py_DECREF(next);
-			}
-			
+
 			bool isShort=false;
 			bool isSurf[2];
 			isSurf[0]=false;
@@ -591,8 +576,8 @@ int main(int argc, char **argv)
 			// bool isSurf[2]={false};
 			bool isCP5=false;
 			bool isCP6=false;
-			bool isCP5_300m=false;
-			bool isCP6_300m=false;
+			bool isCP5_300=false;
+			bool isCP6_300=false;
 			bool failWavefrontRMS[2];
 			failWavefrontRMS[0]=false;
 			failWavefrontRMS[1]=false;
@@ -644,7 +629,8 @@ int main(int argc, char **argv)
 
 
 			for(int pol=0; pol<2; pol++){
-				if(bestTheta[pol] >= 37){
+				// if(bestTheta[pol] >= 37){
+				if(bestTheta[pol] > 17){
 					// printf("Pol %d has theta %d \n",pol,bestTheta[pol]);
 					isSurf[pol]=true;
 				}
@@ -678,40 +664,10 @@ int main(int argc, char **argv)
 				}//loop over reco bins
 			}//loop over polarizations
 			
-			//figure out which reconstruction map (vpol or hpol) is best
-			//for the 300m bin
-			double bestCorr_select[] = {0., 0., 0.};
-			int bestCorrRadiusBin_select[3];
-			int bestPol_select = 2;
-			int bestTheta_select[3];
-			int bestPhi_select[3];
-
-			for(int pol=0; pol<2; pol++){
-				for(int i=0; i<35; i++){
-					if (i == recoBinSelect){
-						if (peakCorr[i][pol] > bestCorr_select[pol]){
-							bestCorr_select[pol] = peakCorr[i][pol];
-							bestCorrRadiusBin_select[pol] = i;
-							bestTheta_select[pol] = peakTheta[i][pol];
-							bestPhi_select[pol] = peakPhi[i][pol];
-						}
-						if (peakCorr[i][pol] > bestCorr_select[2]){
-							bestCorr_select[2] = peakCorr[i][pol];
-							bestCorrRadiusBin_select[2] = i;
-							bestTheta_select[2] = peakTheta[i][pol];
-							bestPhi_select[2] = peakPhi[i][pol];
-							bestPol_select = pol;
-						}
-					}//reco (300m) bin check
-				}//loop over reco bins
-			}//loop over polarizations
-			
 			//draw a box around the cal pulser
 			for (int pol = 0; pol < 2; pol++){
 				identifyCalPulser(station,config, bestTheta_pulser[pol], bestPhi_pulser[pol], isCP5, isCP6);
-				
-				identifyCalPulser(station,config, bestTheta_select[pol], bestPhi_select[pol], isCP5_300m, isCP6_300m);
-
+				identifyCalPulser(station,config,bestTheta[pol], bestPhi[pol], isCP5_300, isCP6_300);
 			}
 			for(int pol=0; pol<2; pol++){
 				theta_300_org[pol]=bestTheta[pol];
@@ -733,12 +689,9 @@ int main(int argc, char **argv)
 			bool isCutonCW_fwd[2]; isCutonCW_fwd[0]=false; isCutonCW_fwd[1]=false;
 			bool isCutonCW_back[2]; isCutonCW_back[0]=false; isCutonCW_back[1]=false;
 			bool isCutonCW_baseline[2]; isCutonCW_baseline[0]=false; isCutonCW_baseline[1]=false;
-			// cout << "-------HERE2----------" << endl;
-
+			
 			for(int pol=0; pol<badFreqs_baseline->size(); pol++){
-				
 				vector<double> badFreqListLocal_baseline = badFreqs_baseline->at(pol);
-
 				if(badFreqListLocal_baseline.size()>0) isCutonCW_baseline[pol]=true;
 			}
 
@@ -879,8 +832,11 @@ int main(int argc, char **argv)
 			if(isShort){
 				isShortWave_out=1;
 			}
-			if(isCP5 || isCP6 || isCP5_300m || isCP6_300m){
+			if(isCP5 || isCP6 ){
 				isNewBox_out=1;
+			}
+			if(isCP5_300 || isCP6_300 ){
+				box300=1;
 			}
 
 			for(int pol=0; pol<2; pol++){
@@ -895,9 +851,89 @@ int main(int argc, char **argv)
 				isSurfEvent_new_out[pol] = isSurfEvent_org_out[pol];
 				WFRMS_new[pol] = WFRMS_org[pol];
 			}
+
+			eventTree->GetEvent(event);
+
+			// check to see if this event is experiencing a digitizer glitch, can only do this with data
+			if(!isSimulation){
+				vector<TGraph*> spareElecChanGraphs;
+				spareElecChanGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(6));
+				spareElecChanGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(14));
+				spareElecChanGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(22));
+				spareElecChanGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(30));
+				hasBadSpareChanIssue_out = hasSpareChannelIssue(spareElecChanGraphs);
+				hasBadSpareChanIssue2_out = hasSpareChannelIssue_v2(spareElecChanGraphs, station);
+				deleteGraphVector(spareElecChanGraphs);
+				isBadEvent_out_updated = !(qualCut->isGoodEvent(realAtriEvPtr));
+
+				bad_v2 = !(qualCut->isGoodEvent(realAtriEvPtr)); // ForA3 recheck the quality cut
+				isRFEvent=rawPtr->isRFTrigger(); // ForA3
+			}
+
+			vector<int> chan_exclusion_list_vertex;
+			if(dropBadChans){
+				if(station==2){
+					// hpol channel 15
+					chan_exclusion_list_vertex.push_back(15);
+				}
+				else if(station==3){
+					if( 
+						(!isSimulation && runNum>getA3BadRunBoundary())
+						||
+						(isSimulation && config>2)
+
+					){								// vpol sring 4
+						chan_exclusion_list_vertex.push_back(3);
+						chan_exclusion_list_vertex.push_back(7);
+						chan_exclusion_list_vertex.push_back(11);
+						chan_exclusion_list_vertex.push_back(15);
+					}
+				}
+			}
+
+			// for simulation, we must always turn these back on
+			if(isSimulation){
+				isRFEvent=true;
+				bad_v2=false;
+			}
+
+			// this is a little local copy of drop_chan which does it the way Jorge wants
+			bool drop_chan=false; // ForA3
+			if(config>2) drop_chan=true; // ForA3
+
+			vector<TGraph*> graphs; // ForA3
+			for (int i = 0; i < 16; i++){ // ForA3
+				TGraph* gr = realAtriEvPtr->getGraphFromRFChan(i); // ForA3
+				graphs.push_back(gr); // ForA3
+			}
+		
+			// some we check for both
+			if(isHighPowerStringEvent(graphs, station, config)) isPayloadBlast=true; // ForA3
+
+			// some we only check for station 3
+			if(station==3){ 
+				if(isSpikeyStringEvent(station,drop_chan,graphs,config)) isSpikey=true; // ForA3
+				if(isCliffEvent(graphs)) isCliff=true; // ForA3
+				if(hasOutofBandIssue(graphs,drop_chan)) OutofBandIssue=true; // ForA3
+			}
 			
-			
+			for (int i=0; i < graphs.size(); i++){ // ForA3
+				delete graphs[i]; // ForA3
+			} // ForA3
+			graphs.clear(); // ForA3
+
+			stringstream ss1;
+			string xLabel, yLabel;
+			xLabel = "Time (ns)"; yLabel = "Voltage (mV)";
+			vector<string> titlesForGraphs;
+			for (int i = 0; i < 16; i++){
+				ss1.str("");
+				ss << "Channel " << i;
+				titlesForGraphs.push_back(ss1.str());
+			}			
+
 			for(int pol=0; pol<2; pol++){
+				
 				corr_val_org[pol]=bestCorr[pol];
 				snr_val_org[pol]=SNRs[pol];
 
@@ -926,112 +962,16 @@ int main(int argc, char **argv)
 				// if(!failWavefrontRMS[pol])
 				// 	cout<<"Event "<<event<<" doesn't fail the WFRMS filter"<<endl;
 				
-
-				
-					
 				if(!isCalPulser_in
 					&& !isSoftTrigger_in
 					&& !isShort
 					&& !failWavefrontRMS[pol]
-					&& !isCP5 && !isCP6 && !isCP5_300m && !isCP6_300m
+					&& !isCP5 && !isCP6
 					&& !isBadEvent_out
 					&& !isFirstFiveEvent_out
-					// now, we will let all events which are surface be filtered too. this is a  major change.
-					// && !isSurf[0] && !isSurf[1] //check both pols for surface
 				){ //cut cal pulsers
 
 					// printf(RED"Time to do math on event %d \n"RESET,event);
-
-					// load in the data for the event
-					char run_file_name[400];
-					if(isSimulation)
-						if(year_or_energy<25)
-							sprintf(run_file_name,"%s/RawSim/A%d/c%d/E%2.1f/AraOut.A%d_c%d_E%2.1f.txt.run%d.root",SimDirPath,station,config,year_or_energy,station,config,year_or_energy,runNum);
-						else{
-							// should just be Kotera
-							sprintf(run_file_name,"%s/RawSim/A%d/c%d/E%d/AraOut.A%d_c%d_E%d.txt.run%d.root",SimDirPath,station,config,int(year_or_energy),station,config,int(year_or_energy),runNum);
-						}
-					else{
-						// sprintf(run_file_name,"%s/RawData/A%d/by_config/c%d/event%d.root",DataDirPath,station,config,runNum);
-						sprintf(run_file_name,"%s/A%d/by_config/c%d/event%d.root",DataDirPath_Project,station,config,runNum);
-					}
-					TFile *mapFile = TFile::Open(run_file_name,"READ");
-					if(!mapFile){
-						cout<<"Can't open data file for map!"<<endl;
-						return -1;
-					}
-					TTree *eventTree = (TTree*) mapFile-> Get("eventTree");
-					if(!eventTree){
-						cout<<"Can't find eventTree for map"<<endl;
-						return -1;
-					}
-
-					UsefulAtriStationEvent *realAtriEvPtr=0;
-					RawAtriStationEvent *rawPtr =0;
-					
-					if(isSimulation){
-						eventTree->SetBranchAddress("UsefulAtriStationEvent", &realAtriEvPtr);
-						eventTree->GetEvent(event);
-					}
-					else if(!isSimulation){
-						eventTree->SetBranchAddress("event",&rawPtr);
-						eventTree->GetEvent(event);
-						realAtriEvPtr = new UsefulAtriStationEvent(rawPtr,AraCalType::kLatestCalib);
-					}
-
-					// check to see if this event is experiencing a digitizer glitch
-					// can only do this with data
-					if(!isSimulation){
-						vector<TGraph*> spareElecChanGraphs;
-						spareElecChanGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(6));
-						spareElecChanGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(14));
-						spareElecChanGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(22));
-						spareElecChanGraphs.push_back(realAtriEvPtr->getGraphFromElecChan(30));
-						hasBadSpareChanIssue_out = hasSpareChannelIssue(spareElecChanGraphs);
-						hasBadSpareChanIssue2_out = hasSpareChannelIssue_v2(spareElecChanGraphs, station);
-						deleteGraphVector(spareElecChanGraphs);
-						isBadEvent_out_updated = !(qualCut->isGoodEvent(realAtriEvPtr));
-					}
-					
-					vector<int> chan_exclusion_list_vertex;
-					if(dropBadChans){
-						if(station==2){
-							// hpol channel 15
-							chan_exclusion_list_vertex.push_back(15);
-						}
-						else if(station==3){
-							if( 
-								(!isSimulation && runNum>getA3BadRunBoundary())
-								||
-								(isSimulation && config>2)
-
-							){								// vpol sring 4
-								chan_exclusion_list_vertex.push_back(3);
-								chan_exclusion_list_vertex.push_back(7);
-								chan_exclusion_list_vertex.push_back(11);
-								chan_exclusion_list_vertex.push_back(15);
-							}
-						}
-					}
-					// update this, because it floats around a little bit (this will cause chaos until Jorge puts his new branch in here, but oh well...)
-					// printf(GREEN"Run %d, Event number %d, is bad event? %d \n"RESET, runNum, realAtriEvPtr->eventNumber, isBadEvent_out_updated);
-
-					stringstream ss1;
-					string xLabel, yLabel;
-					xLabel = "Time (ns)"; yLabel = "Voltage (mV)";
-					vector<string> titlesForGraphs;
-					for (int i = 0; i < 16; i++){
-						ss1.str("");
-						ss << "Channel " << i;
-						titlesForGraphs.push_back(ss1.str());
-					}
-
-					// vector <TGraph*> grWaveformsRaw = makeGraphsFromRF(realAtriEvPtr,16,xLabel,yLabel,titlesForGraphs);
-					// for(int i=0; i<16; i++){
-					// 	printf("Number of points is %d \n", grWaveformsRaw[i]->GetN());
-					// }
-
-					// printf(GREEN"     Event %d has bad channel %d and %d  \n"RESET,event,hasBadSpareChanIssue_out, hasBadSpareChanIssue2_out);
 
 					/*
 					if it's not in need of re-filtering, check the "top" reco again
@@ -1114,15 +1054,14 @@ int main(int argc, char **argv)
 						}
 
 						delete map_300m_top;
-						//Add AraVertex based surface cut 
+
 						vector<TGraph*> graphs_int;
 						for (int i = 0; i < 16; i++){ // ForVertex
 							TGraph* gr = realAtriEvPtr->getGraphFromRFChan(i); // ForVertex
 							graphs_int.push_back(FFTtools::getInterpolatedGraph(gr,i<8?interpV:interpH));
 							delete gr;
 						}
-						vector< vector<double> > chanLocations = RecoHandler->getVectorOfChanLocations(araGeom_vertex, station);
-						RecoHandler->identifyHitsPrepToVertex(chanLocations, Reco, station, pol, chan_exclusion_list_vertex, graphs_int, 8.);
+						RecoHandler->identifyHitsPrepToVertex(araGeom_vertex, Reco, station, pol, chan_exclusion_list_vertex, graphs_int, 8.);
 						if(Reco->RxPairIn.size()>0){
 							RECOOUT reco_output = Reco->doPairFitSpherical();
 							theta_vertex[pol] = 90.-reco_output.theta*TMath::RadToDeg();
@@ -1135,32 +1074,16 @@ int main(int argc, char **argv)
 							// printf(RED"WARNING! Event %d lacks enough channels to vertex. It had a (SNR, Corr) of (%.2f, %.3f) though \n"RESET, event, snr_val_new[pol], corr_val_new[pol]);
 						}
 						for(int i=0; i<16; i++) delete graphs_int[i]; // clean up
-					}
-					if(!isSimulation){
-						isRFEvent=rawPtr->isRFTrigger();
-					}
-					vector<TGraph*> graphs;
-					for (int i = 0; i < 16; i++){
-						TGraph* gr = realAtriEvPtr->getGraphFromRFChan(i);
-						graphs.push_back(gr);
+
 					}
 
-					if(isCliffEvent(graphs)) isCliff=true;
-					if(isSpikeyStringEvent(station,dropBadChans,graphs,config)) isSpikey=true;
-					if(hasOutofBandIssue(graphs,dropBadChans)) OutofBandIssue=true;
-					if(isHighPowerStringEvent(graphs, station, config)) isPayloadBlast=true;
-
-					for (int i=0; i < graphs.size(); i++){
-						delete graphs[i];
-					}
-					graphs.clear();
 					// and now to do *filtering*
 					if((isCutonCW_fwd[pol] || isCutonCW_back[pol] || isCutonCW_baseline[pol]) && !hasBadSpareChanIssue_out && !hasBadSpareChanIssue2_out && !isBadEvent_out_updated){
 					// if((isCutonCW_fwd[pol] || isCutonCW_back[pol] || isCutonCW_baseline[pol]) && !hasBadSpareChanIssue && 2==3){
 						isCW_out=1;
 						Refilt[pol]=1;
 
-						printf(RED"	Need to filter event %d and eventNumber %d in pol %d, and is bad event? %d \n"RESET,event, realAtriEvPtr->eventNumber, pol, isBadEvent_out_updated);
+						// printf(RED"	Need to filter event %d and eventNumber %d in pol %d, and is bad event? %d \n"RESET,event, realAtriEvPtr->eventNumber, pol, isBadEvent_out_updated);
 
 						//get the frequencies to notch
 						vector<double> badFreqListLocal_fwd;
@@ -1276,6 +1199,25 @@ int main(int argc, char **argv)
 						vector<TGraph*> grWaveformsPowerSpectrum = makePowerSpectrumGraphs(grWaveformsPadded, xLabel, yLabel, titlesForGraphs);
 						vector<TGraph*> grWaveformsPowerSpectrum_notched = makePowerSpectrumGraphs(grNotched, xLabel, yLabel, titlesForGraphs);
 
+						// do vertexing with notched waveforms
+						vector<TGraph*> graphs_int;
+						for (int i = 0; i < 16; i++){ // ForVertex
+							graphs_int.push_back(FFTtools::getInterpolatedGraph(grNotched[i],i<8?interpV:interpH));
+						}
+						RecoHandler->identifyHitsPrepToVertex(araGeom_vertex, Reco, station, pol, chan_exclusion_list_vertex, graphs_int, 8.);
+						if(Reco->RxPairIn.size()>0){
+							RECOOUT reco_output = Reco->doPairFitSpherical();
+							theta_vertex[pol] = 90.-reco_output.theta*TMath::RadToDeg();
+							phi_vertex[pol] = reco_output.phi*TMath::RadToDeg();
+							isVertexable[pol]=1; //mark this as vertexable
+							if(theta_vertex[pol]>17) isSurfEvent_vertex[pol]=1;
+							// printf(BLUE"vertex theta is %.2f\n"RESET,theta_vertex[pol]);
+						}
+						else{
+							// printf(RED"WARNING! Event %d lacks enough channels to vertex. It had a (SNR, Corr) of (%.2f, %.3f) though \n"RESET, event, snr_val_new[pol], corr_val_new[pol]);
+						}
+						for(int i=0; i<16; i++) delete graphs_int[i]; // clean up vertexing waveforms
+
 						for(int i=0; i<16; i++){
 							double original_power=0.;
 							double final_power=0.;
@@ -1315,7 +1257,7 @@ int main(int argc, char **argv)
 							}
 						}
 
-						TFile *summaryFile = TFile::Open(run_summary_name);
+						TFile *summaryFile = TFile::Open(run_summary_name,"READ");
 						if(!summaryFile){
 							cout<<"Can't open summary file!"<<endl;
 							return -1;
@@ -1703,7 +1645,8 @@ int main(int argc, char **argv)
 							isSurfEvent_top[pol]=1;
 
 						// re-check surface cut
-						if(PeakTheta_Recompute_300m>=37){
+						// if(PeakTheta_Recompute_300m>=37){
+						if(PeakTheta_Recompute_300m>17){
 							// isSurfEvent[pol]=1;
 							isSurfEvent_new_out[pol]=1;
 						}
@@ -1739,32 +1682,19 @@ int main(int argc, char **argv)
 						delete summaryFile;
 					} //if any frequencies are flagged for filtering
 					if(!isSimulation) delete realAtriEvPtr;
-					mapFile->Close();
-					delete mapFile;
+
 				} //cal pulser
+				// printf(RED"About to fill the event %d, pol %d tree\n",event,pol);
 				trees[pol]->Fill();
 			}//loop over polarization
 			trees[2]->Fill();
 			trees[3]->Fill();
-
 		}//loop over events
-		
-		// CPython clean up
-		// Py_DECREF(pModule);
-		// Py_DECREF(pName);
-		// Py_DECREF(pFunc);
-		// Py_DECREF(pDict);
-		// Py_DECREF(pValue);
-		// Py_DECREF(pStation);
-		// Py_DECREF(pUnixTime);
-		// Py_DECREF(pArgs);
-
-		// Finish the Python Interpreter
-		Py_Finalize();
-		
 		inputFile->Close();
 		NewCWFile->Close();
 		delete inputFile;
+		mapFile->Close();
+		delete mapFile;
 
 		fpOut->Write();
 		fpOut->Close();

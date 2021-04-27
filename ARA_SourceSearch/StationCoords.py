@@ -25,7 +25,7 @@ import datetime
 
 gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Position.h"')
 gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Report.h"')
-00gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Settings.h"')
+gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/AraSim/Settings.h"')
 
 gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
 
@@ -41,4 +41,8 @@ def GetStationLatLong(station):
     station_lat = geomTool.getGeographicLatitudeFromArrayCoords(stationVector[1], stationVector[0], 2015)
     return station_lat, station_long
     
-print(GetStationLatLong(3))
+#print(GetStationLatLong(3))
+z_ant = []
+for ch in range(0,16):
+    z_ant.append(geomTool.getStationInfo(3).getAntennaInfo(ch).antLocation[2])
+print(np.array(z_ant).mean())
