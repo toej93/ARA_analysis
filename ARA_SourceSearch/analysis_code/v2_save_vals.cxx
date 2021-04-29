@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 	char *SimDirPath(getenv("SIM_DIR"));
 	if (SimDirPath == NULL){
 		std::cout << "Error! $SIM_DIR is not set!" << endl;
-		return -1;
+		// return -1;
 	}
 	char *PedDirPath(getenv("PED_DIR"));
 	if (PedDirPath == NULL){
@@ -430,7 +430,7 @@ int main(int argc, char **argv)
 			NewCWTree->SetBranchAddress("badFreqs_baseline",&badFreqs_baseline);
 		}
 		else if(!isSimulation){
-			NewCWTree->SetBranchAddress("badFreqs_baseline_TB",&badFreqs_baseline);
+			NewCWTree->SetBranchAddress("badFreqs_baseline",&badFreqs_baseline);
 		}
 
 		// start out with a problem threshold of 1.5 for A2 and most of A3
@@ -451,7 +451,7 @@ int main(int argc, char **argv)
 		//now to loop over events
 		for(int event=start; event<numEntries; event++){
 			if(event%starEvery==0) {
-				// std::cout<<"*";
+				std::cout<<event<<endl;
 			}
 
 			// reset the variables that we are passing *out*
@@ -826,7 +826,7 @@ int main(int argc, char **argv)
 						}
 					else{
 						// sprintf(run_file_name,"%s/RawData/A%d/by_config/c%d/event%d.root",DataDirPath,station,config,runNum);
-						sprintf(run_file_name,"%s/RawData/A%d/by_config/c%d/event%d.root",DataDirPath_Project,station,config,runNum);
+						sprintf(run_file_name,"%s/A%d/by_config/c%d/event%d.root",DataDirPath_Project,station,config,runNum);
 					}
 					TFile *mapFile = TFile::Open(run_file_name,"READ");
 					if(!mapFile){

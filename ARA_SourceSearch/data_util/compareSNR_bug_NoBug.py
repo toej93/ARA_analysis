@@ -42,10 +42,6 @@ def calculateSNR(t, v):
     peak = np.max(abs(v))
     RMS = v[len(v)-60:len(v)].std()#RMS of the last 600 samples of the wf
     return peak/RMS
-    
-if len(sys.argv) < 2:
-    print("Run like...") 
-    exit(0)
 
     
 gSystem.Load('libAraEvent.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.

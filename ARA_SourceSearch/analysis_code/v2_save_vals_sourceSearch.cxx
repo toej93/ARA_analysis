@@ -459,7 +459,7 @@ int main(int argc, char **argv)
 		}
 		
 		int numEntries = inputTree_filter->GetEntries();
-		Long64_t starEvery=numEntries/200;
+		Long64_t starEvery=numEntries/100;
 		if(starEvery==0) starEvery++;
 		cout<<"Num entries is "<<numEntries<<endl;
 		cout<<"Star every is "<<starEvery<<endl;
@@ -510,7 +510,7 @@ int main(int argc, char **argv)
 		//now to loop over events
 		for(int event=start; event<numEntries; event++){
 			if(event%starEvery==0) {
-				// std::cout<<"*";
+				std::cout<<event<<endl;
 			}
 
 			// reset the variables that we are passing *out*
