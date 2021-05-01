@@ -39,7 +39,7 @@ AraAntPol::AraAntPol_t Hpol = AraAntPol::kHorizontal;
 #include "tools_CommandLine.h"
 #include "AraVertex.h"
 #include "AraRecoHandler.h"
-
+#include "sourceSearchTools.h"
 //Including Python imports
 #include </usr/include/python3.6m/Python.h>
 #define PY_SSIZE_T_CLEAN
@@ -263,7 +263,11 @@ int main(int argc, char **argv)
 		int isSurfEvent_vertex[2]; // a vertex-based "surface" event (need to be careful here, this actually containes a minimum num hits cut...)
 		int isVertexable[2];
 		double CenACoordsARA[2];//Coordinates of CenA in ARA's local coordinates {phi, theta};
+		double RA_Dec_fromReco[2];//Coordinates of CenA in ARA's local coordinates {phi, theta};
+		int isInNeutrinoBox;//Does it fall within the window that we have considered?
+		int isCenA_OnSP;//Is CenA overlapping with the SP?
 
+		
 		trees[2]->Branch("cal",&isCal_out);
 		trees[2]->Branch("soft",&isSoft_out);
 		trees[2]->Branch("short",&isShortWave_out);
@@ -279,9 +283,12 @@ int main(int argc, char **argv)
 		trees[2]->Branch("surf_H_vertex",&isSurfEvent_vertex[1]);
 		trees[2]->Branch("isVertexable_V",&isVertexable[0]);
 		trees[2]->Branch("isVertexable_H",&isVertexable[1]);
-		trees[2]->Branch("isVertexable_H",&isVertexable[1]);
 		trees[2]->Branch("CenA_phi",&CenACoordsARA[0]);//These are in global station coords
 		trees[2]->Branch("CenA_theta",&CenACoordsARA[1]);//These are in global station coords
+		trees[2]->Branch("RA",&RA_Dec_fromReco[0]);
+		trees[2]->Branch("Dec",&RA_Dec_fromReco[1]);
+		trees[2]->Branch("neutrinoBox",&isInNeutrinoBox);
+		trees[2]->Branch("CenA_OnSP",&isCenA_OnSP);
 
 
 		int isBadEvent_out;
@@ -459,7 +466,7 @@ int main(int argc, char **argv)
 		}
 		
 		int numEntries = inputTree_filter->GetEntries();
-		Long64_t starEvery=numEntries/100;
+		Long64_t starEvery=numEntries/200;
 		if(starEvery==0) starEvery++;
 		cout<<"Num entries is "<<numEntries<<endl;
 		cout<<"Star every is "<<starEvery<<endl;
@@ -478,9 +485,9 @@ int main(int argc, char **argv)
     // Load the module
     PyObject *pName = PyUnicode_FromString("returnCenA");
     PyObject *pModule = PyImport_Import(pName);
-    PyObject *pFunc, *pFuncUnixTime;
-    PyObject *pValue, *pUnixTime, *pStation;
-    PyObject *pDict, *pArgs;
+    PyObject *pFunc, *pFunRaDec;
+    PyObject *pValue, *pValue_RA_Dec, *pUnixTime, *pStation, *pPhi, *pTheta;
+    PyObject *pDict, *pArgs, *pArgs_RA_Dec;
     // Random use-less check
     // std::cout<< "Works fine till here\n";
 
@@ -491,8 +498,10 @@ int main(int argc, char **argv)
         pDict = PyModule_GetDict(pModule);
 				
         pFunc = PyDict_GetItem(pDict, PyUnicode_FromString("getCenACoords"));
+				pFunRaDec = PyDict_GetItem(pDict, PyUnicode_FromString("convertARAtoRaDec"));
 
-        if(pFunc != NULL){
+
+        if(pFunc != NULL || pFunRaDec != NULL){
             cout << "Imported Python function successfully\n";
         } else {
             std::cout << "Couldn't find func\n";
@@ -505,7 +514,10 @@ int main(int argc, char **argv)
     }
     
     pArgs = PyTuple_New(2); //Declare tuple that will be Python input 
+		pArgs_RA_Dec = PyTuple_New(4); //convertARAtoRaDec Takes 4 args
     PyObject* next;//Dummy variable for looping
+		PyObject* RA_Dec;//Dummy variable for convertARAtoRaDec retur var. of convertARAtoRaDec 
+
 		int start=0;
 		//now to loop over events
 		for(int event=start; event<numEntries; event++){
@@ -529,6 +541,8 @@ int main(int argc, char **argv)
 			OutofBandIssue=false;
 			isRFEvent=false;
 			isPayloadBlast=false;
+			isInNeutrinoBox=false;
+			isCenA_OnSP=false;
 
 			for(int pol=0; pol<2; pol++){
 				isSurfEvent_org_out[pol]=0;
@@ -551,6 +565,9 @@ int main(int argc, char **argv)
 					frac_of_power_notched_H[i]=0.;
 				}
 				isSurfEvent_top[pol]=0;
+				//These are not pol, but we're taking advantage of loop
+				CenACoordsARA[pol]=-10000.;
+				RA_Dec_fromReco[pol]=-10000.;
 			}
 
 			inputTree_filter->GetEvent(event);
@@ -560,30 +577,7 @@ int main(int argc, char **argv)
 			if(eventNumber_out<5 && !isSimulation){ //eep, never check this for simulation, will be huge efficiency hit!
 				isFirstFiveEvent_out=true;
 			}
-			
-			if(!isSimulation){//Only determine the position of CenA if we know the unixTime (for data only)
-				pUnixTime = PyLong_FromLong(unixTime_out);//Arguments, unixtime in this case 
-	      pStation = PyLong_FromLong(2);//Arguments, unixtime in this case 
-				// PyObject* next;
-	      PyTuple_SetItem(pArgs, 0, pStation);
-	      PyTuple_SetItem(pArgs, 1, pUnixTime);
-			
-	      pValue = PyObject_CallObject(pFunc, pArgs);
-	      // next = PyList_GetItem(pValue, 0);
-	      // double result = PyFloat_AsDouble(next);
-	      // printf("Returned val: %0.3f\n", result);
-	      if (PyList_Check(pValue)) {    // okay, it's a list
-			    for (Py_ssize_t i = 0; i < PyList_Size(pValue); ++i) {
-		        next = PyList_GetItem(pValue, i);
-		        CenACoordsARA[i] = PyFloat_AsDouble(next);//Cen A coordinates
-		        // printf("Returned val: %0.3f\n", coords[i]);
-		        // do something with next
-		        // 
-			    }
-				}
-				// Py_DECREF(next);
-			}
-			
+		
 			bool isShort=false;
 			bool isSurf[2];
 			isSurf[0]=false;
@@ -1744,12 +1738,58 @@ int main(int argc, char **argv)
 				} //cal pulser
 				trees[pol]->Fill();
 			}//loop over polarization
+			
+			if(!isSimulation){//Only determine the position of CenA if we know the unixTime (for data only)
+				pUnixTime = PyLong_FromLong(unixTime_out);//Arguments, unixtime in this case 
+				pStation = PyLong_FromLong(station);
+				pTheta = PyFloat_FromDouble(bestTheta_select[2]*TMath::DegToRad());//Arguments, best reco'ed theta (V or H)
+				double phi_global = TransformMapPeakToGlobalFrame(bestPhi_select[2], station); //This function takes takes the recoed azimuth (in local A2 coord system and converts to global ARA system )
+				pPhi = PyFloat_FromDouble(phi_global*TMath::DegToRad());//Arguments, best reco'ed Phi (V or H) 
+				
+				//Args for 1st function
+				PyTuple_SET_ITEM(pArgs, 0, pStation);
+				PyTuple_SET_ITEM(pArgs, 1, pUnixTime);
+				
+				//Args for 2nd function
+				PyTuple_SET_ITEM(pArgs_RA_Dec, 0, pStation);
+				PyTuple_SET_ITEM(pArgs_RA_Dec, 1, pUnixTime);
+				PyTuple_SET_ITEM(pArgs_RA_Dec, 2, pPhi);
+				PyTuple_SET_ITEM(pArgs_RA_Dec, 3, pTheta);
+				
+				pValue = PyObject_CallObject(pFunc, pArgs);//Call getCenACoords function
+				pValue_RA_Dec = PyObject_CallObject(pFunRaDec, pArgs_RA_Dec);//Call getCenACoords function
+
+				// next = PyList_GetItem(pValue, 0);
+				// double result = PyFloat_AsDouble(next);
+				// printf("Returned val: %0.3f\n", result);
+				if (PyList_Check(pValue)) {    // okay, it's a list
+					for (Py_ssize_t i = 0; i < PyList_Size(pValue); ++i) {
+						next = PyList_GetItem(pValue, i);
+						CenACoordsARA[i] = PyFloat_AsDouble(next);//Cen A coordinates
+						// printf("Returned val: %0.3f\n", coords[i]);
+						// do something with next
+						// 
+					}
+				}
+				
+				if (PyList_Check(pValue_RA_Dec)) {    // okay, it's a list
+					for (Py_ssize_t i = 0; i < PyList_Size(pValue_RA_Dec); ++i) {
+						next = PyList_GetItem(pValue_RA_Dec, i);
+						RA_Dec_fromReco[i] = PyFloat_AsDouble(next);//Cen A coordinates
+						// printf("Returned val: %0.3f\n", coords[i]);
+						// do something with next
+						// 
+					}
+				}
+			}//Source stuff
+		
 			trees[2]->Fill();
 			trees[3]->Fill();
+			
 
 		}//loop over events
 		
-		// CPython clean up
+		// CPython clean up (it breaks!!!)
 		// Py_DECREF(pModule);
 		// Py_DECREF(pName);
 		// Py_DECREF(pFunc);
