@@ -81,7 +81,7 @@ def ConvertARAtoAltAz(phi_ARA):
     az = np.mod(-a+np.pi/2,2*np.pi)+np.pi/2
     return az
 
-def convertARAtoRaDec(station, phi_ARA, theta_ARA, unixTime):
+def convertARAtoRaDec(station, unixTime, phi_ARA, theta_ARA):
     """
     Returns the RA and Dec (Astropy's) for an azimuth and zenith given in ARA's coord. system.
 
@@ -89,12 +89,13 @@ def convertARAtoRaDec(station, phi_ARA, theta_ARA, unixTime):
     ----------
     station : int
         ARA station. Works for TB (0), A2(2), A3(3)
-    phi_ARA : float
-        Azimuth in ARA's coord. syst. [radians]
-    theta_ARA : float
-        Zenith in ARA's coord. syst. [radians]
     unixTime : int
         Time Stamp in seconds
+    phi_ARA : float
+        Azimuth in ARA's "global" coord. syst. [radians]
+    theta_ARA : float
+        Zenith in ARA's "global" coord. syst. [radians]
+
     Returns
     -------
     RA, Dec : array_like [radians]
@@ -119,7 +120,7 @@ def convertARAtoRaDec(station, phi_ARA, theta_ARA, unixTime):
     time = Time(unixTime, format="unix") - utcoffset
     
     #First, we need to convert from ARA's coordinate system to AltAz
-    Alt = np.pi/2-theta_ARA
+    Alt = theta_ARA#This is already an altitude
     Az = ConvertARAtoAltAz(phi_ARA)
     
     #Define Astropy AltAz frame
