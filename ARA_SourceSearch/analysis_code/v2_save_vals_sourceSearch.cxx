@@ -266,6 +266,9 @@ int main(int argc, char **argv)
 		double RA_Dec_fromReco[2];//Coordinates of CenA in ARA's local coordinates {phi, theta};
 		int isInNeutrinoBox;//Does it fall within the window that we have considered?
 		int isCenA_OnSP;//Is CenA overlapping with the SP?
+		int isInControlSample;//We're taking the control sample to be a band of deltaTheta=20 width at the Dec of Cen A and unconstrained in RA
+		int isCrossCheck;//We're taking the cross check bad to be a band of deltaTheta = 20 width centered at Dec = 0.
+
 
 		
 		trees[2]->Branch("cal",&isCal_out);
@@ -289,6 +292,8 @@ int main(int argc, char **argv)
 		trees[2]->Branch("Dec",&RA_Dec_fromReco[1]);
 		trees[2]->Branch("neutrinoBox",&isInNeutrinoBox);
 		trees[2]->Branch("CenA_OnSP",&isCenA_OnSP);
+		trees[2]->Branch("isInControlSample",&isInControlSample);
+		trees[2]->Branch("isCrossCheck",&isCrossCheck);
 
 
 		int isBadEvent_out;
@@ -543,7 +548,8 @@ int main(int argc, char **argv)
 			isPayloadBlast=false;
 			isInNeutrinoBox=false;
 			isCenA_OnSP=false;
-
+			isInControlSample=false;
+			isCrossCheck=false;
 			for(int pol=0; pol<2; pol++){
 				isSurfEvent_org_out[pol]=0;
 				isSurfEvent_new_out[pol]=0;
@@ -1738,11 +1744,11 @@ int main(int argc, char **argv)
 				} //cal pulser
 				trees[pol]->Fill();
 			}//loop over polarization
-			
-			if(!isSimulation){//Only determine the position of CenA if we know the unixTime (for data only)
+			//Don't reconstruct events with theta > 34, as they are out of the cherenkov area
+			if( (!isSimulation) && (bestTheta_select[2]<34) ){//Only determine the position of CenA if we know the unixTime (for data only)
 				pUnixTime = PyLong_FromLong(unixTime_out);//Arguments, unixtime in this case 
 				pStation = PyLong_FromLong(station);
-				pTheta = PyFloat_FromDouble(bestTheta_select[2]*TMath::DegToRad());//Arguments, best reco'ed theta (V or H)
+				pTheta = PyFloat_FromDouble((bestTheta_select[2]+56)*TMath::DegToRad());//Arguments, best reco'ed theta (V or H)
 				double phi_global = TransformMapPeakToGlobalFrame(bestPhi_select[2], station); //This function takes takes the recoed azimuth (in local A2 coord system and converts to global ARA system )
 				pPhi = PyFloat_FromDouble(phi_global*TMath::DegToRad());//Arguments, best reco'ed Phi (V or H) 
 				
@@ -1765,7 +1771,7 @@ int main(int argc, char **argv)
 				if (PyList_Check(pValue)) {    // okay, it's a list
 					for (Py_ssize_t i = 0; i < PyList_Size(pValue); ++i) {
 						next = PyList_GetItem(pValue, i);
-						CenACoordsARA[i] = PyFloat_AsDouble(next);//Cen A coordinates
+						CenACoordsARA[i] = PyFloat_AsDouble(next)*TMath::RadToDeg();//Cen A coordinates in ARA global frame (azimuth, zenith) in degrees
 						// printf("Returned val: %0.3f\n", coords[i]);
 						// do something with next
 						// 
@@ -1775,11 +1781,30 @@ int main(int argc, char **argv)
 				if (PyList_Check(pValue_RA_Dec)) {    // okay, it's a list
 					for (Py_ssize_t i = 0; i < PyList_Size(pValue_RA_Dec); ++i) {
 						next = PyList_GetItem(pValue_RA_Dec, i);
-						RA_Dec_fromReco[i] = PyFloat_AsDouble(next);//Cen A coordinates
+						RA_Dec_fromReco[i] = PyFloat_AsDouble(next);//Cen A RA and Dec in degrees
 						// printf("Returned val: %0.3f\n", coords[i]);
 						// do something with next
 						// 
 					}
+				}
+				//Check if event is in neutrino box
+				double deltaRA = abs(CenA_RA-RA_Dec_fromReco[0]);//Deviation from true value
+				double deltaDec = abs(CenA_Dec-RA_Dec_fromReco[1]);
+
+				if( (deltaRA<=20) && (deltaDec<=10) ){//From figure and table at (10,1,10)
+					isInNeutrinoBox=true;
+				}
+				
+				if(deltaDec<=10){
+					isInControlSample=true;// belongs to control sample
+				}
+				
+				if(abs(RA_Dec_fromReco[1])<=10){
+					isCrossCheck=true;
+				}
+				
+				if(abs(CenACoordsARA[0]-SP_A2_Az)<=3){//6deg width from Calpulser angular distribution.
+					
 				}
 			}//Source stuff
 		
