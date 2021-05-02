@@ -434,9 +434,9 @@ int main(int argc, char **argv)
 		char summary_file_name[400];
 		if(isSimulation){
 			if(year_or_energy<25)
-				sprintf(summary_file_name,"%s/CWID/A%d/c%d/E%2.2f/CWID_station_%d_run_%d.root",SimDirPath,station,config,year_or_energy,station,runNum);
+				sprintf(summary_file_name,"%s/A%d/CWID/CWID_station_%d_run_%d.root",SimDirPath,station,config,year_or_energy,station,runNum);
 			else
-				sprintf(summary_file_name,"%s/CWID/A%d/c%d/E%d/CWID_station_%d_run_%d.root",SimDirPath,station,config,int(year_or_energy),station,runNum);
+				sprintf(summary_file_name,"%s/A%d/CWID/CWID_station_%d_run_%d.root",SimDirPath,station,station,runNum);
 		}
 		else{
 			sprintf(summary_file_name,"%s/CWID/A%d/all_runs/CWID_station_%d_run_%d.root",AuxDirPath,station,station,runNum);
@@ -946,10 +946,10 @@ int main(int argc, char **argv)
 					char run_file_name[400];
 					if(isSimulation)
 						if(year_or_energy<25)
-							sprintf(run_file_name,"%s/RawSim/A%d/c%d/E%2.1f/AraOut.A%d_c%d_E%2.1f.txt.run%d.root",SimDirPath,station,config,year_or_energy,station,config,year_or_energy,runNum);
+							sprintf(run_file_name,"%s/A%d/RawSim/AraOut.A%d_c%d_E%2.1f.txt.run%d.root",SimDirPath,station,config,year_or_energy,station,config,year_or_energy,runNum);
 						else{
 							// should just be Kotera
-							sprintf(run_file_name,"%s/RawSim/A%d/c%d/E%d/AraOut.A%d_c%d_E%d.txt.run%d.root",SimDirPath,station,config,int(year_or_energy),station,config,int(year_or_energy),runNum);
+							sprintf(run_file_name,"%s/A%d/RawSim/AraOut.default_fixSrc_A%d_c1_Flux.txt.run%d.root",SimDirPath,station,station,runNum);
 						}
 					else{
 						// sprintf(run_file_name,"%s/RawData/A%d/by_config/c%d/event%d.root",DataDirPath,station,config,runNum);
@@ -1307,11 +1307,8 @@ int main(int argc, char **argv)
 							sprintf(run_summary_name,"%s/RunSummary/A%d/by_config/c%d/run_summary_station_%d_run_%d.root",AuxDirPath,station,config,station,runNum);
 						}
 						else {
-							if(station==2){
-								sprintf(run_summary_name,"/fs/scratch/PAS0654/ara/sim/RunSummary/run_summary_station_2_run_20.root");
-							}
-							else if(station==3){
-								sprintf(run_summary_name,"/fs/scratch/PAS0654/ara/sim/RunSummary/run_summary_station_3_run_30.root");
+							if( (station==2) || (station==3) ){
+								sprintf(run_summary_name,"%s/A%d/RunSummary/run_summary_station_%d_run_20.root",SimDirPath, station, station);
 							}
 						}
 
@@ -1807,6 +1804,11 @@ int main(int argc, char **argv)
 					
 				}
 			}//Source stuff
+			
+			if(isSimulation){//Simulated events should pass the cut
+				isInNeutrinoBox=true;
+				isInControlSample=true;
+			}
 		
 			trees[2]->Fill();
 			trees[3]->Fill();

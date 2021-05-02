@@ -20,8 +20,10 @@ def getCenACoords(station, unixtime):
         Time Stamp in seconds
     Returns
     -------
-    Azimuth : array_like
+    CenAAz : float
         Azimuth [radians]
+    CenAZen : float
+        Altitude [radians]
     """    
     stationLon = 0
     stationHeight = 0
@@ -42,8 +44,9 @@ def getCenACoords(station, unixtime):
     
     frametimeRange = AltAz(obstime=time, location=south_pole)
     CenAaltaz = CenA.transform_to(frametimeRange)
-    CenAAz = convertToARACoord(float(np.degrees(CenAaltaz.az).rad))
-    CenAZen = float(np.degrees(CenAaltaz.zen).rad)
+    CenAAz = convertToARACoord(float(np.degrees(CenAaltaz.az).rad))#in radians
+    CenAZen = float(np.degrees(CenAaltaz.alt).rad)#in radians
+    
     # print(coord)
     return [CenAAz,CenAZen]#Return a list
 
@@ -94,7 +97,7 @@ def convertARAtoRaDec(station, unixTime, phi_ARA, theta_ARA):
     phi_ARA : float
         Azimuth in ARA's "global" coord. syst. [radians]
     theta_ARA : float
-        Zenith in ARA's "global" coord. syst. [radians]
+        altitude in ARA's "global" coord. syst. [radians]
 
     Returns
     -------
