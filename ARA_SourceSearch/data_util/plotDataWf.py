@@ -85,7 +85,7 @@ for evNum in range(11914,totalEvents):#loop over events
     # if(rawEvent.isCalpulserEvent()==False): #if not a cal pulser
     #     continue
         
-    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib14to20)#get useful event
+    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
     if(qualCut.isGoodEvent(usefulEvent)==False):
         continue
     # tWf1, vWf1 = convertWfToArray(0, usefulEvent)
@@ -130,5 +130,40 @@ for evNum in range(11914,totalEvents):#loop over events
     plt.suptitle("Run %s, event %i [old calib]"%(run, evNum))
     plt.tight_layout(rect=[0.03, 0.03, 1, 0.95])
     plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/ARA_analysis/ARA_SourceSearch/results/wforms/wf_ev%i.png"%rawEvent.eventNumber)
+    
+    ###Plot spectra
+    fig, axs = plt.subplots(4, 4, figsize = (12,8))
+    axs = axs.ravel()
+    for ch in range(0,16):
+        freq = []
+        fftVals = []
+
+        for kk in range(0,fft[ch].GetN()):
+          freq.append(fft[ch].GetX()[kk])
+          fftVals.append(fft[ch].GetY()[kk])
+        fftVals = np.array(fftVals)
+        freq = np.array(freq)
+
+        axs[ch].plot(freq,abs(fftVals),linewidth=0.5, label = "Ch %i"%(ch))
+
+        axs[ch].legend()
+        axs[ch].grid()
+        axs[ch].set_yscale("log")
+
+        plt.grid(which="both")
+        axs[ch].set_ylim(1,3E4)
+        # 
+        # if(ch<8):
+        #     axs[ch].set_ylim(-100,100)
+        # else:
+        #     axs[ch].set_ylim(-100,100)
+    run = 2950
+
+    fig.text(0.5, 0.03, 'Freq. [MHz]', ha='center', va='center', fontsize=20)
+    fig.text(0.03, 0.5, 'Amplitude [mV/Hz]', ha='center', va='center', rotation='vertical', fontsize=20)
+    plt.suptitle("Run %s, event %i"%(run, evNum))
+    plt.tight_layout(rect=[0.03, 0.03, 1, 0.95])
+    plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/ARA_analysis/ARA_SourceSearch/results/wforms/spectra_ev%i.png"%rawEvent.eventNumber)
+    
     plt.close('all')
     break
