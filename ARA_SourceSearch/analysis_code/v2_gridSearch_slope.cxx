@@ -35,10 +35,6 @@
 
 using namespace std;
 
-#include <mutex>//Multithreads writing simultaneously to file handled by mutex.
-#define synchronized(m) \
-    for(std::unique_lock<std::recursive_mutex> lk(m); lk; lk.unlock())
-
 int main(int argc, char **argv)
 {
 	
@@ -188,13 +184,28 @@ int main(int argc, char **argv)
 			int unixTime;
 			int isFirstFiveEvent;
 			int hasBadSpareChanIssue;
+      bool isSpikey;
+  		bool isCliff;
+  		bool OutofBandIssue;
+  		bool isBadEvent_v2;
+  		bool isRFEvent;
+  		bool isPayloadBlast;
+  		bool badRun;
+  		int isSurfEvent_vertex[2]; // a vertex-based "surface" event (need to be careful here, this actually containes a minimum num hits cut...)
+  		int isVertexable[2];
+  		double CenACoordsARA[2];//Coordinates of CenA in ARA's local coordinates {phi, theta};
+  		double RA_Dec_fromReco[2];//Coordinates of CenA in ARA's local coordinates {phi, theta};
+  		int isInNeutrinoBox;//Does it fall within the window that we have considered?
+  		int isCenA_OnSP;//Is CenA overlapping with the SP?
+  		int isInControlSample;
+      int isCrossCheck;
 
 			trees[2]->SetBranchAddress("cal",&isCal);
 			trees[2]->SetBranchAddress("soft",&isSoft);
 			trees[2]->SetBranchAddress("short",&isShort);
 			trees[2]->SetBranchAddress("CW",&isCW);
 			trees[2]->SetBranchAddress("box",&isNewBox);
-			trees[2]->SetBranchAddress("surf_V_new",&isSurf[0]);
+      trees[2]->SetBranchAddress("surf_V_new",&isSurf[0]);
 			trees[2]->SetBranchAddress("surf_H_new",&isSurf[1]);
 			trees[2]->SetBranchAddress("bad",&isBadEvent);
 			trees[2]->SetBranchAddress("weight",&weight);
@@ -203,7 +214,16 @@ int main(int argc, char **argv)
 			trees[2]->SetBranchAddress("unixTime",&unixTime);
 			trees[2]->SetBranchAddress("isFirstFiveEvent",&isFirstFiveEvent);
 			trees[2]->SetBranchAddress("hasBadSpareChanIssue",&hasBadSpareChanIssue);
-
+      trees[2]->SetBranchAddress("isSpikey",&isSpikey);
+  		trees[2]->SetBranchAddress("isCliff",&isCliff);
+  		trees[2]->SetBranchAddress("OutofBandIssue",&OutofBandIssue);
+  		trees[2]->SetBranchAddress("isRFEvent",&isRFEvent);
+  		trees[2]->SetBranchAddress("isPayloadBlast2",&isPayloadBlast);
+  		trees[2]->SetBranchAddress("badRun",&badRun);
+      trees[2]->SetBranchAddress("neutrinoBox",&isInNeutrinoBox);
+      trees[2]->SetBranchAddress("CenA_OnSP",&isCenA_OnSP);
+      trees[2]->SetBranchAddress("isInControlSample",&isInControlSample);
+      trees[2]->SetBranchAddress("isCrossCheck",&isCrossCheck);
 			// double corr_val[2];
 			// double snr_val[2];
 			// int WFRMS[2];
@@ -239,7 +259,7 @@ int main(int argc, char **argv)
 				trees[1]->GetEvent(event);
 				trees[2]->GetEvent(event);
 
-				if( (isSoft || isBadEvent || hasBadSpareChanIssue || isFirstFiveEvent || isShort || isCal)){
+				if( (isSoft || isBadEvent || hasBadSpareChanIssue || isFirstFiveEvent || isShort || isCal || badRun || isCW || isSpikey || isCliff || OutofBandIssue)){
 					continue;
 				}
 					
@@ -250,7 +270,9 @@ int main(int argc, char **argv)
 				if(runNum==3663 && event==6){
 					continue;
 				}
-		
+		    if(!isInControlSample) continue;
+        
+        if(isCenA_OnSP && isInNeutrinoBox) continue;
 				for(int pol=0; pol<2; pol++){
 					if(!WFRMS_org[pol] && !isNewBox && !isSurf[0] && !isSurf[1] && !isSurfEvent_top[pol]){
 						bool failsCWPowerCut=false;
@@ -560,8 +582,8 @@ int main(int argc, char **argv)
 		TChain simHTree("HTree");
 		TChain simAllTree("AllTree");
 		char the_sims[500];
-		// sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim_SourceSearch/A%d/ValsForCuts/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_0.0_0.0_run_*.root",station);
-		sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim/ValsForCuts_UsedInA2FinalOpt/A2/c1/E224/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_*.root",station);//Diffuse sims for X-checking
+		sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim_SourceSearch/A%d/ValsForCuts/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_0.0_0.0_run_*.root",station);
+		// sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim/ValsForCuts_UsedInA2FinalOpt/A2/c1/E224/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_*.root",station);//Diffuse sims for X-checking
 		simVTree.Add(the_sims);
 		simHTree.Add(the_sims);
 		simAllTree.Add(the_sims);

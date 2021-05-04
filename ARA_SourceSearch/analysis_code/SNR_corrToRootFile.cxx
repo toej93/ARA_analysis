@@ -108,6 +108,26 @@ int main(int argc, char **argv)
 		h2SNRvsCorr[0]=new TH2D("","V Data",100,0,max,300,0,30);
 		h2SNRvsCorr[1]=new TH2D("","H Data",100,0,max,300,0,30);
 
+		//store values for plotting with Python
+		double corr_val_out[2];
+		double snr_val_out[2];
+		double weight;
+
+		char stroreTitle[300];
+		sprintf(stroreTitle, "%s/storeValues_A%i_c%i.root",plotPath,station,config);
+		TFile *storeValues = new TFile(stroreTitle,"RECREATE");
+    TTree *OutputTree[2];
+
+    OutputTree[0] = new TTree("OutputTreeV","OutputTreeV");
+		OutputTree[0]->Branch("corr_val_outV",&corr_val_out[0]);
+		OutputTree[0]->Branch("snr_val_outV",&snr_val_out[0]);
+		OutputTree[0]->Branch("weight",&weight);
+
+		OutputTree[1] = new TTree("OutputTreeH","OutputTreeH");
+		OutputTree[1]->Branch("corr_val_outH",&corr_val_out[1]);
+		OutputTree[1]->Branch("snr_val_outH",&snr_val_out[1]);
+		OutputTree[1]->Branch("weight",&weight);
+		
 		// first, we go through the events once to construct the rotated cut
 		for(int file_num=6; file_num<argc; file_num++){
 
@@ -184,7 +204,6 @@ int main(int argc, char **argv)
 			int isNewBox;
 			int isSurf[2];
 			int isBadEvent;
-			double weight;
 			int isSurfEvent_top[2];
 			int unixTime;
 			int isFirstFiveEvent;
@@ -278,7 +297,7 @@ int main(int argc, char **argv)
 				trees[0]->GetEvent(event);
 				trees[1]->GetEvent(event);
 				trees[2]->GetEvent(event);
-				if(runNum==2950 && event==11914) continue;
+				if(runNum==2950 && event==11914) continue;//straggler, will hav eto deal with ot later
 				// old glitch detection, shared with A2
 				if(isSoft || isBadEvent || hasBadSpareChanIssue || hasBadSpareChanIssue2 || isFirstFiveEvent || isShort || isCal || isThisABadRun || badRun){
 					continue;
@@ -310,7 +329,11 @@ int main(int argc, char **argv)
 							}
 						} //refiltered?
 						if(!failsCWPowerCut){
+							corr_val_out[pol]=corr_val[pol];
+							snr_val_out[pol]=snr_val[pol];
 							h2SNRvsCorr[pol]->Fill(corr_val[pol],snr_val[pol],weight);
+              OutputTree[pol]->Fill();
+
 							if(corr_val[0]>0.0068 && pol==0){
 								printf(RED"Run %d, Event %d \n"RESET,runNum, event);
 							}
@@ -336,7 +359,12 @@ int main(int argc, char **argv)
 			inputFile->Close();
 			delete inputFile;
 		} // loop over files
+    storeValues->Write();
+    storeValues->Close();
+    delete storeValues;
 
+
+    return 0;
 		// okay, now save out the 2D histogram
 		TCanvas *cSNRvsCorr = new TCanvas("","",2.1*850, 850);
 		cSNRvsCorr->Divide(2,1);
@@ -350,7 +378,7 @@ int main(int argc, char **argv)
 		char title[300];
 		sprintf(title, "%s/optimize/A%d_config%d_%dEvents_SNRvsCorr.png",plotPath,station,config,numTotal);
 		// sprintf(title, "%s/optimize/%d.%d.%d_A%d_config%d_%dEvents_SNRvsCorr.png",plotPath,year_now, month_now, day_now,station,config,numTotal);
-		cSNRvsCorr->SaveAs(title);
+		// cSNRvsCorr->SaveAs(title);
 		delete cSNRvsCorr;
 
 		// for(int bin=0; bin<numSNRbins; bin++){
@@ -452,7 +480,7 @@ int main(int argc, char **argv)
 		myTitle<<"Expected from Central Value is "<<back_estimate_central;
 		toyBackgrounds->SetTitle(myTitle.str().c_str());
 		// gPad->SetLogy();
-		ctoyBack->SaveAs("toy_background_distro.png");
+		// ctoyBack->SaveAs("toy_background_distro.png");
 
 		// return 0;
 
@@ -1296,7 +1324,7 @@ int main(int argc, char **argv)
 		sprintf(efficiency_title,
 			"%s/optimize/A%d_config%d_E%2.1f_Pol%d_Efficiency.png",plotPath,station,config,224.,pol_select);
 				 // "%s/optimize/%d.%d.%d_A%d_config%d_E%2.1f_Efficiency.png",plotPath,year_now, month_now, day_now,station,config,224.);
-		c3->SaveAs(efficiency_title);
+		// c3->SaveAs(efficiency_title);
 		delete c3;
 
 		/*
@@ -1385,6 +1413,6 @@ int main(int argc, char **argv)
 				leg->Draw();
 		char save_title[400];
 		sprintf(save_title,"%s/optimize/A%d_config%d_Pol%d_Optimization_RCutSlope%.4f.png",plotPath,station,config,pol_select,slope);
-		cRcut->SaveAs(save_title);
+		// cRcut->SaveAs(save_title);
 	}
 }
