@@ -7,10 +7,6 @@ if len(sys.argv) < 2:
 config = int(sys.argv[1])
 print('Running config: %i'%config)
 
-# sys.path.insert(0,"/users/PCON0003/cond0068/.local/lib/python3.7/")
-sys.path.append("/users/PAS0654/osu8354/ARA_cvmfs/root_build/lib/") # go to parent dir
-sys.path.append("/users/PCON0003/cond0068/.local/lib/python3.7/site-packages/")
-# sys.path.append("/users/PCON0003/cond0068/pyrex_sims/fromBen/thesis_work/pyrex-custom/analysis/custom/analysis/")
 import ROOT
 import math
 import numpy as np
@@ -34,13 +30,22 @@ HTree = TChain("HTree")
 AllTree = TChain("AllTree")
 OutputTree = TChain("OutputTree")
 for line in file_list:
-    VTree.AddFile(line)
-    HTree.AddFile(line)
-    AllTree.AddFile(line) 
-    OutputTree.AddFile(line)
+    try:
+        VTree.AddFile(line)
+        HTree.AddFile(line)
+        AllTree.AddFile(line) 
+        OutputTree.AddFile(line)
+    except:
+        continue
     
 phi = []
 theta = []
+unixTime = []
+neutrinoBox = []
+controlSample = []
+crossCheck = []
+RA = []
+Dec = []
 
 numEntries = AllTree.GetEntries()
 for event in range(numEntries):
@@ -48,16 +53,19 @@ for event in range(numEntries):
     HTree.GetEntry(event)
     AllTree.GetEntry(event)
     OutputTree.GetEntry(event)
-    if(AllTree.cal or AllTree.soft or AllTree.CW or AllTree.box or AllTree.bad or AllTree.short or AllTree.isFirstFiveEvent or AllTree.hasBadSpareChanIssue or AllTree.surf_top_V or AllTree.surf_top_H or VTree.wfrms_val_V_new or HTree.wfrms_val_H_new or AllTree.surf_V_vertex or AllTree.surf_H_vertex or AllTree.bad_updated or AllTree.isSpikey or AllTree.badRun or VTree.wfrms_val_V_new or HTree.wfrms_val_H_new or AllTree.surf_H_new or AllTree.surf_V_new or AllTree.hasBadSpareChanIssue2):
+    if(AllTree.cal or AllTree.soft or AllTree.CW or AllTree.box or AllTree.bad or AllTree.short or AllTree.isFirstFiveEvent or AllTree.hasBadSpareChanIssue or AllTree.surf_top_V or AllTree.surf_top_H or VTree.wfrms_val_V_new or HTree.wfrms_val_H_new or AllTree.surf_V_vertex or AllTree.surf_H_vertex or AllTree.bad_updated or AllTree.isSpikey or AllTree.badRun or VTree.wfrms_val_V_new or HTree.wfrms_val_H_new or AllTree.surf_H_new or AllTree.surf_V_new or AllTree.hasBadSpareChanIssue2 or AllTree.CenA_OnSP):
         continue
 #     print(VTree.wfrms_val_V_new)
+
     theta.append(VTree.theta_300_V_new)
     phi.append(VTree.phi_300_V_new)
-    
+    unixTime.append(AllTree.unixTime)
+    RA.append(AllTree.RA)
+    Dec.append(AllTree.Dec)
+    neutrinoBox.append(AllTree.neutrinoBox)
+    controlSample.append(AllTree.isInControlSample)
+    crossCheck.append(AllTree.isCrossCheck)
 
-df = pd.DataFrame({"theta":np.array(theta),"phi": np.array(phi)})
+df = pd.DataFrame({"theta":np.array(theta),"phi": np.array(phi),"unixTime": np.array(unixTime), "RA":np.array(RA), "Dec":np.array(Dec), "neutrinoBox":np.array(neutrinoBox), "controlSample":np.array(controlSample), "crossCheck":np.array(crossCheck) })
 # df.to_pickle("./debug.pkl")
 df.to_pickle("./bkgDistribution_%i.pkl"%config)
-
-    
-    

@@ -4,7 +4,7 @@
 #SBATCH --nodes=1 --ntasks-per-node=5
 #SBATCH --account=PAS0654
 #SBATCH --mail-type=END,FAIL
-#SBATCH --time=01:30:00
+#SBATCH --time=03:30:00
 #SBATCH --output=run_bkg.log   # Standard output and error log
 eval 'source /users/PCON0003/cond0068/.bash_profile_pitzer_cvmfs'
 
