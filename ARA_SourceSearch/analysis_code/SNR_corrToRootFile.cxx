@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 		double weight;
 
 		char stroreTitle[300];
-		sprintf(stroreTitle, "%s/storeValues_A%i_c%i.root",plotPath,station,config);
+		sprintf(stroreTitle, "%s/storeValues_A%i_c%i_debug.root",plotPath,station,config);
 		TFile *storeValues = new TFile(stroreTitle,"RECREATE");
     TTree *OutputTree[2];
 
@@ -364,7 +364,7 @@ int main(int argc, char **argv)
     delete storeValues;
 
 
-    return 0;
+    // return 0;
 		// okay, now save out the 2D histogram
 		TCanvas *cSNRvsCorr = new TCanvas("","",2.1*850, 850);
 		cSNRvsCorr->Divide(2,1);
@@ -629,19 +629,53 @@ int main(int argc, char **argv)
 		TChain simVTree("VTree");
 		TChain simHTree("HTree");
 		TChain simAllTree("AllTree");
+    TChain simOutTree("OutputTree");
+
 		char the_sims[500];
 		sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim_SourceSearch/A%d/ValsForCuts/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_0.0_0.0_run_*.root",station);
 		// sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim/ValsForCuts_UsedInA2FinalOpt/A2/c2/E224/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_*.root",station);//Diffuse sims for X-checking
 		simVTree.Add(the_sims);
 		simHTree.Add(the_sims);
 		simAllTree.Add(the_sims);
+    simOutTree.Add(the_sims);
+
 		int numSimEvents = simVTree.GetEntries();
 		printf("Num of sim entries is %d \n", numSimEvents);
 
 		TH2D *h2SNRvsCorr_sim[2]; // SNR on Y axis, Corr on X axis, like in the TB
 		h2SNRvsCorr_sim[0]=new TH2D("","V Sim",100,0,max,30,0,30);
 		h2SNRvsCorr_sim[1]=new TH2D("","H Sim",100,0,max,30,0,30);
+    
+    double corr_val_out_sim[2];
+    double snr_val_out_sim[2];
+    double weight_out;
+    double energy_out;
+    bool pass0;
+    int RecoTheta_out[2];
 
+    int energy;
+
+    char stroreTitle_sim[300];
+    sprintf(stroreTitle_sim, "%s/storeValues_A%i_c%i_sim.root",plotPath,station,config);
+    TFile *storeValues_sim = new TFile(stroreTitle_sim,"RECREATE");
+    TTree *OutputTree_sim[2];
+
+    OutputTree_sim[0] = new TTree("OutputTreeV","OutputTreeV");
+    OutputTree_sim[0]->Branch("corr_val_outV",&corr_val_out_sim[0]);
+    OutputTree_sim[0]->Branch("snr_val_outV",&snr_val_out_sim[0]);
+    OutputTree_sim[0]->Branch("weight",&weight_out);
+    OutputTree_sim[0]->Branch("energy_out",&energy_out);
+    OutputTree_sim[0]->Branch("pass0",&pass0);
+    OutputTree_sim[0]->Branch("RecoTheta_outV",&RecoTheta_out[0]);
+
+
+    OutputTree_sim[1] = new TTree("OutputTreeH","OutputTreeH");
+    OutputTree_sim[1]->Branch("corr_val_outH",&corr_val_out_sim[1]);
+    OutputTree_sim[1]->Branch("snr_val_outH",&snr_val_out_sim[1]);
+    OutputTree_sim[1]->Branch("weight",&weight_out);
+    OutputTree_sim[1]->Branch("RecoTheta_outH",&RecoTheta_out[1]);
+
+    
 		// and now get values out
 		{
 			double corr_val[2];
@@ -650,15 +684,20 @@ int main(int argc, char **argv)
 			double frac_of_power_notched_V[8];
 			double frac_of_power_notched_H[8];
 			int Refilt[2];
+      int RecoTheta[2];
 
 			simVTree.SetBranchAddress("corr_val_V_new",&corr_val[0]);
 			simVTree.SetBranchAddress("snr_val_V_new",&snr_val[0]);
 			simVTree.SetBranchAddress("wfrms_val_V_new",&WFRMS[0]);
 			simVTree.SetBranchAddress("Refilt_V",&Refilt[0]);
+      simVTree.SetBranchAddress("theta_300_V_new",&RecoTheta[0]);
+
 			simHTree.SetBranchAddress("corr_val_H_new",&corr_val[1]);
 			simHTree.SetBranchAddress("snr_val_H_new",&snr_val[1]);
 			simHTree.SetBranchAddress("wfrms_val_H_new",&WFRMS[1]);
 			simHTree.SetBranchAddress("Refilt_H",&Refilt[1]);
+      simHTree.SetBranchAddress("theta_300_H_new",&RecoTheta[1]);
+
 
 			int isCal;
 			int isSoft;
@@ -687,6 +726,7 @@ int main(int argc, char **argv)
 			simAllTree.SetBranchAddress("unixTime",&unixTime);
 			simAllTree.SetBranchAddress("isFirstFiveEvent",&isFirstFiveEvent);
 			simAllTree.SetBranchAddress("hasBadSpareChanIssue",&hasBadSpareChanIssue);
+      simOutTree.SetBranchAddress("energy",&energy);
 
 			stringstream ss;
 			for(int i=0; i<8; i++){
@@ -705,9 +745,17 @@ int main(int argc, char **argv)
 				simVTree.GetEvent(event);
 				simHTree.GetEvent(event);
 				simAllTree.GetEvent(event);
+        simOutTree.GetEvent(event);
 				for(int pol=0; pol<2; pol++){
 
 					h2SNRvsCorr_sim[pol]->Fill(corr_val[pol], snr_val[pol],weight);
+          snr_val_out_sim[pol] = snr_val[pol];
+          corr_val_out_sim[pol] = corr_val[pol];
+          weight_out = weight;
+          energy_out = energy;
+          RecoTheta_out[pol]=RecoTheta[pol];
+          pass0=false;
+
 					if(pol!=pol_select){
 						continue;
 					}
@@ -730,8 +778,9 @@ int main(int argc, char **argv)
 
 					if(!WFRMS[pol] && !failsCWPowerCut){
 						if(!isNewBox){
-							if(!isSurf[0] && !isSurf[1] && !isSurfEvent_top[pol]){
+							if(/*!isSurf[0] && !isSurf[1] &&*/ !isSurfEvent_top[pol]){//Removing this so I don't have to re-run the save vals code
 								// loop over every bin (intercept value), and figure out if this event would have passed or not
+                pass0=true;
 								for(int bin=startBin; bin<numSNRbins; bin++){
 									double failsRcut=false;
 									double thisIntercept = intercept[bin];
@@ -743,8 +792,13 @@ int main(int argc, char **argv)
 							}
 						}
 					}
+          OutputTree_sim[pol]->Fill();
 				} //loop over polarizations
 			}
+      storeValues_sim->Write();
+      storeValues_sim->Close();
+      delete storeValues_sim;
+
 		}
 		double SoverSup[numSNRbins];
 		for(int bin=0; bin<numSNRbins; bin++){

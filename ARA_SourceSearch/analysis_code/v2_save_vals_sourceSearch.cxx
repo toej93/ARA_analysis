@@ -1806,7 +1806,13 @@ int main(int argc, char **argv)
 			}//Source stuff
 			
 			if(isSimulation){//Simulated events should pass the cut
-				isInNeutrinoBox=true;
+				int phi_Nu_true = -90;//IN interferometric map coords
+				int theta_Nu_true = -8; //Theta Cen A +Cherenkov angle
+				int deltaPhiNu = abs(phi_Nu_true-bestPhi_select[2]);
+				int deltaThetaNu = abs(theta_Nu_true-bestTheta_select[2]);
+				if((deltaPhiNu<=20) && (deltaThetaNu<=10)){
+					isInNeutrinoBox=true;//If inside the box in local station coordinates.
+				}
 				isInControlSample=true;
 			}
 		
