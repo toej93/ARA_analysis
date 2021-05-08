@@ -644,7 +644,7 @@ int main(int argc, char **argv)
 
 
 			for(int pol=0; pol<2; pol++){
-				if(bestTheta[pol] >= 37){
+				if(bestTheta[pol] >= 17){
 					// printf("Pol %d has theta %d \n",pol,bestTheta[pol]);
 					isSurf[pol]=true;
 				}
@@ -1108,7 +1108,7 @@ int main(int argc, char **argv)
 
 						// cout<<"                    New theta peak in map is "<<PeakTheta_Recompute_300m_top<<endl;
 
-						if(PeakTheta_Recompute_300m_top>=37){
+						if(PeakTheta_Recompute_300m_top>=17){
 							// cout<<"                         Ah-ha! This is a top surface event!"<<endl;
 							isSurfEvent_top[pol]=1;
 						}
@@ -1696,11 +1696,11 @@ int main(int argc, char **argv)
 
 
 						// re-check top face reco
-						if(PeakTheta_Recompute_300m_top>=37)
+						if(PeakTheta_Recompute_300m_top>=17)
 							isSurfEvent_top[pol]=1;
 
 						// re-check surface cut
-						if(PeakTheta_Recompute_300m>=37){
+						if(PeakTheta_Recompute_300m>=17){
 							// isSurfEvent[pol]=1;
 							isSurfEvent_new_out[pol]=1;
 						}
@@ -1788,15 +1788,19 @@ int main(int argc, char **argv)
 				double deltaRA = abs(CenA_RA-RA_Dec_fromReco[0]);//Deviation from true value
 				double deltaDec = abs(CenA_Dec-RA_Dec_fromReco[1]);
 
-				if( (deltaRA<=20) && (deltaDec<=10) ){//From figure and table at (10,1,10)
+				// if( (deltaRA<=20) && (deltaDec<=10) ){//From figure and table at (10,1,10), 68% CL.
+				if( (deltaRA<=33) && (deltaDec<=13) ){//90% CL
 					isInNeutrinoBox=true;
 				}
 				
-				if(deltaDec<=10){
+				// if(deltaDec<=10){//68% CL
+				if(deltaDec<=13){//90% CL
 					isInControlSample=true;// belongs to control sample
 				}
 				
-				if(abs(RA_Dec_fromReco[1])<=10){
+				// if(abs(RA_Dec_fromReco[1])<=10){
+				if(abs(RA_Dec_fromReco[1])<=10){//90% CL
+
 					isCrossCheck=true;
 				}
 				
@@ -1810,7 +1814,8 @@ int main(int argc, char **argv)
 				int theta_Nu_true = -8; //Theta Cen A +Cherenkov angle
 				int deltaPhiNu = abs(phi_Nu_true-bestPhi_select[2]);
 				int deltaThetaNu = abs(theta_Nu_true-bestTheta_select[2]);
-				if((deltaPhiNu<=20) && (deltaThetaNu<=10)){
+				// if((deltaPhiNu<=20) && (deltaThetaNu<=10)){// 68% CL
+				if((deltaPhiNu<=33) && (deltaThetaNu<=13)){//90% CL
 					isInNeutrinoBox=true;//If inside the box in local station coordinates.
 				}
 				isInControlSample=true;

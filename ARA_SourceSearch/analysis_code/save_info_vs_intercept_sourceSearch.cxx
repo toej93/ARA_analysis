@@ -391,7 +391,7 @@ int Optimize(int station, int config, int pol_select, double slope, int numBins_
 				if(pol!=pol_select){
 					continue;
 				}
-				if(!WFRMS[pol] && !isNewBox && !isSurf[0] && !isSurf[1] && !isSurfEvent_top[pol]){
+				if(!WFRMS[pol] && !isNewBox && isSurf[pol] && !isSurfEvent_top[pol]){
 					bool failsCWPowerCut=false;
 					if(Refilt[pol] && !WFRMS[pol]){
 						vector<double> frac;
@@ -652,7 +652,7 @@ int Optimize(int station, int config, int pol_select, double slope, int numBins_
 	char the_sims[500];
 	// sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim/ValsForCuts/A%d/c%d/E%d/*11*.root",station,config,224);
 	// sprintf(the_sims,"/fs/scratch/PAS0654/ara/test_scratch_ValsForCuts/A%d/c%d/E%d/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals*run_*.root",station,config,224);
-	sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim_SourceSearch/A%d/ValsForCuts/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_0.0_0.0_run_*.root",station);
+	sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim_SourceSearch/A%d/ValsForCuts/KachelriessFlux/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_0.0_0.0_run_*.root",station);
 	simVTree.Add(the_sims);
 	simHTree.Add(the_sims);
 	simAllTree.Add(the_sims);
@@ -789,7 +789,7 @@ int Optimize(int station, int config, int pol_select, double slope, int numBins_
 
 				if(!WFRMS[pol] && !failsCWPowerCut){
 					if(!isNewBox){
-						if(!isSurf[0] && !isSurf[1] && !isSurfEvent_top[pol]){
+						if(isSurf[pol] && !isSurfEvent_top[pol]){
 							// loop over every bin (intercept value), and figure out if this event would have passed or not
 
 							for(int bin=0; bin<numBins_in; bin++){
