@@ -391,7 +391,7 @@ int Optimize(int station, int config, int pol_select, double slope, int numBins_
 				if(pol!=pol_select){
 					continue;
 				}
-				if(!WFRMS[pol] && !isNewBox && isSurf[pol] && !isSurfEvent_top[pol]){
+				if(!WFRMS[pol] && !isNewBox && !isSurf[pol] && !isSurfEvent_top[pol]){
 					bool failsCWPowerCut=false;
 					if(Refilt[pol] && !WFRMS[pol]){
 						vector<double> frac;
@@ -707,6 +707,8 @@ int Optimize(int station, int config, int pol_select, double slope, int numBins_
 		bool bad_v2;
 		bool isRFEvent;
 		bool isPayloadBlast2;
+		bool isInNeutrinoBox;
+
 		// int box300;
 		
 		simAllTree.SetBranchAddress("cal",&isCal);
@@ -730,7 +732,7 @@ int Optimize(int station, int config, int pol_select, double slope, int numBins_
 		simAllTree.SetBranchAddress("bad_updated",&bad_v2);
 		simAllTree.SetBranchAddress("isRFEvent",&isRFEvent);
 		simAllTree.SetBranchAddress("isPayloadBlast2",&isPayloadBlast2);
-		// simAllTree.SetBranchAddress("box300",&box300);
+		simAllTree.SetBranchAddress("neutrinoBox",&isInNeutrinoBox);
 
 		stringstream ss;
 		for(int i=0; i<8; i++){
@@ -789,7 +791,7 @@ int Optimize(int station, int config, int pol_select, double slope, int numBins_
 
 				if(!WFRMS[pol] && !failsCWPowerCut){
 					if(!isNewBox){
-						if(isSurf[pol] && !isSurfEvent_top[pol]){
+						if(!isSurf[pol] && !isSurfEvent_top[pol] && isInNeutrinoBox){
 							// loop over every bin (intercept value), and figure out if this event would have passed or not
 
 							for(int bin=0; bin<numBins_in; bin++){

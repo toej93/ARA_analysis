@@ -433,10 +433,10 @@ int main(int argc, char **argv)
 	
 		char summary_file_name[400];
 		if(isSimulation){
-			if(year_or_energy<25)
-				sprintf(summary_file_name,"%s/A%d/CWID/CWID_station_%d_run_%d.root",SimDirPath,station,config,year_or_energy,station,runNum);
+			if(year_or_energy>500)
+				sprintf(summary_file_name,"%s/A%d/CWID/E%i/CWID_station_%d_run_%d.root",SimDirPath,station,year_or_energy,station,runNum);
 			else
-				sprintf(summary_file_name,"%s/A%d/CWID/CWID_station_%d_run_%d.root",SimDirPath,station,station,runNum);
+				sprintf(summary_file_name,"%s/A%d/CWID/KachelriessFlux/CWID_station_%d_run_%d.root",SimDirPath,station,station,runNum);
 		}
 		else{
 			sprintf(summary_file_name,"%s/CWID/A%d/all_runs/CWID_station_%d_run_%d.root",AuxDirPath,station,station,runNum);
@@ -945,11 +945,15 @@ int main(int argc, char **argv)
 					// load in the data for the event
 					char run_file_name[400];
 					if(isSimulation)
-						if(year_or_energy<25)
-							sprintf(run_file_name,"%s/A%d/RawSim/AraOut.A%d_c%d_E%2.1f.txt.run%d.root",SimDirPath,station,config,year_or_energy,station,config,year_or_energy,runNum);
+					// if(year_or_energy<500)
+					// 	sprintf(summary_file_name,"%s/A%d/CWID/E%i/CWID_station_%d_run_%d.root",SimDirPath,station,year_or_energy,station,runNum);
+					// else
+					// 	sprintf(summary_file_name,"%s/A%d/CWID/KachelriessFlux/CWID_station_%d_run_%d.root",SimDirPath,station,station,runNum);
+						if(year_or_energy>500)
+							sprintf(run_file_name,"/fs/scratch/PAS0654/jorge/sim_results/CenAMono_onlyTrig/E%i/AraOut.default_fixSrc_A%i_c1_E%i.txt.run%i.root",year_or_energy,station,year_or_energy,runNum);
 						else{
-							// should just be Kotera
-							sprintf(run_file_name,"%s/A%d/RawSim/AraOut.default_fixSrc_A%d_c1_Flux.txt.run%d.root",SimDirPath,station,station,runNum);
+							// should just be Kachelriess flux
+							sprintf(run_file_name,"%s/A%d/RawSim/KachelriessFlux/AraOut.default_fixSrc_A%d_c1_Flux.txt.run%d.root",SimDirPath,station,station,runNum);
 						}
 					else{
 						// sprintf(run_file_name,"%s/RawData/A%d/by_config/c%d/event%d.root",DataDirPath,station,config,runNum);

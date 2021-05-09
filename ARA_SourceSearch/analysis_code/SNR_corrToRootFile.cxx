@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 		double weight;
 
 		char stroreTitle[300];
-		sprintf(stroreTitle, "%s/storeValues_A%i_c%i_debug.root",plotPath,station,config);
+		sprintf(stroreTitle, "%s/storeValues_A%i_c%i.root",plotPath,station,config);
 		TFile *storeValues = new TFile(stroreTitle,"RECREATE");
     TTree *OutputTree[2];
 
@@ -313,7 +313,7 @@ int main(int argc, char **argv)
 						continue;
 				}
 				for(int pol=0; pol<2; pol++){
-					if(!WFRMS_org[pol] && !isNewBox && isSurf[pol] && !isSurfEvent_top[pol]){
+					if(!WFRMS_org[pol] && !isNewBox && !isSurf[pol] && !isSurfEvent_top[pol]){
 						bool failsCWPowerCut=false;
 						if(Refilt[pol] && !WFRMS[pol]){
 							// cout << "Here" << endl;
@@ -632,7 +632,7 @@ int main(int argc, char **argv)
     TChain simOutTree("OutputTree");
 
 		char the_sims[500];
-		sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim_SourceSearch/A%d/ValsForCuts/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_0.0_0.0_run_*.root",station);
+		sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim_SourceSearch/A%d/ValsForCuts/KachelriessFlux/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_0.0_0.0_run_*.root",station);
 		// sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim/ValsForCuts_UsedInA2FinalOpt/A2/c2/E224/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_*.root",station);//Diffuse sims for X-checking
 		simVTree.Add(the_sims);
 		simHTree.Add(the_sims);
@@ -711,6 +711,7 @@ int main(int argc, char **argv)
 			int unixTime;
 			int isFirstFiveEvent;
 			int hasBadSpareChanIssue;
+			int isInNeutrinoBox;
 
 			simAllTree.SetBranchAddress("cal",&isCal);
 			simAllTree.SetBranchAddress("soft",&isSoft);
@@ -726,6 +727,7 @@ int main(int argc, char **argv)
 			simAllTree.SetBranchAddress("unixTime",&unixTime);
 			simAllTree.SetBranchAddress("isFirstFiveEvent",&isFirstFiveEvent);
 			simAllTree.SetBranchAddress("hasBadSpareChanIssue",&hasBadSpareChanIssue);
+			simAllTree.SetBranchAddress("neutrinoBox",&isInNeutrinoBox);
       simOutTree.SetBranchAddress("energy",&energy);
 
 			stringstream ss;
@@ -778,7 +780,7 @@ int main(int argc, char **argv)
 
 					if(!WFRMS[pol] && !failsCWPowerCut){
 						if(!isNewBox){
-							if(!isSurf[pol] &&/* !isSurf[1] &&*/ !isSurfEvent_top[pol]){//Only check surface cut with whatever polarization we're running.
+							if(!isSurf[pol] &&/* !isSurf[1] &&*/ !isSurfEvent_top[pol] && isInNeutrinoBox){//Only check surface cut with whatever polarization we're running.
 								// loop over every bin (intercept value), and figure out if this event would have passed or not
                 pass0=true;
 								for(int bin=startBin; bin<numSNRbins; bin++){
@@ -1012,7 +1014,7 @@ int main(int argc, char **argv)
 							fails_box_first_data[pol]+=weight;
 						}
 						// fail surface first?
-						if(isSurf[0] || isSurf[1] || isSurfEvent_top[pol]){
+						if((isSurf[0] && isSurf[1]) || isSurfEvent_top[pol]){
 							fails_surface_first_data[pol]+=weight;
 						}
 						if(failsRcut){
@@ -1024,7 +1026,7 @@ int main(int argc, char **argv)
 						// fails as last cut with surface?
 						// survives WFRMS and box and Rcut, but doesn't survive surface
 						if(!WFRMS[pol] && !failsCWPowerCut && !isNewBox && !failsRcut){
-							if(isSurf[0] || isSurf[1] || isSurfEvent_top[pol]){
+							if((isSurf[0] && isSurf[1]) || isSurfEvent_top[pol]){
 								fails_surface_last_data[pol]+=weight;
 							}
 						}
@@ -1059,7 +1061,7 @@ int main(int argc, char **argv)
 							fails_box_insequence_data[pol]+=weight;
 						}
 						// passes WFRMS and box, but fails surface
-						if(!WFRMS[pol] && !failsCWPowerCut && !isNewBox && (isSurf[0] || isSurf[1] || isSurfEvent_top[pol])){
+						if(!WFRMS[pol] && !failsCWPowerCut && !isNewBox && ((isSurf[0] && isSurf[1]) || isSurfEvent_top[pol])){
 							fails_surface_insequence_data[pol]+=weight;
 						}
 						// passes WFRMS, box, and surface, but fails Rcut (same as "as last" for this cut only)
@@ -1242,7 +1244,7 @@ int main(int argc, char **argv)
 							fails_box_first_sim[pol]+=weight;
 						}
 						// fail surface first?
-						if(isSurf[0] || isSurf[1] || isSurfEvent_top[pol]){
+						if((isSurf[0] && isSurf[1]) || isSurfEvent_top[pol]){
 							fails_surface_first_sim[pol]+=weight;
 						}
 						if(failsRcut){
@@ -1254,7 +1256,7 @@ int main(int argc, char **argv)
 						// fails as last cut with surface?
 						// survives WFRMS and box, but doesn't survive surface
 						if(!WFRMS[pol] && !failsCWPowerCut && !isNewBox && !failsRcut){
-							if(isSurf[0] || isSurf[1] || isSurfEvent_top[pol]){
+							if((isSurf[0] && isSurf[1]) || isSurfEvent_top[pol]){
 								fails_surface_last_sim[pol]+=weight;
 							}
 						}
@@ -1289,7 +1291,7 @@ int main(int argc, char **argv)
 							fails_box_insequence_sim[pol]+=weight;
 						}
 						// passes WFRMS and box, but fails surface
-						if(!WFRMS[pol] && !failsCWPowerCut && !isNewBox && (isSurf[0] || isSurf[1] || isSurfEvent_top[pol])){
+						if(!WFRMS[pol] && !failsCWPowerCut && !isNewBox && ((isSurf[0] && isSurf[1]) || isSurfEvent_top[pol])){
 							fails_surface_insequence_sim[pol]+=weight;
 						}
 						// passes WFRMS, box, and surface, but fails Rcut (same as "as last" for this cut only)
