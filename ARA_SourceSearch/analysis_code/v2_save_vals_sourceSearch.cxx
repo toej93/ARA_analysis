@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 	AraRecoHandler *RecoHandler = new AraRecoHandler();
 
 	if(argc<12){
-		cout<< "Usage\n" << argv[0] << " <isSim?> <station> <config> <year_or_energy (as float, eg 17.0 or 18.5)> <drop_bad_chan> <output_location> <V SNR bin> <H SNR bin> <V WFRMS val> <H WFRMS val> <joined filename 1> <joined filename 2 > ... <joined filename x>"<<endl;
+		cout<< "Usage\n" << argv[0] << " <isSim?> <station> <config> <int(year_or_energy) (as float, eg 17.0 or 18.5)> <drop_bad_chan> <output_location> <V SNR bin> <H SNR bin> <V WFRMS val> <H WFRMS val> <joined filename 1> <joined filename 2 > ... <joined filename x>"<<endl;
 		return 0;
 	}
 	int isSimulation = atoi(argv[1]);
@@ -433,8 +433,8 @@ int main(int argc, char **argv)
 	
 		char summary_file_name[400];
 		if(isSimulation){
-			if(year_or_energy>500)
-				sprintf(summary_file_name,"%s/A%d/CWID/E%i/CWID_station_%d_run_%d.root",SimDirPath,station,year_or_energy,station,runNum);
+			if(int(year_or_energy)>500)
+				sprintf(summary_file_name,"%s/A%d/CWID/E%i/CWID_station_%d_run_%d.root",SimDirPath,station,int(year_or_energy),station,runNum);
 			else
 				sprintf(summary_file_name,"%s/A%d/CWID/KachelriessFlux/CWID_station_%d_run_%d.root",SimDirPath,station,station,runNum);
 		}
@@ -945,12 +945,12 @@ int main(int argc, char **argv)
 					// load in the data for the event
 					char run_file_name[400];
 					if(isSimulation)
-					// if(year_or_energy<500)
-					// 	sprintf(summary_file_name,"%s/A%d/CWID/E%i/CWID_station_%d_run_%d.root",SimDirPath,station,year_or_energy,station,runNum);
+					// if(int(year_or_energy)<500)
+					// 	sprintf(summary_file_name,"%s/A%d/CWID/E%i/CWID_station_%d_run_%d.root",SimDirPath,station,int(year_or_energy),station,runNum);
 					// else
 					// 	sprintf(summary_file_name,"%s/A%d/CWID/KachelriessFlux/CWID_station_%d_run_%d.root",SimDirPath,station,station,runNum);
-						if(year_or_energy>500)
-							sprintf(run_file_name,"/fs/scratch/PAS0654/jorge/sim_results/CenAMono_onlyTrig/E%i/AraOut.default_fixSrc_A%i_c1_E%i.txt.run%i.root",year_or_energy,station,year_or_energy,runNum);
+						if(int(year_or_energy)>500)
+							sprintf(run_file_name,"/fs/scratch/PAS0654/jorge/sim_results/CenAMono_onlyTrig/E%i/AraOut.default_fixSrc_A%i_c1_E%i.txt.run%i.root",int(year_or_energy),station,int(year_or_energy),runNum);
 						else{
 							// should just be Kachelriess flux
 							sprintf(run_file_name,"%s/A%d/RawSim/KachelriessFlux/AraOut.default_fixSrc_A%d_c1_Flux.txt.run%d.root",SimDirPath,station,station,runNum);
