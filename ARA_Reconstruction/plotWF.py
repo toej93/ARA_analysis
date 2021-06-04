@@ -72,7 +72,8 @@ elif(day == 26):
     date = 1226
     run = "012577"
 
-test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/%i/run_%s/event%s.root"%(date, run, run))#directory where the files are
+# test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/%i/run_%s/event%s.root"%(date, run, run))#directory where the files are
+test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/ARA_data/Spice/ARA05/event004000.root")
 calibrator = ROOT.AraEventCalibrator.Instance()
 eventTree = test.Get("eventTree")
 rawEvent = ROOT.RawAtriStationEvent()
@@ -81,7 +82,7 @@ totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
 isTrue=False
 
-for evNum in range(5359,5367):#loop over events
+for evNum in range(6456,6457):#loop over events
     print(evNum)
     eventTree.GetEntry(evNum)
     if(rawEvent.isSoftwareTrigger()): #if not soft trigger
@@ -89,11 +90,11 @@ for evNum in range(5359,5367):#loop over events
     if(rawEvent.isCalpulserEvent()): #if not a cal pulser
         continue
         
-    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib)#get useful event
+    usefulEvent = ROOT.UsefulAtriStationEvent(rawEvent,ROOT.AraCalType.kLatestCalib14to20)#get useful event
     tWf1, vWf1 = convertWfToArray(0, usefulEvent)
     SNR = calculateSNR(tWf1, vWf1)
-    if(SNR<8):
-        continue
+    # if(SNR<8):
+    #     continue
     # 
     gr = [None]*16
     fig, axs = plt.subplots(4, 4, figsize = (12,8))
@@ -128,8 +129,9 @@ for evNum in range(5359,5367):#loop over events
             
     fig.text(0.5, 0.03, 'Time [ns]', ha='center', va='center', fontsize=20)
     fig.text(0.03, 0.5, 'Amplitude [mV]', ha='center', va='center', rotation='vertical', fontsize=20)
+    plt.suptitle("A5, Run 004000, event %i,kLatestCalib14to20\_Bug"%evNum)
     plt.tight_layout(rect=[0.03, 0.03, 1, 0.95])
-    plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/SpiceCorePolReco/wf_all_ev%i.pdf"%evNum)
+    plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/SpiceCorePolReco/wf_all_ev%i_forBesson.pdf"%evNum)
     plt.close('all')
     # tWf1, vWf1 = convertWfToArray(6, usefulEvent)
     # tWf2, vWf2 = convertWfToArray(14, usefulEvent)
@@ -141,4 +143,4 @@ for evNum in range(5359,5367):#loop over events
     # original_df2.to_pickle("./exampleWF2.pkl")
 
 
-    # break
+    break

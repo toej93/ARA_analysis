@@ -855,3 +855,36 @@ def returnFirstPeakWform(times, values, useSameWindow = False, peakLoc = 0):
     cutWform = values[lowerEdgeBin:upperEdgeBin]
     cutTimes = times[lowerEdgeBin:upperEdgeBin]
     return cutTimes, cutWform
+    
+
+def SoftTrig80nsWf(times, values):
+    """
+    Returns waveform in a 80 ns window starting at zero (different if wave is padded). 
+    
+    Parameters
+    ----------
+    times : array_like
+        1D array of times (ns) [in principle any units]
+    values : array_like
+        1D array of amplitudes (mV) [in principle any units]
+    Returns
+    -------
+    cutTimes : array_like
+        cut waveform times [ns]
+    cutWform : array_like
+        cut waveform amplitudes [mV]
+    """
+    times = np.array(times)
+    values = np.array(values)
+    dT = times[1]-times[0]
+    #need to integrate the first 80 ns of signal of padded waveform
+    numBins = int(80/dT)
+    startBin = 0
+    for sample in range(len(values)):
+        ampAbs =  abs(values[sample])
+        if(ampAbs>5):
+            startBin = sample
+            break
+    cutWform = values[startBin:startBin+numBins]
+    cutTimes = times[startBin:startBin+numBins]
+    return cutTimes, cutWform

@@ -1,15 +1,15 @@
 #!/bin/bash
 
 #SBATCH --mail-type=FAIL
-#SBATCH --time=02:10:00
+#SBATCH --time=15:10:00
 
 eval 'source /users/PCON0003/cond0068/.bash_profile_pitzer_cvmfs'
 cd /users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/
 
-./v2_analysis_filter ${ISSIM} ${STATION} ${YEAR} ${SUMMARYDIR} ${OUTDIR} /fs/scratch/PAS0654/jorge/ARA_data/10pct/A2/2015/0130/run004980/event004980.root /fs/project/PAS0654/ARA_DATA/A23/peds/A2/2015/pedestalValues.run004976.dat &
-./v2_analysis_filter ${ISSIM} ${STATION} ${YEAR} ${SUMMARYDIR} ${OUTDIR} /fs/scratch/PAS0654/jorge/ARA_data/10pct/A2/2015/0130/run004982/event004982.root /fs/project/PAS0654/ARA_DATA/A23/peds/A2/2015/pedestalValues.run004981.dat &
-./v2_analysis_filter ${ISSIM} ${STATION} ${YEAR} ${SUMMARYDIR} ${OUTDIR} /fs/scratch/PAS0654/jorge/ARA_data/10pct/A2/2015/0130/run004983/event004983.root /fs/project/PAS0654/ARA_DATA/A23/peds/A2/2015/pedestalValues.run004981.dat &
-./v2_analysis_filter ${ISSIM} ${STATION} ${YEAR} ${SUMMARYDIR} ${OUTDIR} /fs/scratch/PAS0654/jorge/ARA_data/10pct/A2/2015/0130/run004984/event004984.root /fs/project/PAS0654/ARA_DATA/A23/peds/A2/2015/pedestalValues.run004981.dat &
-./v2_analysis_filter ${ISSIM} ${STATION} ${YEAR} ${SUMMARYDIR} ${OUTDIR} /fs/scratch/PAS0654/jorge/ARA_data/10pct/A2/2015/0131/run004985/event004985.root /fs/project/PAS0654/ARA_DATA/A23/peds/A2/2015/pedestalValues.run004981.dat &
-./v2_analysis_filter ${ISSIM} ${STATION} ${YEAR} ${SUMMARYDIR} ${OUTDIR} /fs/scratch/PAS0654/jorge/ARA_data/10pct/A2/2015/0131/run004987/event004987.root /fs/project/PAS0654/ARA_DATA/A23/peds/A2/2015/pedestalValues.run004986.dat &
+./v2_analysis_filter ${ISSIM} ${STATION} ${YEAR} ${SUMMARYDIR} ${OUTDIR} /fs/project/PAS0654/ARA_DATA/A23/100pct/RawData/A2/2015/0218/run005077/event005077.root /fs/project/PAS0654/ARA_DATA/A23/peds/A2/2015/pedestalValues.run005076.dat &
+./v2_analysis_filter ${ISSIM} ${STATION} ${YEAR} ${SUMMARYDIR} ${OUTDIR} /fs/project/PAS0654/ARA_DATA/A23/100pct/RawData/A2/2015/0218/run005078/event005078.root /fs/project/PAS0654/ARA_DATA/A23/peds/A2/2015/pedestalValues.run005076.dat &
+./v2_analysis_filter ${ISSIM} ${STATION} ${YEAR} ${SUMMARYDIR} ${OUTDIR} /fs/project/PAS0654/ARA_DATA/A23/100pct/RawData/A2/2015/0219/run005079/event005079.root /fs/project/PAS0654/ARA_DATA/A23/peds/A2/2015/pedestalValues.run005076.dat &
+./v2_analysis_filter ${ISSIM} ${STATION} ${YEAR} ${SUMMARYDIR} ${OUTDIR} /fs/project/PAS0654/ARA_DATA/A23/100pct/RawData/A2/2015/0219/run005080/event005080.root /fs/project/PAS0654/ARA_DATA/A23/peds/A2/2015/pedestalValues.run005076.dat &
+./v2_analysis_filter ${ISSIM} ${STATION} ${YEAR} ${SUMMARYDIR} ${OUTDIR} /fs/project/PAS0654/ARA_DATA/A23/100pct/RawData/A2/2015/0219/run005082/event005082.root /fs/project/PAS0654/ARA_DATA/A23/peds/A2/2015/pedestalValues.run005081.dat &
+./v2_analysis_filter ${ISSIM} ${STATION} ${YEAR} ${SUMMARYDIR} ${OUTDIR} /fs/project/PAS0654/ARA_DATA/A23/100pct/RawData/A2/2015/0219/run005083/event005083.root /fs/project/PAS0654/ARA_DATA/A23/peds/A2/2015/pedestalValues.run005081.dat &
 wait

@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 	AraRecoHandler *RecoHandler = new AraRecoHandler();
 
 	if(argc<12){
-		cout<< "Usage\n" << argv[0] << " <isSim?> <station> <config> <int(year_or_energy) (as float, eg 17.0 or 18.5)> <drop_bad_chan> <output_location> <V SNR bin> <H SNR bin> <V WFRMS val> <H WFRMS val> <joined filename 1> <joined filename 2 > ... <joined filename x>"<<endl;
+		cout<< "Usage\n" << argv[0] << " <isSim?> <station> <config> <int(year_or_energy) (as int, eg 17 or 18)> <drop_bad_chan> <output_location> <V SNR bin> <H SNR bin> <V WFRMS val> <H WFRMS val> <joined filename 1> <joined filename 2 > ... <joined filename x>"<<endl;
 		return 0;
 	}
 	int isSimulation = atoi(argv[1]);

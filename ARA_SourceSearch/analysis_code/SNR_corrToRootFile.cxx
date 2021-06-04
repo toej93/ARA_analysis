@@ -55,6 +55,11 @@ int main(int argc, char **argv)
 		std::cout << "Warning! $TOOLS_DIR is not set!" << endl;
 		return -1;
 	}
+	char *SimDirPath(getenv("SIM_DIR"));
+	if (SimDirPath == NULL){
+		std::cout << "Warning! $SIM_DIR is not set!" << endl;
+		// return -1;
+	}
 	if(argc<6){
 		cout<< "Usage\n" << argv[0] << " <1-station> <2-config> <3-year_or_energy> <4-slope> <5-pol_select> <6-ValForCuts filename>"<<endl;;
 		return -1;
@@ -62,7 +67,7 @@ int main(int argc, char **argv)
 
 	int station = atoi(argv[1]);
 	int config = atoi(argv[2]);
-	double year_or_energy = double(atof(argv[3]));
+	double year_or_energy = int(atoi(argv[3]));
 	double slope=double(atof(argv[4]));
 	int pol_select=atoi(argv[5]);
 
@@ -114,7 +119,7 @@ int main(int argc, char **argv)
 		double weight;
 
 		char stroreTitle[300];
-		sprintf(stroreTitle, "%s/storeValues_A%i_c%i.root",plotPath,station,config);
+		sprintf(stroreTitle, "%s/storeValues_A%i_c%i_debug.root",plotPath,station,config);
 		TFile *storeValues = new TFile(stroreTitle,"RECREATE");
     TTree *OutputTree[2];
 
@@ -632,7 +637,12 @@ int main(int argc, char **argv)
     TChain simOutTree("OutputTree");
 
 		char the_sims[500];
-		sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim_SourceSearch/A%d/ValsForCuts/KachelriessFlux/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_0.0_0.0_run_*.root",station);
+		if(year_or_energy>500)
+			sprintf(the_sims,"%s/A%d/ValsForCuts/E%i/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_0.0_0.0_run_*.root",SimDirPath,station,int(year_or_energy));
+		else
+			sprintf(the_sims,"%s/A%d/ValsForCuts/KachelriessFlux/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_0.0_0.0_run_*.root",SimDirPath,station);
+			cout << 
+		// sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim_SourceSearch/A%d/ValsForCuts/KachelriessFlux/cutvals_drop_FiltSurface_CWThresh2.0_snrbins_0_1_wfrmsvals_0.0_0.0_run_*.root",station);
 		// sprintf(the_sims,"/fs/project/PAS0654/ARA_DATA/A23/sim/ValsForCuts_UsedInA2FinalOpt/A2/c2/E224/cutvals_drop_FiltSurface_snrbins_0_0_wfrmsvals_-1.3_-1.4_run_*.root",station);//Diffuse sims for X-checking
 		simVTree.Add(the_sims);
 		simHTree.Add(the_sims);
@@ -656,7 +666,7 @@ int main(int argc, char **argv)
     int energy;
 
     char stroreTitle_sim[300];
-    sprintf(stroreTitle_sim, "%s/storeValues_A%i_c%i_sim.root",plotPath,station,config);
+    sprintf(stroreTitle_sim, "%s/storeValues_A%i_c%i_sim_E%i.root",plotPath,station,config,int(year_or_energy));
     TFile *storeValues_sim = new TFile(stroreTitle_sim,"RECREATE");
     TTree *OutputTree_sim[2];
 

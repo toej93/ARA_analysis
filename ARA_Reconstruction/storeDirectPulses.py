@@ -56,15 +56,18 @@ gInterpreter.ProcessLine('#include "/users/PAS0654/osu8354/ARA_cvmfs/build/inclu
 gSystem.Load('libAraEvent.so') #load the simulation event library. You might get an error asking for the eventSim dictionry. To solve that, go to where you compiled AraSim, find that file, and copy it to where you set LD_LIBRARY_PATH.
 gSystem.Load("/users/PAS0654/osu8354/ARA_cvmfs/build/lib/libRootFftwWrapper.so")
 
-day = 24
+# day = 24
+# 
+# if(day == 24):
+#     date = 1224
+#     run = "012559"
+# 
+# elif(day == 26):
+#     date = 1226
+#     run = "012577"
 
-if(day == 24):
-    date = 1224
-    run = "012559"
-    
-elif(day == 26):
-    date = 1226
-    run = "012577"
+date = 1229
+run = "012611"
 
 test = ROOT.TFile.Open("/fs/scratch/PAS0654/brian/L1/ARA02/%i/run_%s/event%s.root"%(date, run, run))#directory where the files are
 
@@ -103,8 +106,8 @@ noisePowerChan = np.array([ 198948.83237201,  618793.94802602,  741895.28129648,
         691066.29589686,  360988.99495955,  834482.5863635 ,
        2020906.83550409])
        
-# for evNum in range(0,500):#loop over events
-for evNum in range(5359,19099): #depths from 600 to 1000 m 
+for evNum in range(0,totalEvents):#loop over events
+# for evNum in range(5359,19099): #depths from 600 to 1000 m 
 
     eventTree.GetEntry(evNum)
     
@@ -154,14 +157,21 @@ for evNum in range(5359,19099): #depths from 600 to 1000 m
     power_chan.append(rawEvent.unixTime)
 
     # freqs.append(evNum)
+    peakLocV = []
     for chan in range(0,16):
+        useSameWindow = False
         if(chan<8):
             pol = 0 #Vpol
         else:
             pol = 1 #Hpol
+            useSameWindow = True
         t, v = convertWfToArray(chan, usefulEvent)
         deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta, phi, pol)
-        tPeak, vPeak = util.returnFirstPeakWform(deConv_t,deConv_v)
+        if(chan<8):
+            peakLocV.append(util.findFirstPeak(deConv_v))
+            tPeak, vPeak = util.returnFirstPeakWform(deConv_t,deConv_v)
+        else:
+            tPeak, vPeak = util.returnFirstPeakWform(deConv_t,deConv_v,useSameWindow=useSameWindow, peakLoc=peakLocV[chan-8])
         # fft,freq,dT = util.doFFT(tPeak,vPeak)
         fft_chan.append(vPeak)
         # power_chan.append(calculatePower(tPeak,vPeak))
@@ -172,7 +182,7 @@ for evNum in range(5359,19099): #depths from 600 to 1000 m
     del usefulEvent
     # evt_num.append(evNum)
     fftArray.append(fft_chan)
-    # powerArray.append(power_chan)
+    powerArray.append(power_chan)
 
     # break
 chNames = ["ch%iWf"%i for i in range(16) ]
@@ -190,4 +200,4 @@ original_df = pd.DataFrame(fftArray, columns = colNames)
 original_df2 = pd.DataFrame(powerArray, columns = colNames2)
 
 merged = original_df.join(original_df2)
-merged.to_pickle("./DPulseWforms_run012559.pkl")
+merged.to_pickle("./DPulseWforms_run%s_allDepths.pkl"%run)

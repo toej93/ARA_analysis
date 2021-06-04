@@ -74,3 +74,5 @@ for config in range(1,2):
 
 
 #sbatch --job-name=saveVals_c1_67 --nodes=1 --ntasks-per-node=7 --output=./logs/c1_saveVals_67.out --account=PAS0654 --export=ISSIM=0,STATION=2,CONFIG=1 tmpScipts/A2_c1_tmpSubmit_67.sh
+
+#sbatch --job-name=saveVals_c1_70 --nodes=1 --ntasks-per-node=7 --output=./logs/c1_saveVals_70.out --account=PAS0654 --export=ISSIM=0,STATION=2,CONFIG=1 tmpScipts/A2_c1_tmpSubmit_70.sh

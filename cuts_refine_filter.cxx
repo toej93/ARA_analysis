@@ -124,7 +124,7 @@ int main(int argc, char **argv)
 
 		//next, we need to load the filter tree
 		ss.str("");
-		ss << "OutputTree";
+		ss << "OutputTree_filter";
 		TTree *inputTree_filter = (TTree*) inputFile->Get(ss.str().c_str());
 		if(!inputTree_filter){
 			cout<<"Can't open filter tree"<<endl;
@@ -378,18 +378,24 @@ int main(int argc, char **argv)
 	/*
 		Now, make plot of passing rate as function of WFRMS
 	*/
-	char title_txt[200];
-	sprintf(title_txt,"%s/filter_cut/filter_rates_A%d_c%d_V%d_H%d.txt",plotPath,station,config,selected_bin,selected_bin);
-	FILE *fout = fopen(title_txt, "a");
 
+	char title_txtV[200];
+	sprintf(title_txtV,"%s/filter_cut/filter_rates_A%d_c%d_V%d_H%d_Vpol.txt",plotPath,station,config,selected_bin,selected_bin);
+	FILE *foutV = fopen(title_txtV, "w+");
+	
+	char title_txtH[200];
+	sprintf(title_txtH,"%s/filter_cut/filter_rates_A%d_c%d_V%d_H%d_Hpol.txt",plotPath,station,config,selected_bin,selected_bin);
+	FILE *foutH = fopen(title_txtH, "w+");
+	
 	TGraph *passing_rate[2];
 	for(int pol=0; pol<2; pol++){
 		if(pol==0){
-			fprintf(fout, "WFRMS, V_rate\n");
+	
+			fprintf(foutV, "WFRMS,V_rate\n");
 		}
 		if(pol==1){
-			fprintf(fout, "--------------------------------------\n");
-			fprintf(fout, "WFRMS, H_rate\n");
+			// fprintf(fout, "--------------------------------------\n");
+			fprintf(foutH, "WFRMS,H_rate\n");
 		}
 		// now compute the passing rate
 		passing_rate[pol] = new TGraph();
@@ -405,10 +411,14 @@ int main(int argc, char **argv)
 		for(int binX=0; binX<passing_rate[pol]->GetN(); binX++){
 			double thisWFRMS = passing_rate[pol]->GetX()[binX];
 			double thisRate = passing_rate[pol]->GetY()[binX];
-			fprintf(fout, "%1.2f, %0.5f\n", thisWFRMS, thisRate);
+			if(pol==0){
+				fprintf(foutV, "%1.2f, %0.5f\n", thisWFRMS, thisRate);
+			}
+			else fprintf(foutH, "%1.2f, %0.5f\n", thisWFRMS, thisRate);
 		}
 	}
-	fclose(fout);//close sigmavsfreq.txt file
+	fclose(foutV);//close sigmavsfreq.txt file
+	fclose(foutH);//close sigmavsfreq.txt file
 
 
 	// for(int pol=0; pol<2; pol++){
@@ -440,11 +450,11 @@ int main(int argc, char **argv)
 		sprintf(title, "%s/filter_cut/%d.%d.%d_sim_A%d_c%d_%dEvents_Filter_AllEvents_Vpol%.1f_Hpol%.1f.png",plotPath,year_now, month_now, day_now,station,config,int(num_total),0.1*double(thresholdBin_pol[0]) + 2.0,0.1*double(thresholdBin_pol[1])+2.0);
 	else
 		sprintf(title, "%s/filter_cut/%d.%d.%d_data_A%d_c%d_%dEvents_Filter_AllEvents_Vpol%.1f_Hpol%.1f.png",plotPath,year_now, month_now, day_now,station,config,int(num_total),0.1*double(thresholdBin_pol[0]) + 2.0,0.1*double(thresholdBin_pol[1])+2.0);
-	c->SaveAs(title);
+	// c->SaveAs(title);
 	delete c;
 
-	TCanvas *c2 = new TCanvas("","",2.1*850,3.1*850);
-	c2->Divide(2,3);
+	TCanvas *c2 = new TCanvas("","",2.1*850,2.1*850);
+	c2->Divide(2,2);
 	for(int pol=0; pol<2; pol++){
 		c2->cd(pol+1);
 			wfrms_plots_rf[pol]->Draw("colz");
@@ -458,17 +468,19 @@ int main(int argc, char **argv)
 			projections_rf[pol]->GetYaxis()->SetTitle("Counts");
 			projections_rf[pol]->GetXaxis()->SetTitle("log10(Wavefront RMS)");
 			projections_rf[pol]->GetYaxis()->SetRangeUser(0.1,1e7);
+			gPad->SetLogy();
+
 			// if(pol==0){
 			// 	projections_cal[pol]->Draw("same");
 			// 	projections_cal[pol]->SetLineColor(kRed);
 			// 	projections_cal[pol]->SetLineWidth(3);
 			// }
-			gPad->SetLogy();
-		c2->cd(pol+5);
-			dummy[pol]->Draw();
-			passing_rate[pol]->GetYaxis()->SetTitle("Passing Rate");
-			passing_rate[pol]->GetXaxis()->SetTitle("log10(Wavefront RMS)");
-			passing_rate[pol]->Draw("LP");
+		// 	gPad->SetLogy();
+		// c2->cd(pol+5);
+		// 	dummy[pol]->Draw();
+		// 	passing_rate[pol]->GetYaxis()->SetTitle("Passing Rate");
+		// 	passing_rate[pol]->GetXaxis()->SetTitle("log10(Wavefront RMS)");
+		// 	passing_rate[pol]->Draw("LP");
 			// dummy[pol]->GetYaxis()->SetRangeUser(1.e-2,1.);
 			// gPad->SetLogy();
 	}
@@ -476,7 +488,7 @@ int main(int argc, char **argv)
 		sprintf(title, "%s/filter_cut/%d.%d.%d_sim_A%d_c%d_%dEvents_Filter_RFEvents_Vpol%.1f_Hpol%.1f.png",plotPath,year_now, month_now, day_now,station,config,int(num_total),0.1*double(thresholdBin_pol[0]) + 2.0,0.1*double(thresholdBin_pol[1])+2.0);
 	else
 		sprintf(title, "%s/filter_cut/%d.%d.%d_data_A%d_c%d_%dEvents_Filter_RFEvents_Vpol%.1f_Hpol%.1f.png",plotPath,year_now, month_now, day_now,station,config,int(num_total),0.1*double(thresholdBin_pol[0]) + 2.0,0.1*double(thresholdBin_pol[1])+2.0);
-	c2->SaveAs(title);
+	// c2->SaveAs(title);
 	delete c2;
 	for(int i=0; i<2; i++){
 		delete wfrms_plots[i];
@@ -534,7 +546,7 @@ int main(int argc, char **argv)
 				SetAxisLabels(eff[pol],"3rd Highest VPeak/RMS", "Efficiency");
 		}
 		sprintf(title,"%s/filter_cut/%d.%d.%d_sim_A%d_c%d_%dEvents_Filter_Efficiency_Vpol%.1f_Hpol%.1f.png",plotPath,year_now, month_now, day_now,station,config,int(num_total),0.1*double(thresholdBin_pol[0]) + 2.0,0.1*double(thresholdBin_pol[1])+2.0);
-		c2->SaveAs(title);
+		// c2->SaveAs(title);
 	}
   TCanvas *cc = new TCanvas("","",2*1000,2*1000);
   cc->Divide(2,2);
@@ -559,6 +571,6 @@ int main(int argc, char **argv)
 
   char plotname[100];
   sprintf(plotname, "wfront_RMS_cut_A%i_c%i.png", station,config);
-  cc->SaveAs(plotname);
+  // cc->SaveAs(plotname);
   delete cc;
 }

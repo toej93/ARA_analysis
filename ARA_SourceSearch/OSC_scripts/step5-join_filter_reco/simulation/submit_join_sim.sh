@@ -9,10 +9,9 @@
 eval 'source /users/PCON0003/cond0068/.bash_profile_pitzer_cvmfs'
 
 cd /users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/
-# RADIUS=6
-RADIUS=19
 
 FILES=/fs/project/PAS0654/ARA_DATA/A23/sim_SourceSearch/A2/ProcessedFile/*filter.root
+
 for f in $FILES
   do
     ( 

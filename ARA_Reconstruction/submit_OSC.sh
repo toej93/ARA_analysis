@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SBATCH --job-name=polReco
-#SBATCH --nodes=1 --ntasks-per-node=5
-#SBATCH --account=PAS0654
+#SBATCH --nodes=1 --ntasks-per-node=6
+#SBATCH --account=PCON0003
 #SBATCH --mail-type=END,FAIL
 #SBATCH --time=02:10:00
 #SBATCH --output=logs/SpiceCoreReco.out    # Standard output and error log

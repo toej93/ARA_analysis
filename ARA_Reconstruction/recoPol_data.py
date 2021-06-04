@@ -109,7 +109,7 @@ noisePowerChan = np.array([ 198948.83237201,  618793.94802602,  741895.28129648,
         691066.29589686,  360988.99495955,  834482.5863635 ,
        2020906.83550409])
        
-for evNum in range(0,totalEvents):#loop over events
+for evNum in range(0,100):#loop over events
 # for evNum in range(5359,19099): #depths from 600 to 1000 m 
 
     eventTree.GetEntry(evNum)
@@ -191,3 +191,13 @@ for evNum in range(0,totalEvents):#loop over events
 # 
 original_df = pd.DataFrame({"EvNum":np.array(evt_num),"unixtime": np.array(unixtime),"SNR_V": np.array(SNR_arr),"SNR_H": np.array(SNR_H_arr),"theta_reco": np.array(theta_reco),"power_V": np.array(power_V),"power_H": np.array(power_H),"powerV_noise": np.array(powerV_noise),"powerH_noise": np.array(powerH_noise)})
 original_df.to_pickle("./RecoOmegaCh%i_%i_run_%s_newCalib.pkl"%(chV,chH, run))
+
+
+
+# globus-url-copy -r gsiftp://gridftp.icecube.wisc.edu/data/wipac/ARA/2013/filtered/burnSample1in10/ARA02/root/ /fs/scratch/PAS0654/jorge/ARA_data/10pct/A2/2013/
+
+# nohup globus-url-copy -r gsiftp://gridftp.icecube.wisc.edu/data/wipac/ARA/2014/unblinded/L1/ARA02/ /fs/scratch/PAS0654/jorge/ARA_data/10pct/A2/2014/ > A2_2014.log &
+
+# nohup globus-url-copy -r gsiftp://gridftp.icecube.wisc.edu/data/wipac/ARA/2015/unblinded/L1/ARA02/ /fs/scratch/PAS0654/jorge/ARA_data/10pct/A2/2015/ > A2_2015.log &
+
+# nohup globus-url-copy -r gsiftp://gridftp.icecube.wisc.edu/data/wipac/ARA/2016/unblinded/L1/ARA02/ /fs/scratch/PAS0654/jorge/ARA_data/10pct/A2/2016/ > A2_2016.log &

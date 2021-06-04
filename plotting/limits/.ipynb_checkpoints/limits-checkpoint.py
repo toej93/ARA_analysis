@@ -528,9 +528,9 @@ class LimitFigure:
                 self.ax.annotate('IceCube',
                                  xy=(2e6, 3e-8), xycoords='data',
                                  horizontalalignment='center', color='dodgerblue', rotation=0)
-                self.ax.annotate('IceCube-Gen2 Optical SES',
-                                 xy=(2e6, 3e-10), xycoords='data',
-                                 horizontalalignment='center', color='dodgerblue', rotation=0)
+#                 self.ax.annotate('IceCube-Gen2 Optical SES',
+#                                  xy=(2e6, 3e-10), xycoords='data',
+#                                  horizontalalignment='center', color='dodgerblue', rotation=0)
             if self.e_power==1:
                 self.ax.annotate('IceCube',
                                  xy=(1.3e7, 3.1e-15), xycoords='data',
@@ -578,8 +578,8 @@ class LimitFigure:
             
         elif name=='ice_cube_ehe_Gen2Optical':
             energy, flux, _, _ = self.get_data('sensitivities/ice_cube_ehe.txt')
-            self.ax.plot(energy, flux/(5*2.44),
-                         color='dodgerblue', linestyle='--')
+#             self.ax.plot(energy, flux/(5*2.44),
+#                          color='dodgerblue', linestyle='--')
 
         elif name=='ice_cube_hese_data':
             energy, flux, err_min, err_max = self.get_data('sensitivities/ice_cube_hese.txt')
@@ -679,7 +679,7 @@ class LimitFigure:
 #                                  xy=(3.5e8, 4e-15*self.e_bins), xycoords='data',
 #                                  horizontalalignment='left', color='#2288AA', rotation=-50)
                 self.ax.annotate('ARA (2x4y)',
-                                 xy=(3.1e8, 9e-16*self.e_bins), xycoords='data',
+                                 xy=(3.1e8, 8e-16*self.e_bins), xycoords='data',
                                  horizontalalignment='left', color='grey', rotation=-50)
 #                 self.ax.annotate('Region excluded \n   by our work',
 #                                  xy=(7e9, 5e-15*self.e_bins), xycoords='data',
@@ -699,7 +699,7 @@ class LimitFigure:
             if self.e_power==1:
                 self.ax.annotate('ARIANNA (4.5y)',
                                  xy=(5e9, 4.3e-16*self.e_bins), xycoords='data',
-                                 horizontalalignment='left', color='firebrick', rotation=-8)
+                                 horizontalalignment='left', color='firebrick', rotation=-28)
     
         else:
             raise ValueError("Unrecognized data set '"+str(name)+"'")
@@ -754,9 +754,16 @@ class LimitFigure:
                 models = ['biehl', 'boncioli', 'fang_merger', 'fang_pulsar', 'fang_cluster'] 
         elif group=='ara_Gen2':
             if experiments is None:
-                experiments = ['ice_cube_ehe', 'ice_cube_hese_data', 'ice_cube_mu_fit', 'ice_cube_ehe_Gen2Optical', 'anita', 'auger', 'arianna', 'ara', 'Gen2Radio']
+                experiments = ['ice_cube_ehe', 'ice_cube_hese_data', 'ice_cube_mu_fit', 'ice_cube_ehe_Gen2Optical', 'anita', 'auger', 'arianna', 'ara']
             if models is None:
                 models = ['kotera', 'ahlers']
+                
+        elif group=='JT_Thesis':
+            if experiments is None:
+                experiments = ['ice_cube_ehe', 'ice_cube_hese_data', 'ice_cube_mu_fit', 'anita', 'auger', 'arianna', 'ara']
+            if models is None:
+                models = ['kotera', 'ahlers']
+                
         else:
             if experiments is None:
                 experiments = []
@@ -826,7 +833,7 @@ class LimitFigure:
 #             self.ax.add_artist(plt.legend(handles=self.custom_limits, loc='best', fontsize=legend_size))
         elif self.e_power==1:
             joined = self.neutrino_models+self.custom_limits
-            self.ax.add_artist(plt.legend(handles=joined, loc=3,fontsize=legend_size))
+            self.ax.add_artist(plt.legend(handles=joined, loc='upper right',fontsize=legend_size))
 #             self.ax.add_artist(plt.legend(handles=self.custom_limits, loc=1, fontsize=legend_size))
         plt.tight_layout()
         if save_name is not None:
