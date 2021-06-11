@@ -1043,9 +1043,10 @@ ara_200m = get_mean_veffs(ara_energies, data_ara_200)
 ara_200mpa = get_mean_veffs(ara_energies, data_ara_200pa)
 ara_100m = get_mean_veffs(ara_energies, data_ara_100)
 
-ara_available = ((851+365)*ara_100m + (3351+365*(2+7/12+10/12))*ara_200m + (306*(1+10/12))*ara_200mpa)/365.25 #This is for ARA in 2019. 
+ara_2019 = ((851+365)*ara_100m + (3351+365*(2+7/12+10/12))*ara_200m + (306*(1+10/12))*ara_200mpa)/365.25 #This is for ARA in 2019. 
+ara_2020 = ara_2019 + (360*ara_100m + (346+361+361)*ara_200m + 247*ara_200mpa)/365.25 #This is for ARA in 2020. 
 ara_yearly = ara_100m + 3*ara_200m + ara_200mpa #Acumulated sensitivity in 1 year
-ara_projected = ara_available + 3*ara_yearly #This is  for ARA in 2019+3 = 2022
+ara_projected = ara_2020 + 3*ara_yearly #This is  for ARA in 2019+3 = 2022
 
 
 Gen2_energies = 10**np.array([15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0]) / 1e9
