@@ -11,24 +11,9 @@ from pyrex.internal_functions import (normalize, complex_bilinear_interp,
                                       complex_interp)
 
 """
-Most of these functions were modified from PyREx
+Some of these functions were modified from PyREx
 """
 
-# VPOL_DATA_FILE = os.path.join(ara.antenna.ARA_DATA_DIR,
-#                               "ARA_bicone6in_output_MY_fixed.txt")
-# VPOL_THETA_RESPONSE_DATA = ara.antenna._read_arasim_antenna_data(VPOL_DATA_FILE)
-# VPOL_RESPONSE_DATA = (
-#     VPOL_THETA_RESPONSE_DATA[0],
-#     np.zeros(VPOL_THETA_RESPONSE_DATA[0].shape),
-#     *VPOL_THETA_RESPONSE_DATA[1:]
-# )
-# ara_antenna = VPOL_RESPONSE_DATA
-#
-# theta_response = ara_antenna[0]
-# phi_response = ara_antenna[1]
-# response_freqs = ara_antenna[2]
-# response_zens = ara_antenna[3]
-# response_azis = ara_antenna[4]
 
 def load_tof_grid_data(filename, antenna_positions=None):
     with np.load(filename) as f:
