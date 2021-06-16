@@ -52,8 +52,12 @@ def calculate_interferometric_grid(waveforms, tofs, hilbert=False):
 
     return inter_data
 
-def doReco(antenna_waveforms, plot_map=False):
-    tof_data, grid_points = load_tof_grid_data("tofs_ara02_vpols_300m_spherical.npz")
+def doReco(antenna_waveforms, plot_map=False, pol = 0):
+    if(pol==0):
+        tof_data, grid_points = load_tof_grid_data("tofs_ara02_vpols_300m_spherical.npz")
+    else:
+        tof_data, grid_points = load_tof_grid_data("tofs_ara02_hpols_300m_spherical.npz")
+
     # antenna_waveforms = pyrex_array
     mask = None
     if mask is not None:
@@ -63,6 +67,11 @@ def doReco(antenna_waveforms, plot_map=False):
                              if use]
     else:
         mask = slice(None)
+    if(pol==0):
+        antenna_waveforms = antenna_waveforms[:8]
+    else:
+        antenna_waveforms = antenna_waveforms[8:]
+
     # Get the best interferometric fit among the time of flight data sets
     inter_max = 0
     best_data = None

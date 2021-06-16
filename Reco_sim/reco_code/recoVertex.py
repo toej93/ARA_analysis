@@ -35,10 +35,12 @@ gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation eve
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/default/AraOut.default_A2_c1_E610.txt.run9.root")
 
 file_list=[]#Define an empty list
-# for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/noiseOn"):#Loop over desired directory
-#         if filename.startswith("AraOut.default_A2_c1_E%s.txt.run%s.root"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
-#             file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/noiseOn", str(filename))) #add file name to the list
-file_list.append("/fs/scratch/PAS0654/jorge/sim_results/simplified/AraOut.default_A2_c1_E580.txt.run1.root")
+for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/simplified"):#Loop over desired directory
+        # if filename.startswith("AraOut.default_A2_c1_E%s.txt.run%s.root"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
+        if filename.endswith(".root"): #extension, .root in this case
+
+            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/simplified", str(filename))) #add file name to the list
+# file_list.append("/fs/scratch/PAS0654/jorge/sim_results/simplified/AraOut.default_A2_c1_E580.txt.run0.root")
 
 noise=True
 simSettingsTree = TChain("AraTree")
@@ -48,7 +50,9 @@ SimTree = TChain("AraTree2")
 evt_num = []
 theta_reco = []
 phi_reco = []
-
+theta_true = []
+phi_true = []
+weight_arr = []
 
 for line in file_list:
     eventTree.AddFile(line)
@@ -87,11 +91,11 @@ for i in range(0,totalEvents):#loop over events
     except:
         continue
 
-    gr = [None]*7
+    gr = [None]*16
     pyrex_array = []
     evt_num.append(i)
 
-    for ch in [0,4,1,5,2,6,3,7]:
+    for ch in [0,4,1,5,2,6,3,7,8,12,9,13,10,14,11,15]:
     # for ch in [8,12,9,13,10,14,11]:
         t = []
         v = []
@@ -101,9 +105,19 @@ for i in range(0,totalEvents):#loop over events
           v.append(gr[ch].GetY()[k])
         pyrex_array.append(pyrex.Signal(1E-9*np.array(t), 1E-3*np.array(v)))#Convert to seconds and volts
 
-    vertex, corrValue = util.doReco(pyrex_array)
-    theta_reco.append(180-vertex[1])
-    phi_reco.append(vertex[2]%(180))
+    vertexV, corrValueV = util.doReco(pyrex_array, pol=0)
+    vertexH, corrValueH = util.doReco(pyrex_array, pol=1)
+    # print(corrValueV,corrValueH)
+    if(corrValueV>=corrValueH):
+        theta = vertexV[1]
+        phi = vertexV[2]%(180)
+        theta2 = vertexH[1]
+    else:
+        theta = vertexH[1]
+        phi = vertexH[2]%(180)
+        theta2 = vertexV[1]
+    theta_reco.append(theta)
+    phi_reco.append(phi)
 
     posnu_x = eventPtr.Nu_Interaction[0].posnu.GetX()
     posnu_y = eventPtr.Nu_Interaction[0].posnu.GetY()
@@ -117,16 +131,20 @@ for i in range(0,totalEvents):#loop over events
     posnu_r = norm
     
     posnu_theta = np.degrees(np.arccos((posNu2[2])))
-    posnu_phi = np.degrees(np.arctan(posNu2[1]/posNu2[0])%(np.pi))
-    
+    posnu_phi = np.degrees(np.arctan2(posNu2[1],posNu2[0])%(np.pi))
+    theta_true.append(posnu_theta)
+    phi_true.append(posnu_phi)
+    weight = eventPtr.Nu_Interaction[0].weight
+    weight_arr.append(weight)
 
     # print(posnu)
     # phi_true = np.degrees(np.arctan2(posnu[1], posnu[0]))
     # theta_true = np.degrees(np.arccos(posnu[2]))
-    print("True: %0.3f"%posnu_theta)
-    print("Reco: %0.3f"%(vertex[1]))
-    # print(posnu_phi-vertex[2])
-    print()
+    # print("True: %0.3f"%posnu_theta)
+    # print("Reco: %0.3f,%0.3f"%(theta, theta2))
+    # # print(posnu_phi-vertex[2])
+    # print()
     # print(eventPtr.Nu_Interaction[0].posnu.theta())
-# original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_antenna), "phi_reco": np.array(phi_antenna), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr),"energyArr":np.array(energyArr),"batch":np.array(batch),"weight":np.array(weight_arr),"view_ang":np.array(view_ang),"R_recoSign":np.array(R_recoSign),"peak_V":np.array(Peak_V),"peak_H":np.array(Peak_H),"dirProp":dirProp,"nnu":nnu,"launch_ang":launch_ang})
-# original_df.to_pickle("./noiseOn/window_Sol0/pol_quant_noise_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
+    
+df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco),"theta_true": np.array(theta_true),"phi_reco": np.array(phi_reco),"phi_true": np.array(phi_true),  "weight":np.array(weight_arr)})
+df.to_pickle("Interf_RecoVsTrue_simple.pkl")
