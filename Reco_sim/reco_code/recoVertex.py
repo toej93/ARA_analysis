@@ -53,6 +53,7 @@ phi_reco = []
 theta_true = []
 phi_true = []
 weight_arr = []
+maxAmplitude = []
 
 for line in file_list:
     eventTree.AddFile(line)
@@ -95,6 +96,7 @@ for i in range(0,totalEvents):#loop over events
     pyrex_array = []
     evt_num.append(i)
 
+    amplitudes = []
     for ch in [0,4,1,5,2,6,3,7,8,12,9,13,10,14,11,15]:
     # for ch in [8,12,9,13,10,14,11]:
         t = []
@@ -104,6 +106,8 @@ for i in range(0,totalEvents):#loop over events
           t.append(gr[ch].GetX()[k])
           v.append(gr[ch].GetY()[k])
         pyrex_array.append(pyrex.Signal(1E-9*np.array(t), 1E-3*np.array(v)))#Convert to seconds and volts
+        amplitudes.append(max(abs(np.array(v))))
+
 
     vertexV, corrValueV = util.doReco(pyrex_array, pol=0)
     vertexH, corrValueH = util.doReco(pyrex_array, pol=1)
@@ -136,6 +140,7 @@ for i in range(0,totalEvents):#loop over events
     phi_true.append(posnu_phi)
     weight = eventPtr.Nu_Interaction[0].weight
     weight_arr.append(weight)
+    maxAmplitude.append(max(amplitudes))
 
     # print(posnu)
     # phi_true = np.degrees(np.arctan2(posnu[1], posnu[0]))
@@ -146,5 +151,5 @@ for i in range(0,totalEvents):#loop over events
     # print()
     # print(eventPtr.Nu_Interaction[0].posnu.theta())
     
-df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco),"theta_true": np.array(theta_true),"phi_reco": np.array(phi_reco),"phi_true": np.array(phi_true),  "weight":np.array(weight_arr)})
+df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco),"theta_true": np.array(theta_true),"phi_reco": np.array(phi_reco),"phi_true": np.array(phi_true),  "weight":np.array(weight_arr), "maxAmplitude":np.array(maxAmplitude)})
 df.to_pickle("Interf_RecoVsTrue_simple.pkl")
