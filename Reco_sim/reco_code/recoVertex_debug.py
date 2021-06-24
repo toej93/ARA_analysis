@@ -140,11 +140,12 @@ for i in range(0,totalEvents):#loop over events
     weight = eventPtr.Nu_Interaction[0].weight
     weight_arr.append(weight)
     maxAmplitude.append(max(amplitudes))
+    print("Likely solution: %i"%reportPtr.stations[0].strings[0].antennas[0].Likely_Sol)
     # print(posnu)
     # phi_true = np.degrees(np.arctan2(posnu[1], posnu[0]))
     # theta_true = np.degrees(np.arccos(posnu[2]))
-    print("True: %0.3f"%posnu_theta)
-    print("Reco: %0.3f,%0.3f"%(theta, theta2))
+    # print("True: %0.3f"%posnu_theta)
+    # print("Reco: %0.3f,%0.3f"%(theta, theta2))
     print()
     
     if(abs(posnu_theta-theta)>40):
@@ -165,6 +166,28 @@ for i in range(0,totalEvents):#loop over events
             axs[ch].set_ylim(-1000,1000)
         plt.tight_layout()
         plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/wf_all_simple_ev%i.png"%i, dpi=100)
+        
+        ### FFT
+        fig, axs = plt.subplots(4, 4, figsize = (12,10))
+        axs = axs.ravel()
+        for ch in range(0,16):
+            t = []
+            v = []
+            # gr[ch] = rawEvent.getGraphFromRFChan(ch)#print waveform
+            for kk in range(0,gr[ch].GetN()):
+              t.append(gr[ch].GetX()[kk])
+              v.append(gr[ch].GetY()[kk])
+            fft_v,fft_f,dT = util.doFFT(t,v)
+            axs[ch].plot(fft_f,abs(fft_v),linewidth=0.5, label = "Ch %i"%ch)
+            axs[ch].legend()
+            # if(ch==0):
+            #     print(np.array(v).std())
+            plt.grid(which="both")
+            axs[ch].set_yscale('log')
+            axs[ch].set_xlim(0,1000)
+        plt.tight_layout()
+        plt.savefig("/users/PAS0654/osu8354/ARA_cvmfs/source/AraRoot/analysis/thesis_work_daily/plots/Dumpster/fft_all_simple_ev%i.png"%i, dpi=100)
+        
         gr.clear()  # Added in Python 3.3
         del gr[:]
     # print(eventPtr.Nu_Interaction[0].posnu.theta())

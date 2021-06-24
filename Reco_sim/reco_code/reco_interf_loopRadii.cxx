@@ -284,27 +284,27 @@ int main(int argc, char **argv)
 	// reconstruction information
 	OutputTree->Branch("runReconstruction", &runReconstruction, "runReconstruction/O");
 
-	int peakTheta_dir[2], peakPhi_dir[2];
-	double peakCorr_dir[2], minCorr_dir[2], meanCorr_dir[2], rmsCorr_dir[2], peakSigma_dir[2];
+	int peakTheta_dir[numRadiiScanned][2], peakPhi_dir[numRadiiScanned][2];
+	double peakCorr_dir[numRadiiScanned][2], minCorr_dir[numRadiiScanned][2], meanCorr_dir[numRadiiScanned][2], rmsCorr_dir[numRadiiScanned][2], peakSigma_dir[numRadiiScanned][2];
 
-	OutputTree->Branch("peakCorr_dir", &peakCorr_dir, "peakCorr_dir[2]/D");
-	OutputTree->Branch("peakTheta_dir", &peakTheta_dir, "peakTheta_dir[2]/I");
-	OutputTree->Branch("peakPhi_dir", &peakPhi_dir, "peakPhi_dir[2]/I");
-	OutputTree->Branch("minCorr_dir", &minCorr_dir, "minCorr_dir[2]/D");
-	OutputTree->Branch("meanCorr_dir", &meanCorr_dir, "meanCorr_dir[2]/D");
-	OutputTree->Branch("rmsCorr_dir", &rmsCorr_dir, "rmsCorr_dir[2]/D");
-	OutputTree->Branch("peakSigma_dir", &peakSigma_dir, "peakSigma_dir[2]/D");
+	OutputTree->Branch("peakCorr_dir", &peakCorr_dir, "peakCorr_dir[35][2]/D");
+	OutputTree->Branch("peakTheta_dir", &peakTheta_dir, "peakTheta_dir[35][2]/I");
+	OutputTree->Branch("peakPhi_dir", &peakPhi_dir, "peakPhi_dir[35][2]/I");
+	OutputTree->Branch("minCorr_dir", &minCorr_dir, "minCorr_dir[35][2]/D");
+	OutputTree->Branch("meanCorr_dir", &meanCorr_dir, "meanCorr_dir[35][2]/D");
+	OutputTree->Branch("rmsCorr_dir", &rmsCorr_dir, "rmsCorr_dir[35][2]/D");
+	OutputTree->Branch("peakSigma_dir", &peakSigma_dir, "peakSigma_dir[35][2]/D");
 	
-	int peakTheta_ref[2], peakPhi_ref[2];
-	double peakCorr_ref[2], minCorr_ref[2], meanCorr_ref[2], rmsCorr_ref[2], peakSigma_ref[2];
+	int peakTheta_ref[numRadiiScanned][2], peakPhi_ref[numRadiiScanned][2];
+	double peakCorr_ref[numRadiiScanned][2], minCorr_ref[numRadiiScanned][2], meanCorr_ref[numRadiiScanned][2], rmsCorr_ref[numRadiiScanned][2], peakSigma_ref[numRadiiScanned][2];
 	
-	OutputTree->Branch("peakCorr_ref", &peakCorr_ref, "peakCorr_ref[2]/D");
-	OutputTree->Branch("peakTheta_ref", &peakTheta_ref, "peakTheta_ref[2]/I");
-	OutputTree->Branch("peakPhi_ref", &peakPhi_ref, "peakPhi_ref[2]/I");
-	OutputTree->Branch("minCorr_ref", &minCorr_ref, "minCorr_ref[2]/D");
-	OutputTree->Branch("meanCorr_ref", &meanCorr_ref, "meanCorr_ref[2]/D");
-	OutputTree->Branch("rmsCorr_ref", &rmsCorr_ref, "rmsCorr_ref[2]/D");
-	OutputTree->Branch("peakSigma_ref", &peakSigma_ref, "peakSigma_ref[2]/D");
+	OutputTree->Branch("peakCorr_ref", &peakCorr_ref, "peakCorr_ref[35][2]/D");
+	OutputTree->Branch("peakTheta_ref", &peakTheta_ref, "peakTheta_ref[35][2]/I");
+	OutputTree->Branch("peakPhi_ref", &peakPhi_ref, "peakPhi_ref[35][2]/I");
+	OutputTree->Branch("minCorr_ref", &minCorr_ref, "minCorr_ref[35][2]/D");
+	OutputTree->Branch("meanCorr_ref", &meanCorr_ref, "meanCorr_ref[35][2]/D");
+	OutputTree->Branch("rmsCorr_ref", &rmsCorr_ref, "rmsCorr_ref[35][2]/D");
+	OutputTree->Branch("peakSigma_ref", &peakSigma_ref, "peakSigma_ref[35][2]/D");
 	
 	OutputTree->Branch("run",&runNumOut, "run/I");
 	runNumOut=runNum;
@@ -533,19 +533,19 @@ int main(int argc, char **argv)
 			double best_v_values[numRadiiScanned];
 			for(int radiusBin=startingRadiusBin; radiusBin<startingRadiusBin + numRadiiScanned; radiusBin++){
 				int radiusBin_adjusted = radiusBin-startingRadiusBin;
-
+				cout << radiusBin << endl;
 				for(int solNum = 0;solNum<2;solNum++){
 					TH2D *map_V_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select(settings, detector, realAtriEvPtr, Vpol, isSimulation, chan_list_V, solNum);
 					TH2D *map_H_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H, solNum);
 					
 					if(solNum==0){
-						getCorrMapPeak_wStats(map_V_raytrace, peakTheta_dir[0], peakPhi_dir[0], peakCorr_dir[0], minCorr_dir[0], meanCorr_dir[0], rmsCorr_dir[0], peakSigma_dir[0]);
-						getCorrMapPeak_wStats(map_H_raytrace, peakTheta_dir[1], peakPhi_dir[1], peakCorr_dir[1], minCorr_dir[1], meanCorr_dir[1], rmsCorr_dir[1], peakSigma_dir[1]);
+						getCorrMapPeak_wStats(map_V_raytrace, peakTheta_dir[radiusBin_adjusted][0], peakPhi_dir[radiusBin_adjusted][0], peakCorr_dir[radiusBin_adjusted][0], minCorr_dir[radiusBin_adjusted][0], meanCorr_dir[radiusBin_adjusted][0], rmsCorr_dir[radiusBin_adjusted][0], peakSigma_dir[radiusBin_adjusted][0]);
+						getCorrMapPeak_wStats(map_H_raytrace, peakTheta_dir[radiusBin_adjusted][1], peakPhi_dir[radiusBin_adjusted][1], peakCorr_dir[radiusBin_adjusted][1], minCorr_dir[radiusBin_adjusted][1], meanCorr_dir[radiusBin_adjusted][1], rmsCorr_dir[radiusBin_adjusted][1], peakSigma_dir[radiusBin_adjusted][1]);
 					}
 					
 					else{
-						getCorrMapPeak_wStats(map_V_raytrace, peakTheta_ref[0], peakPhi_ref[0], peakCorr_ref[0], minCorr_ref[0], meanCorr_ref[0], rmsCorr_ref[0], peakSigma_ref[0]);
-						getCorrMapPeak_wStats(map_H_raytrace, peakTheta_ref[1], peakPhi_ref[1], peakCorr_ref[1], minCorr_ref[1], meanCorr_ref[1], rmsCorr_ref[1], peakSigma_ref[1]);
+						getCorrMapPeak_wStats(map_V_raytrace, peakTheta_ref[radiusBin_adjusted][0], peakPhi_ref[radiusBin_adjusted][0], peakCorr_ref[radiusBin_adjusted][0], minCorr_ref[radiusBin_adjusted][0], meanCorr_ref[radiusBin_adjusted][0], rmsCorr_ref[radiusBin_adjusted][0], peakSigma_ref[radiusBin_adjusted][0]);
+						getCorrMapPeak_wStats(map_H_raytrace, peakTheta_ref[radiusBin_adjusted][1], peakPhi_ref[radiusBin_adjusted][1], peakCorr_ref[radiusBin_adjusted][1], minCorr_ref[radiusBin_adjusted][1], meanCorr_ref[radiusBin_adjusted][1], rmsCorr_ref[radiusBin_adjusted][1], peakSigma_ref[radiusBin_adjusted][1]);
 					}
 					delete map_V_raytrace;
 					delete map_H_raytrace;

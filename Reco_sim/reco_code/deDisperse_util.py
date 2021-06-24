@@ -54,9 +54,9 @@ def calculate_interferometric_grid(waveforms, tofs, hilbert=False):
 
 def doReco(antenna_waveforms, plot_map=False, pol = 0):
     if(pol==0):
-        tof_data, grid_points = load_tof_grid_data("tofs_ara02_vpols_300m_spherical.npz")
+        tof_data, grid_points = load_tof_grid_data("tofs_ara02_vpols_3000m_spherical.npz")
     else:
-        tof_data, grid_points = load_tof_grid_data("tofs_ara02_hpols_300m_spherical.npz")
+        tof_data, grid_points = load_tof_grid_data("tofs_ara02_hpols_3000m_spherical.npz")
 
     # antenna_waveforms = pyrex_array
     mask = None

@@ -54,6 +54,7 @@ theta_true = []
 phi_true = []
 weight_arr = []
 maxAmplitude = []
+R_posnu = []
 
 for line in file_list:
     eventTree.AddFile(line)
@@ -141,7 +142,7 @@ for i in range(0,totalEvents):#loop over events
     weight = eventPtr.Nu_Interaction[0].weight
     weight_arr.append(weight)
     maxAmplitude.append(max(amplitudes))
-
+    R_posnu.append(posnu_r)
     # print(posnu)
     # phi_true = np.degrees(np.arctan2(posnu[1], posnu[0]))
     # theta_true = np.degrees(np.arccos(posnu[2]))
@@ -151,5 +152,5 @@ for i in range(0,totalEvents):#loop over events
     # print()
     # print(eventPtr.Nu_Interaction[0].posnu.theta())
     
-df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco),"theta_true": np.array(theta_true),"phi_reco": np.array(phi_reco),"phi_true": np.array(phi_true),  "weight":np.array(weight_arr), "maxAmplitude":np.array(maxAmplitude)})
+df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_reco),"theta_true": np.array(theta_true),"phi_reco": np.array(phi_reco),"phi_true": np.array(phi_true),"R_posnu": np.array(R_posnu),  "weight":np.array(weight_arr), "maxAmplitude":np.array(maxAmplitude)})
 df.to_pickle("Interf_RecoVsTrue_simple.pkl")
