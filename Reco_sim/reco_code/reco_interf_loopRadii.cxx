@@ -189,7 +189,7 @@ int main(int argc, char **argv)
 	for (int i = 0; i < numRadiiScanned; i++){
 		double radius_temp = radii[i+startingRadiusBin];
 		cout << "Setup RTCorr : " << radius_temp << endl;
-		theCorrelators[i] = new RayTraceCorrelator(station_num, radius_temp, settings, angularBinSize, RTTestMode);
+		theCorrelators[i] = new RayTraceCorrelator(station_num, radius_temp, settings, 0.25, RTTestMode);
 	}	
 	
 	double weight;
