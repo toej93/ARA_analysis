@@ -537,7 +537,7 @@ int main(int argc, char **argv)
 				for(int solNum = 0;solNum<2;solNum++){
 					TH2D *map_V_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select(settings, detector, realAtriEvPtr, Vpol, isSimulation, chan_list_V, solNum);
 					TH2D *map_H_raytrace = theCorrelators[radiusBin_adjusted]->getInterferometricMap_RT_select(settings, detector, realAtriEvPtr, Hpol, isSimulation, chan_list_H, solNum);
-					
+					// cout << peakTheta_dir[radiusBin_adjusted][1] << endl;
 					if(solNum==0){
 						getCorrMapPeak_wStats(map_V_raytrace, peakTheta_dir[radiusBin_adjusted][0], peakPhi_dir[radiusBin_adjusted][0], peakCorr_dir[radiusBin_adjusted][0], minCorr_dir[radiusBin_adjusted][0], meanCorr_dir[radiusBin_adjusted][0], rmsCorr_dir[radiusBin_adjusted][0], peakSigma_dir[radiusBin_adjusted][0]);
 						getCorrMapPeak_wStats(map_H_raytrace, peakTheta_dir[radiusBin_adjusted][1], peakPhi_dir[radiusBin_adjusted][1], peakCorr_dir[radiusBin_adjusted][1], minCorr_dir[radiusBin_adjusted][1], meanCorr_dir[radiusBin_adjusted][1], rmsCorr_dir[radiusBin_adjusted][1], peakSigma_dir[radiusBin_adjusted][1]);
