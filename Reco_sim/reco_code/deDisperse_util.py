@@ -648,7 +648,7 @@ def PolVectorRecoPower(powerV, powerH, theta, phi):
     #     Pz = -Pz
     return np.array([Px,Py,Pz])
 
-def PolVectorRecoPower_debug(powerV, powerH, theta, phi, signR):
+def PolVectorRecoPower_sign(powerV, powerH, theta, phi, signR):
 
     R = np.sqrt(powerH/powerV)*signR
     denom = np.sqrt(1+R**2)
