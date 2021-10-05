@@ -61,28 +61,8 @@ SimTree.SetBranchAddress("event", ROOT.AddressOf(eventPtr))
 totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
 # isTrue=False
-theta_reco = []
-theta_antenna_arr = []
-phi_antenna_arr = []
-
-polVec_x = []
-polVec_y = []
-polVec_z = []
-evt_num = []
-rmsV = []
-rmsH = []
-maxV_array = []
-maxH_array = []
 PolVecReco_array = []
-PolVecTrue_array = []
-powerVArr = []
-powerHArr = []
-energyArr = []
-weight_arr = []
-view_ang = []
-Peak_V = []
-Peak_H = []
-
+evt_num = []
 for i in range(0,totalEvents):#loop over events
 
     eventTree.GetEntry(i)
@@ -96,9 +76,12 @@ for i in range(0,totalEvents):#loop over events
     polVecX = np.zeros(16)
     polVecY = np.zeros(16)
     polVecZ = np.zeros(16)
-    Omega = np.zeros(16)
-    Psi = np.zeros(16)
-    
+    Omega_true = np.zeros(8)
+    Psi_true = np.zeros(8)
+    R_truth = np.zeros(16)
+    Omega_reco = np.zeros(8)
+    Psi_reco = np.zeros(8)
+
     try:
         # whichSol = reportPtr.stations[0].strings[0].antennas[0].Likely_Sol #0: direct, #1: reflected/refracted
         whichSol = 0
@@ -114,6 +97,9 @@ for i in range(0,totalEvents):#loop over events
                 polVecZ[mapped_ch] = reportPtr.stations[0].strings[string].antennas[antennaNum].Pol_vector[whichSol].GetZ()
     except:
         continue
+    ## Define variables for this loop
+    powerV = np.zeros(8)
+    powerH = np.zeros(8)
     for ch in range(0,16):
         t = []
         v = []
@@ -131,7 +117,7 @@ for i in range(0,totalEvents):#loop over events
                 maxV = util.findMaxSign(np.array(v))
                 rmsV_ = np.array(v[0:60]).std()
 
-            powerV = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
+            powerV[ch] = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
             PeakV = util.findMaxSign(np.array(deConv_v))
 
         else:#Hpol case
@@ -144,37 +130,21 @@ for i in range(0,totalEvents):#loop over events
                 maxH = util.findMaxSign(np.array(v))
                 rmsH_ = np.array(v[0:60]).std()
 
-            # dTH = deConv_t[1]-deConv_t[0]
-            # powerH = np.sum(deConv_v**2)*dTH
-            powerH = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
+            powerH[ch-8] = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
             PeakH = util.findMaxSign(np.array(deConv_v))
+        thetaHat = np.array([np.cos(theta_antenna[ch])*np.cos(phi_antenna[ch]), np.cos(theta_antenna[ch])*np.sin(phi_antenna[ch]), -np.sin(theta_antenna[ch])])
+        phiHat = np.array([-np.sin(phi_antenna[ch]), np.cos(phi_antenna[ch]),0])
+        PolTrue = np.array([polVecX[ch], polVecY[ch], polVecZ[ch]])
+        R_truth[ch] = np.dot(PolTrue,phiHat)/(np.dot(PolTrue,thetaHat))
+        
+    ## Now loop over pairs
+    PolReco = []
+    for pair in range(0,8):
+        PolReco.append(util.PolVectorRecoPower_signR(powerV[pair],powerH[pair], theta_antenna[pair], phi_antenna[pair],np.sign(R_truth[pair])))
 
-#     dirProp.append(np.array([np.sin(theta_antenna_)*np.cos(phi_ant),np.sin(theta_antenna_)*np.sin(phi_ant),np.cos(theta_antenna_)]))
-# 
-#     print(theta_antenna_)
-#     rmsV.append(rmsV_)
-#     rmsH.append(rmsH_)
-#     maxV_array.append(maxV)
-#     maxH_array.append(maxH)
-#     powerVArr.append(powerV)
-#     powerHArr.append(powerH)
-#     theta_antenna.append(theta_antenna_)
-#     phi_antenna.append(phi_ant)
-#     PolVecReco = util.PolVectorReco(PeakV,PeakH,theta_antenna_, phi_ant)
-#     PolVecReco_array.append(PolVecReco)
-#     PolVecTrue_array.append(np.array([polVec_x_,polVec_y_,polVec_z_]))
-#     energyArr.append(energy_)
-#     batch.append(int(sys.argv[2]))
-#     weight = eventPtr.Nu_Interaction[0].weight
-#     weight_arr.append(weight)
-#     view_ang.append(reportPtr.stations[0].strings[0].antennas[0].view_ang[whichSol])
-#     R_recoSign.append(np.sign(PeakH/PeakV))
-#     Peak_V.append(PeakV)
-#     Peak_H.append(PeakH)
-#     launch_ang.append(reportPtr.stations[0].strings[0].antennas[0].launch_ang[whichSol])
-# 
-#     nnu.append(np.array([eventPtr.Nu_Interaction[0].nnu.GetX(),eventPtr.Nu_Interaction[0].nnu.GetY(),eventPtr.Nu_Interaction[0].nnu.GetZ()]))
-# 
-#     # print(vertex[1])
-# original_df = pd.DataFrame({"EvNum":np.array(evt_num),"PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr),"energyArr":np.array(energyArr),"batch":np.array(batch),"weight":np.array(weight_arr),"view_ang":np.array(view_ang),"R_recoSign":np.array(R_recoSign),"peak_V":np.array(Peak_V),"peak_H":np.array(Peak_H),"dirProp":dirProp,"nnu":nnu,"launch_ang":launch_ang})
-# original_df.to_pickle("./noiseOn/window_Sol0/pol_quant_noise_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
+    print(PolReco)
+        #dirProp.append(np.array([np.sin(theta_antenna_)*np.cos(phi_ant),np.sin(theta_antenna_)*np.sin(phi_ant),np.cos(theta_antenna_)]))
+    PolVecReco_array.append(PolReco)
+    evt_num.append(i)
+original_df = pd.DataFrame({"EvNum":np.array(evt_num),"PolReco":PolVecReco_array})
+original_df.to_pickle("./data/polReco_run%i.pkl"%(200000+int(sys.argv[1])))
