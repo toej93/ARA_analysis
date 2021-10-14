@@ -397,7 +397,7 @@ def deConvolve_antenna(time, voltage, theta, phi, pol_ant):
     # deDis_wf = revert
     return time, deDis_wf
     #vetted!
-    
+
 
 def PolAngleStokes(Hpol,Vpol):
     return np.degrees(0.5*np.arctan2(2*Hpol*Vpol,(Vpol**2-Hpol**2)))
@@ -415,7 +415,7 @@ def getRFChannel(string, channel): #mapping from AraSim to RF channel chain
             RFChannel = 1
         elif(channel == 3):
             RFChannel = 9
-            
+
     elif(string == 1):
         if(channel == 0):
             RFChannel = 6
@@ -425,7 +425,7 @@ def getRFChannel(string, channel): #mapping from AraSim to RF channel chain
             RFChannel = 2
         elif(channel == 3):
             RFChannel = 10
-            
+
     elif(string == 2):
         if(channel == 0):
             RFChannel = 7
@@ -435,7 +435,7 @@ def getRFChannel(string, channel): #mapping from AraSim to RF channel chain
             RFChannel = 3
         elif(channel == 3):
             RFChannel = 11
-            
+
     if(string == 3):
         if(channel == 0):
             RFChannel = 4
@@ -445,9 +445,9 @@ def getRFChannel(string, channel): #mapping from AraSim to RF channel chain
             RFChannel = 0
         elif(channel == 3):
             RFChannel = 8
-            
+
     return int(RFChannel)
-    
+
 def PolVectorReco(Peak_V, Peak_H, theta, phi):
     R = (Peak_H/Peak_V)
     denom = np.sqrt(1+R**2)
@@ -586,10 +586,10 @@ def deConvolve_antennaAraSim(time, voltage, theta, phi, pol_ant):
     # deDis_wf = signal.lfilter(b, a, revert)
     deDis_wf = revert
     return time, deDis_wf
-    
+
 def weird_division(n, d):
     return n / d if d else 0
-    
+
 def deConvolve(time, voltage, theta, phi, pol_ant):
     """
     Apply inverse of ARA antenna response
@@ -661,14 +661,14 @@ def PolVectorRecoPower_signR(powerV, powerH, theta, phi, signR):
     #     Py = -Py
     #     Pz = -Pz
     return np.array([Px,Py,Pz])
-    
+
 def findHighestPeakBin(values):
     if abs(max(values))>=abs(min(values)):
         peakBin = np.argmax(values)
     else:
         peakBin = np.argmin(values)
     return peakBin
-    
+
 def integratePowerWindow(times, values):
     times = np.array(times)
     values = np.array(values)
@@ -695,7 +695,7 @@ def integratePowerNoise(times, values):
     cutWform = values[0:numBins]
     power = np.sum(cutWform**2)*dT
     return power
-    
+
 def PolVectorReco_debug(Peak_V, Peak_H, theta, phi, sign):
     R = abs(Peak_H/Peak_V)*sign
     denom = np.sqrt(1+R**2)
@@ -708,3 +708,51 @@ def PolVectorReco_debug(Peak_V, Peak_H, theta, phi, sign):
     #     Py = -Py
     #     Pz = -Pz
     return np.array([Px,Py,Pz])
+
+
+def get_view_angles(reportPtr):
+	view_angles = {} # return it as a map (which is generally against my rules...)
+	for iS in range(4):
+		for iA in range(4):
+			this_view_angles = []
+			view_angle = reportPtr.stations[0].strings[iS].antennas[iA].view_ang
+			for v in view_angle:
+				this_view_angles.append(v)
+			view_angles[(iS*4)+iA] = this_view_angles
+	return view_angles
+
+def guess_triggering_solution(eventPtr, reportPtr):
+    """
+    ​This function tries to estimate what solution -- direct or reflected/refracted --
+    likely caused the trigger. What we do is lookup the veiwing angles
+    for both solutions, and figure out which which is closer to the Cherenkov cone.
+    It turns out that the likely triggering solution is strongly correlated with arrival direction.
+    In that if the refracted/reflected ray triggered, the arrival angle of the signal is <85 degrees in zenith.
+    And if the direct ray triggered, the angle is >85 degrees in zenith.
+    In a real experiment, we would try to measure this arrival angle.
+    But this function circumvents doing the incoming wave direction reco.
+    If a determination can't be made for some reason, assume a direct solution.
+    """
+    count_dir = 0 # counter for direct and reflected/refracted rays
+    count_ref = 0
+
+    changle_deg = np.rad2deg(eventPtr.Nu_Interaction[0].changle)
+    view_angles = get_view_angles(reportPtr)
+    for i in range(len(view_angles)):
+    	num_sols = len(view_angles[i])
+    	if (num_sols != 0 and num_sols !=2):
+    		continue
+    	elif num_sols==2:
+    		dir_angle = changle_deg - np.rad2deg(view_angles[i][0])
+    		ref_angle = changle_deg - np.rad2deg(view_angles[i][1])
+    		# print("Ant {}, Dir Angle {:.2f}, Ref Angle {:.2f}".format(i, dir_angle, ref_angle))
+    		if abs(dir_angle) < abs(ref_angle):
+    			count_dir += 1
+    		elif abs(ref_angle) < abs(dir_angle):
+    			count_ref += 1
+
+    likely_sol = 0 # default to direct
+    if count_ref > count_dir:
+    	likely_sol = 1
+    # print("likely sol {}".format(likely_sol))
+    return likely_sol

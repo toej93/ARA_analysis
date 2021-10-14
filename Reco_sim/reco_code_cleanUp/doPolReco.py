@@ -62,14 +62,19 @@ totalEvents = eventTree.GetEntries()
 print('total events:', totalEvents)
 # isTrue=False
 PolVecReco_array = []
+PolVecTrue_array = []
 evt_num = []
+weights = []
+energy = []
+SNR_V = []
+SNR_H = []
 for i in range(0,totalEvents):#loop over events
 
     eventTree.GetEntry(i)
     SimTree.GetEntry(i)
     if(reportPtr.stations[0].Global_Pass <= 0):#making sure that the event did trigger, otherwise there won't be a waveform (this might not be needed if all waveforms are saved)
         continue
-        
+
     #Define variables for this loop
     theta_antenna = np.zeros(16)
     phi_antenna = np.zeros(16)
@@ -87,6 +92,8 @@ for i in range(0,totalEvents):#loop over events
         whichSol = 0
         # if(whichSol!=0):#If it can't pick what solution triggered, AraSim returns -1
             # continue
+        whichSol = util.guess_triggering_solution(eventPtr, reportPtr)
+        # print("Sol:%i"%whichSol)
         for string, antennaNum in itertools.product(range(0,4), range(0,4)):
                 mapped_ch = util.getRFChannel(string,antennaNum)#Maps AraSim channels to AraRoot channels
                 theta_antenna[mapped_ch] = reportPtr.stations[0].strings[string].antennas[antennaNum].theta_rec[whichSol]
@@ -117,6 +124,10 @@ for i in range(0,totalEvents):#loop over events
                 maxV = util.findMaxSign(np.array(v))
                 rmsV_ = np.array(v[0:60]).std()
 
+            if(ch == 0):
+                SNR_Vpol = abs(maxV/rmsV_)
+
+
             powerV[ch] = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
             PeakV = util.findMaxSign(np.array(deConv_v))
 
@@ -130,21 +141,32 @@ for i in range(0,totalEvents):#loop over events
                 maxH = util.findMaxSign(np.array(v))
                 rmsH_ = np.array(v[0:60]).std()
 
+            if(ch == 8):
+                SNR_Hpol = abs(maxH/rmsH_)
+
             powerH[ch-8] = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
             PeakH = util.findMaxSign(np.array(deConv_v))
         thetaHat = np.array([np.cos(theta_antenna[ch])*np.cos(phi_antenna[ch]), np.cos(theta_antenna[ch])*np.sin(phi_antenna[ch]), -np.sin(theta_antenna[ch])])
         phiHat = np.array([-np.sin(phi_antenna[ch]), np.cos(phi_antenna[ch]),0])
         PolTrue = np.array([polVecX[ch], polVecY[ch], polVecZ[ch]])
         R_truth[ch] = np.dot(PolTrue,phiHat)/(np.dot(PolTrue,thetaHat))
-        
+
     ## Now loop over pairs
     PolReco = []
+    PolTrue = []
+
     for pair in range(0,8):
         PolReco.append(util.PolVectorRecoPower_signR(powerV[pair],powerH[pair], theta_antenna[pair], phi_antenna[pair],np.sign(R_truth[pair])))
-
-    print(PolReco)
+        PolTrue.append(np.array([polVecX[pair], polVecY[pair], polVecZ[pair]]))
+    # print(PolReco)
         #dirProp.append(np.array([np.sin(theta_antenna_)*np.cos(phi_ant),np.sin(theta_antenna_)*np.sin(phi_ant),np.cos(theta_antenna_)]))
     PolVecReco_array.append(PolReco)
+    PolVecTrue_array.append(PolTrue)
+    weights.append(eventPtr.Nu_Interaction[0].weight)
     evt_num.append(i)
-original_df = pd.DataFrame({"EvNum":np.array(evt_num),"PolReco":PolVecReco_array})
+    energy.append(eventPtr.pnu)
+    SNR_V.append(SNR_Vpol)
+    SNR_H.append(SNR_Hpol)
+
+original_df = pd.DataFrame({"EvNum":np.array(evt_num), "weight":np.array(weights), "PolReco":PolVecReco_array, "PolTrue":PolVecTrue_array, "energy":np.array(energy), "SNR_V":np.array(SNR_V), "SNR_H":np.array(SNR_H)})
 original_df.to_pickle("./data/polReco_run%i.pkl"%(200000+int(sys.argv[1])))
