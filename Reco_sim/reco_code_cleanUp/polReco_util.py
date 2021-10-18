@@ -656,10 +656,15 @@ def PolVectorRecoPower_signR(powerV, powerH, theta, phi, signR):
     Py = -(R*np.cos(phi)+np.cos(theta)*np.sin(phi))/denom
     Pz = np.sin(theta)/denom
     np.set_printoptions(suppress=True)
-    # if Peak_V>0:
-    #     Px = -Px
-    #     Py = -Py
-    #     Pz = -Pz
+    return np.array([Px,Py,Pz])
+
+def PolVectorReco_debug(Peak_V, Peak_H, theta, phi, sign):
+    R = abs(Peak_H/Peak_V)*sign
+    denom = np.sqrt(1+R**2)
+    Px = -(np.cos(theta)*np.cos(phi)-R*np.sin(phi))/denom
+    Py = -(R*np.cos(phi)+np.cos(theta)*np.sin(phi))/denom
+    Pz = np.sin(theta)/denom
+    np.set_printoptions(suppress=True)
     return np.array([Px,Py,Pz])
 
 def findHighestPeakBin(values):
@@ -695,20 +700,6 @@ def integratePowerNoise(times, values):
     cutWform = values[0:numBins]
     power = np.sum(cutWform**2)*dT
     return power
-
-def PolVectorReco_debug(Peak_V, Peak_H, theta, phi, sign):
-    R = abs(Peak_H/Peak_V)*sign
-    denom = np.sqrt(1+R**2)
-    Px = -(np.cos(theta)*np.cos(phi)-R*np.sin(phi))/denom
-    Py = -(R*np.cos(phi)+np.cos(theta)*np.sin(phi))/denom
-    Pz = np.sin(theta)/denom
-    np.set_printoptions(suppress=True)
-    # if Peak_V>0:
-    #     Px = -Px
-    #     Py = -Py
-    #     Pz = -Pz
-    return np.array([Px,Py,Pz])
-
 
 def get_view_angles(reportPtr):
 	view_angles = {} # return it as a map (which is generally against my rules...)

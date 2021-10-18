@@ -147,6 +147,7 @@ for i in range(0,totalEvents):#loop over events
             powerH[ch-8] = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
             PeakH = util.findMaxSign(np.array(deConv_v))
         thetaHat = np.array([np.cos(theta_antenna[ch])*np.cos(phi_antenna[ch]), np.cos(theta_antenna[ch])*np.sin(phi_antenna[ch]), -np.sin(theta_antenna[ch])])
+
         phiHat = np.array([-np.sin(phi_antenna[ch]), np.cos(phi_antenna[ch]),0])
         PolTrue = np.array([polVecX[ch], polVecY[ch], polVecZ[ch]])
         R_truth[ch] = np.dot(PolTrue,phiHat)/(np.dot(PolTrue,thetaHat))
