@@ -34,15 +34,15 @@ gSystem.Load('/users/PAS0654/osu8354/AraSim/libAra.so') #load the simulation eve
 # test = ROOT.TFile.Open("/fs/scratch/PAS0654/jorge/sim_results/default/AraOut.default_A2_c1_E610.txt.run9.root")
 
 file_list=[]#Define an empty list
-for filename in os.listdir("/fs/scratch/PAS0654/jorge/sim_results/noiseOn"):#Loop over desired directory
-        if filename.startswith("AraOut.default_A2_c1_E%s.txt.run%s.root"%(sys.argv[1],sys.argv[2])): #extension, .root in this case
-            file_list.append(os.path.join("/fs/scratch/PAS0654/jorge/sim_results/noiseOn", str(filename))) #add file name to the list
-
+simFolder = "/fs/project/PAS0654/ARA_SIM_RECO_PAPER/neutral_current/mc/E2_nomag/"
+filename = simFolder+"AraOut.setup_neutral_current_E2.txt.run%i.root"%(200000+int(sys.argv[1]))
+file_list = []
+file_list.append(filename)
 
 noise=True
 eventTree = TChain("eventTree") #Define chain and tree that needs to be read. "VTree" in this case.
 SimTree = TChain("AraTree2")
-energy_=(int(sys.argv[1])-400)/10
+# energy_=(int(sys.argv[1])-400)/10
 
 for line in file_list:
     eventTree.AddFile(line)
@@ -177,7 +177,7 @@ for i in range(0,totalEvents):#loop over events
           v.append(gr.GetY()[k])
     # plt.title("An example of a triggered simulated event with Python")
         if(ch==5):
-            deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,theta_antenna_, phi_ant, 0)
+            deConv_t,deConv_v = util.deConvolve_antenna(t, v,theta_antenna_, phi_ant, 0)
 
             # deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 0)
             # maxV = max(abs(deConv_v))
@@ -187,7 +187,7 @@ for i in range(0,totalEvents):#loop over events
             else:
                 maxV = util.findMaxSign(np.array(v))
                 rmsV_ = np.array(v[0:60]).std()
-                
+
             # dTV = deConv_t[1]-deConv_t[0]
             # powerV = np.sum(deConv_v**2)*dTV
             powerV = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
@@ -196,7 +196,7 @@ for i in range(0,totalEvents):#loop over events
                 plt.plot(deConv_t,deConv_v,linewidth=0.5, label = "Ch %i"%ch)
 
         else:
-            deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,theta_antenna_, phi_ant, 1)
+            deConv_t,deConv_v = util.deConvolve_antenna(t, v,theta_antenna_, phi_ant, 1)
             # deConv_t,deConv_v = util.deConvolve_antennaAraSim(t, v,np.deg2rad(theta_antenna_), np.deg2rad(vertex[2]), 1)
             # maxH = max(abs(deConv_v))
             if(noise == False):
@@ -205,7 +205,7 @@ for i in range(0,totalEvents):#loop over events
             else:
                 maxH = util.findMaxSign(np.array(v))
                 rmsH_ = np.array(v[0:60]).std()
-            
+
             # dTH = deConv_t[1]-deConv_t[0]
             # powerH = np.sum(deConv_v**2)*dTH
             powerH = util.integratePowerWindow(deConv_t,deConv_v)-util.integratePowerNoise(deConv_t,deConv_v)
@@ -225,8 +225,8 @@ for i in range(0,totalEvents):#loop over events
     # angle_ratio.append(util.PolRatio(maxH, maxV))
     # rms_ = max(rms1,rms2)
     dirProp.append(np.array([np.sin(theta_antenna_)*np.cos(phi_ant),np.sin(theta_antenna_)*np.sin(phi_ant),np.cos(theta_antenna_)]))
-    
-    print(theta_antenna_)
+
+    # print(theta_antenna_)
     rmsV.append(rmsV_)
     rmsH.append(rmsH_)
     maxV_array.append(maxV)
@@ -238,8 +238,8 @@ for i in range(0,totalEvents):#loop over events
     PolVecReco = util.PolVectorReco(PeakV,PeakH,theta_antenna_, phi_ant)
     PolVecReco_array.append(PolVecReco)
     PolVecTrue_array.append(np.array([polVec_x_,polVec_y_,polVec_z_]))
-    energyArr.append(energy_)
-    batch.append(int(sys.argv[2]))
+    energyArr.append(eventPtr.pnu)
+    batch.append(2)
     weight = eventPtr.Nu_Interaction[0].weight
     weight_arr.append(weight)
     view_ang.append(reportPtr.stations[0].strings[0].antennas[0].view_ang[whichSol])
@@ -249,7 +249,7 @@ for i in range(0,totalEvents):#loop over events
     launch_ang.append(reportPtr.stations[0].strings[0].antennas[0].launch_ang[whichSol])
 
     nnu.append(np.array([eventPtr.Nu_Interaction[0].nnu.GetX(),eventPtr.Nu_Interaction[0].nnu.GetY(),eventPtr.Nu_Interaction[0].nnu.GetZ()]))
-    
+
     # print(vertex[1])
 original_df = pd.DataFrame({"EvNum":np.array(evt_num),"theta_reco": np.array(theta_antenna), "phi_reco": np.array(phi_antenna), "PolTrue":PolVecTrue_array,"PolReco":PolVecReco_array,"rmsV":np.array(rmsV),"rmsH":np.array(rmsH),"maxV":np.array(maxV_array),"maxH":np.array(maxH_array),"powerV":np.array(powerVArr),"powerH":np.array(powerHArr),"energyArr":np.array(energyArr),"batch":np.array(batch),"weight":np.array(weight_arr),"view_ang":np.array(view_ang),"R_recoSign":np.array(R_recoSign),"peak_V":np.array(Peak_V),"peak_H":np.array(Peak_H),"dirProp":dirProp,"nnu":nnu,"launch_ang":launch_ang})
-original_df.to_pickle("./noiseOn/window_Sol0/pol_quant_noise_1E%0.1f_%s.pkl"%(energy_,sys.argv[2]))
+original_df.to_pickle("/users/PCON0003/cond0068/ARA_cvmfs/source/AraRoot/analysis/ARA_analysis/Reco_sim/reco_code_cleanUp/data_oldCode/polReco_run%i.pkl"%(200000+int(sys.argv[1])))
