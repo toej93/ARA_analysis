@@ -92,7 +92,7 @@ for i in range(0,totalEvents):#loop over events
         whichSol = 0
         # if(whichSol!=0):#If it can't pick what solution triggered, AraSim returns -1
             # continue
-        whichSol = util.guess_triggering_solution(eventPtr, reportPtr)
+        # whichSol = util.guess_triggering_solution(eventPtr, reportPtr)
         # print("Sol:%i"%whichSol)
         for string, antennaNum in itertools.product(range(0,4), range(0,4)):
                 mapped_ch = util.getRFChannel(string,antennaNum)#Maps AraSim channels to AraRoot channels
@@ -115,7 +115,7 @@ for i in range(0,totalEvents):#loop over events
           t.append(gr.GetX()[k])
           v.append(gr.GetY()[k])
         if(ch<8):#Vpol case
-            deConv_t,deConv_v = util.deConvolve(t, v, theta_antenna[ch], phi_antenna[ch], 0)
+            deConv_t,deConv_v = util.deConvolve_antenna(t, v, theta_antenna[ch], phi_antenna[ch], 0)
 
             if(noise == False):
                 maxV = util.findMaxSign(np.array(deConv_v))
@@ -132,7 +132,7 @@ for i in range(0,totalEvents):#loop over events
             PeakV = util.findMaxSign(np.array(deConv_v))
 
         else:#Hpol case
-            deConv_t,deConv_v = util.deConvolve(t, v,theta_antenna[ch], phi_antenna[ch], 1)
+            deConv_t,deConv_v = util.deConvolve_antenna(t, v,theta_antenna[ch], phi_antenna[ch], 1)
 
             if(noise == False):
                 maxH = util.findMaxSign(np.array(deConv_v))
